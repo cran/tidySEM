@@ -1,0 +1,184 @@
+---
+title: "Generating syntax for structural equation models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generating syntax for structural equation models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+run_mplus <- FALSE
+```
+
+```{r setup, echo = FALSE, message = FALSE}
+library(tidySEM)
+library(lavaan)
+library(dplyr)
+```
+
+`tidySEM` offers a user-friendly, tidy workflow for generating syntax for SEM models. The workflow is top-down, meaning that syntax is generated based on conceptual model elements. In many cases, the generated syntax will suffice - but it is always customizable. The workflow also tries to intelligently guess which variables go together, but these defaults can be overridden.
+
+## The tidySEM workflow
+
+The workflow underlying syntax generation in `tidySEM` is as follows:
+
+1. Give the variables in your `data` object short, informative names, that are easily machine readable
+2. Convert the data to a `tidy_sem` object by running `model <- tidy_sem(data)`
+<!--    * The `data_dictionary` called `dict` can be used to generate `keys(dict)`, for use with functions (reliability, factor analysis) from the `psych` library
+    * The `data_dictionary` called `dict` can be used to generate syntax for structural equation models in `lavaan` or 'Mplus' (through `MplusAutomation`)-->
+3. Add elements of syntax
+    * E.g., `measurement(model)`
+5. *Optionally*, access the `dictionary`, `data`, and `syntax` elements in the `tidy_sem` object by calling `dictionary(model)`, `get_data(model)`, or `syntax(model)`
+6. *Optionally*, modify the `dictionary`, `data`, and `syntax` elements in the `tidy_sem` object `dictionary(model) <- ...`, `get_data(model) <- ...`, and `syntax(model) <- ...`
+7. Run the analysis, either by:
+    * Converting the `tidy_sem` object to `lavaan` syntax using `as_lavaan(model)` and using that as input for the `lavaan` functions `sem`, `lavaan`, or `cfa`
+    * Converting the `tidy_sem` object to `Mplus` using `as_mplus(model)`, and using that as input for `MplusAutomation::mplusObject()`
+    * Using the functions `estimate_lavaan(model)` or `estimate_mplus(model)`
+
+All elements of the `tidy_sem` object are "tidy" data, i.e., tabular `data.frames`, and can be modified using the familiar suite of functions in the 'tidyverse'. Thus, the data, dictionary, and syntax are all represented as `data.frame`s.
+
+## Example: Running a CFA
+
+### Step 1: Check the variable names
+
+As an example, let's make a graph for a classic `lavaan` tutorial example for CFA. First, we check the data names:
+
+```{r}
+df <- HolzingerSwineford1939
+names(df)
+```
+
+These names are not informative, as the items named `x..` are indicators of three different latent variables. We will rename them accordingly:
+
+```{r}
+names(df)[grepl("^x", names(df))] <- c("vis_1", "vis_2", "vis_3", "tex_1", "tex_2", "tex_3", "spe_1", "spe_2", "spe_3")
+```
+
+### Guidelines for naming variables
+
+In general, it is good practice to name variables using the following information:
+
+* Scale name (or if the variable is not part of a scale, observed variable name)
+* Measurement occasion (if longitudinal)
+* Respondent id (if multiple respondents completed the same scales)
+* Scale item number, which `tidySEM` expects to be separated from the remainder of the variable name by a splitting character (e.g., `scale_item`)
+
+Roughly speaking, elements of the variable name should be ordered from "slow-changing" to "fast-changing"; i.e.; there are only a few scales, with possibly several measurement occasions or respondents, and many items.
+
+### Step 2: Generate a dictionary
+
+A dictionary indicates which variables in the data belong to, for example, the same scale. When the data have informative names, it is possible to construct a data dictionary automatically:
+
+```{r}
+model <- tidy_sem(df)
+model
+```
+
+### Step 3: Generate syntax
+
+We can automatically add basic syntax to the `sem_syntax` object, by passing it to a syntax-generating function like `measurement()`, which adds a measurement model for any scales in the object:
+
+```{r, eval = TRUE}
+model %>%
+  measurement() -> model
+model
+```
+
+
+### Step 4: Run the model
+
+The resulting model can be evaluated as 'Mplus' syntax or 'lavaan' syntax, using the `as_mplus` and `as_lavaan` functions. For example, using lavaan:
+
+```{r}
+res <- lavaan(as_lavaan(model), data = df)
+summary(res, estimates = FALSE)
+```
+
+Or, alternatively, the model can be estimated using the `lavaan` wrapper `estimate_lavaan()`:
+
+```{r}
+model %>%
+  estimate_lavaan()
+```
+
+The same model can be estimated in 'Mplus' through the R-package `MplusAutomation`. This requires 'Mplus' to be installed.
+
+```{r echo = FALSE, eval = run_mplus, message=FALSE, warning=FALSE}
+library(MplusAutomation)
+model %>%
+  estimate_mplus() -> res
+#dput(capture.output(summary(res)))
+```
+```{r eval = FALSE, echo = TRUE}
+library(MplusAutomation)
+model %>%
+  estimate_mplus()
+```
+```{r eval = TRUE, echo = FALSE}
+# Display the results
+cat(c("Estimated using ML ", "Number of obs: 301, number of (free) parameters: 30 ", 
+"", "Model: Chi2(df = 24) = 85.306, p = 0 ", "Baseline model: Chi2(df = 36) = 918.852, p = 0 ", 
+"", "Fit Indices: ", "", "CFI = 0.931, TLI = 0.896, SRMR = 0.06 ", 
+"RMSEA = 0.092, 90% CI [0.071, 0.114], p < .05 = 0.001 ", "AIC = 7535.49, BIC = 7646.703 "
+), sep = "\n")
+```
+
+### Optional step 5: Access the dictionary, data, and syntax
+
+The dictionary and syntax can be examined using `dictionary(model)` and `syntax(model)`:
+
+```{r}
+dictionary(model)
+```
+
+```{r}
+syntax(model)
+```
+
+### Optional step 6: Modify the dictionary and syntax
+
+At this stage, we may want to modify the basic syntax slightly. The functions `dictionary(model) <- ...` and `syntax(model) <- ...` can be used to modify the dictionary and syntax:
+
+```{r}
+dictionary(model) %>%
+  mutate(label = ifelse(label == "vis", "Visual", label))
+```
+
+For example, imagine we want to change the model, so that all items of the "spe" subscale load on the "tex" latent variable. We would first replace the latent variable "spe" with "tex", and secondly remove all mention of the "spe" latent variable:
+
+```{r}
+syntax(model) %>%
+  mutate(lhs = ifelse(lhs == "spe" & op == "=~", "tex", lhs)) %>%
+  filter(!(lhs == "spe" | rhs == "spe")) -> syntax(model)
+```
+
+The modified model could then be run:
+
+```{r}
+estimate_lavaan(model)
+```
+
+### Optional step 7: Adding paths
+
+In addition to the way of editing the `data.frame` with model syntax described in Step 6, it is also possible to add (or modify) paths by adding `lavaan` syntax. For example, imagine that - instead of having "vis" and "tex" correlate, we want to add a regression path between them:
+
+```{r}
+model %>%
+  add_paths("vis ~ tex") %>%
+  estimate_lavaan() %>%
+  summary(estimates = TRUE)
+```
+
+This function accepts both quoted (character) and unquoted arguments. So, for example, if we want to add a cross-loading from "spe_1" on "vis", in addition to the regression path before, we could use the following code:
+
+```{r}
+model %>%
+  add_paths("vis ~ tex", vis =~ spe_1) %>%
+  estimate_lavaan()
+```
+
