@@ -373,7 +373,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>The resulting model can be evaluated as ‘Mplus’ syntax or ‘lavaan’ syntax, using the <code>as_mplus</code> and <code>as_lavaan</code> functions. For example, using lavaan:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">res &lt;-<span class="st"> </span><span class="kw">lavaan</span>(<span class="kw">as_lavaan</span>(model), <span class="dt">data =</span> df)</a>
 <a class="sourceLine" id="cb5-2" title="2"><span class="kw">summary</span>(res, <span class="dt">estimates =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt; lavaan 0.6-6 ended normally after 35 iterations</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt; lavaan 0.6-7 ended normally after 35 iterations</span></a>
 <a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb5-5" title="5"><span class="co">#&gt;   Estimator                                         ML</span></a>
 <a class="sourceLine" id="cb5-6" title="6"><span class="co">#&gt;   Optimization method                           NLMINB</span></a>
@@ -389,7 +389,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Or, alternatively, the model can be estimated using the <code>lavaan</code> wrapper <code>estimate_lavaan()</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">model <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb6-2" title="2"><span class="st">  </span><span class="kw">estimate_lavaan</span>()</a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="co">#&gt; lavaan 0.6-6 ended normally after 35 iterations</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="co">#&gt; lavaan 0.6-7 ended normally after 35 iterations</span></a>
 <a class="sourceLine" id="cb6-4" title="4"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-5" title="5"><span class="co">#&gt;   Estimator                                         ML</span></a>
 <a class="sourceLine" id="cb6-6" title="6"><span class="co">#&gt;   Optimization method                           NLMINB</span></a>
@@ -498,7 +498,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb12-3" title="3"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>(lhs <span class="op">==</span><span class="st"> &quot;spe&quot;</span> <span class="op">|</span><span class="st"> </span>rhs <span class="op">==</span><span class="st"> &quot;spe&quot;</span>)) -&gt;<span class="st"> </span><span class="kw">syntax</span>(model)</a></code></pre></div>
 <p>The modified model could then be run:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">estimate_lavaan</span>(model)</a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="co">#&gt; lavaan 0.6-6 ended normally after 28 iterations</span></a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="co">#&gt; lavaan 0.6-7 ended normally after 28 iterations</span></a>
 <a class="sourceLine" id="cb13-3" title="3"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb13-4" title="4"><span class="co">#&gt;   Estimator                                         ML</span></a>
 <a class="sourceLine" id="cb13-5" title="5"><span class="co">#&gt;   Optimization method                           NLMINB</span></a>
@@ -519,7 +519,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb14-2" title="2"><span class="st">  </span><span class="kw">add_paths</span>(<span class="st">&quot;vis ~ tex&quot;</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb14-3" title="3"><span class="st">  </span><span class="kw">estimate_lavaan</span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb14-4" title="4"><span class="st">  </span><span class="kw">summary</span>(<span class="dt">estimates =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb14-5" title="5"><span class="co">#&gt; lavaan 0.6-6 ended normally after 27 iterations</span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="co">#&gt; lavaan 0.6-7 ended normally after 27 iterations</span></a>
 <a class="sourceLine" id="cb14-6" title="6"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb14-7" title="7"><span class="co">#&gt;   Estimator                                         ML</span></a>
 <a class="sourceLine" id="cb14-8" title="8"><span class="co">#&gt;   Optimization method                           NLMINB</span></a>
@@ -577,7 +577,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb15-3" title="3"><span class="st">  </span><span class="kw">estimate_lavaan</span>()</a>
 <a class="sourceLine" id="cb15-4" title="4"><span class="co">#&gt; Warning in lav_object_post_check(object): lavaan </span><span class="al">WARNING</span><span class="co">: some estimated ov</span></a>
 <a class="sourceLine" id="cb15-5" title="5"><span class="co">#&gt; variances are negative</span></a>
-<a class="sourceLine" id="cb15-6" title="6"><span class="co">#&gt; lavaan 0.6-6 ended normally after 64 iterations</span></a>
+<a class="sourceLine" id="cb15-6" title="6"><span class="co">#&gt; lavaan 0.6-7 ended normally after 64 iterations</span></a>
 <a class="sourceLine" id="cb15-7" title="7"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb15-8" title="8"><span class="co">#&gt;   Estimator                                         ML</span></a>
 <a class="sourceLine" id="cb15-9" title="9"><span class="co">#&gt;   Optimization method                           NLMINB</span></a>

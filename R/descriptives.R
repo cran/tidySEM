@@ -31,6 +31,7 @@ descriptives.data.frame <- function(x, ...) {
   all_names <-
     c(
       "n",
+      "missing",
       "unique",
       "mean",
       "median",
@@ -71,6 +72,7 @@ descriptives.numeric <- function(x, ...) {
   cbind(
     data.frame(
       n = sum(!is.na(x)),
+      missing = sum(is.na(x))/length(x),
       unique = length(unique(x)),
       mean = mean(x, na.rm = TRUE),
       median = median(x, na.rm = TRUE),
@@ -91,12 +93,16 @@ descriptives.integer <- descriptives.numeric
 #' @method descriptives default
 #' @export
 descriptives.default <- function(x, ...) {
+  if(is.factor(x)) x <- droplevels(x)
   if(!is.vector(x)) x <- tryCatch(as.vector(x), error = function(e){NA})
-  tb <- tryCatch(table(x), error = function(e){NA})
+  tb <- tryCatch(table(x, useNA = "always"), error = function(e){NA})
   data.frame(
     n = tryCatch({sum(!is.na(x))}, error = function(e){NA}),
+    missing = sum(is.na(x))/length(x),
     unique = tryCatch(length(tb), error = function(e){NA}),
-    mode = tryCatch(tb[which.max(tb)], error = function(e){NA}),
+    mode = tryCatch({
+      unname(tb[which.max(tb)])
+    }, error = function(e){NA}),
     mode_value = tryCatch(names(tb)[which.max(tb)], error = function(e){NA}),
     v = tryCatch(var_cat(x), error = function(e){NA})
   )
