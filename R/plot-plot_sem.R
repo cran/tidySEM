@@ -148,13 +148,11 @@ graph_sem.default <- function(edges = NULL,
                               angle = NULL,
                               fix_coord = FALSE,
                               ...){
-  Args <- all_args()
-  # Args <- as.list(match.call()[-1])
-  # Args$layout <- force(layout)
-  # Args$edges <- force(edges)
-  # Args$nodes <- force(nodes)
-  Args[["model"]] <- NULL
-  prep <- do.call(prepare_graph, Args)
+  cl <- match.call()
+
+
+  cl[[1L]] <- quote(prepare_graph)
+  prep <- eval.parent(cl)
   plot(prep)
 }
 
@@ -174,8 +172,13 @@ graph_sem.lavaan <- function(model,
                              layout = get_layout(x = model),
                              nodes = get_nodes(x = model, label = label),
                              ...){
-  Args <- all_args()
-  do.call(graph_model, Args)
+  cl <- match.call()
+  cl$edges <- eval(edges, environment())
+  cl$layout <- eval(layout, environment())
+  cl$nodes <- eval(nodes, environment())
+  cl[["model"]] <- NULL
+  cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
+  eval.parent(cl)
 }
 
 #' @method graph_sem mplus.model
@@ -285,6 +288,7 @@ prepare_graph.default <- function(edges = NULL,
                                   fix_coord = FALSE,
                                   ...
 ){
+
   Args <- as.list(match.call())[-1]
   myfor <- formals(prepare_graph.default)
   for ( v in names(myfor)){
@@ -356,6 +360,10 @@ prepare_graph.default <- function(edges = NULL,
     if(!"curvature" %in% names(df_edges)){
       df_edges$curvature <- NA
     }
+    # if("color" %in% names(df_edges)){
+    #   message("Edges contained a column named 'color'. Currently, only the 'colour' argument is implemented. The column was renamed.")
+    #   names(df_edges)[which(names(df_edges) == "color")] <- "colour"
+    # }
   }
 
   # Defaults for missing columns --------------------------------------------
@@ -364,7 +372,10 @@ prepare_graph.default <- function(edges = NULL,
     stop("Arguments 'nodes' and 'layout' must both have a 'name' column.")
   }
   df_nodes <- merge(nodes, layout, by = "name")
-
+  # if("color" %in% names(df_nodes)){
+  #   message("Nodes contained a column named 'color'. Currently, only the 'colour' argument is implemented. The column was renamed.")
+  #   names(df_nodes)[which(names(df_nodes) == "color")] <- "colour"
+  # }
   if(!"label" %in% names(df_nodes)){
     df_nodes$label <- df_nodes$name
   }
@@ -597,48 +608,112 @@ matrix_to_nodes <- function(nodes, shape){
   nodes_long
 }
 
+globalVariables(c("name"))
 
 #' @title Extract nodes from a SEM model object
 #' @description Attempts to extract nodes from a SEM model object, where nodes
 #' are defined as observed or latent variables.
 #' @param x A model object of class \code{mplusObject} or \code{lavaan}.
-#' @param label Character, indicating which column to use for node labels. Nodes
-#' are labeled with mean values of the observed/latent variables they represent.
-#' Defaults to 'est_sig', which consists of the estimate value with significance
-#' asterisks.
-#' @param ... Additional parameters to be passed to and from other functions.
+#' @param label Either a character, indicating which column to use for node
+#' labels, or an expression. See Details.
+#' Defaults to \code{paste(name, est_sig, sep = "\n"},
+#' which gives the node name followed by the estimated value with
+#' significance asterisks.
+#' @param ... Additional parameters passed to \code{\link{table_results}}. For
+#' example, users can pass the \code{digits} argument to control the number of
+#' digits in the node label, or pass the \code{columns} argument to retain
+#' auxiliary columns in the \code{tidy_nodes data.frame} for further processing
+#' (see Examples).
+#' @details The function \code{get_nodes} identifies all dependent and
+#' independent variables in the model as nodes. If a mean structure / intercepts
+#' are included in the model, the output of \code{table_results} for those
+#' means / intercepts is used to label the nodes.
+#'
+#' ## Custom labels
+#'
+#' One way to create custom node labels is by passing an expression to
+#' \code{label}, as in the default value of the argument. When an expression is
+#' passed to \code{label}, it is evaluated in the context of a \code{data.frame}
+#' containing the results
+#' of a call to \code{\link{table_results}} on the \code{x} argument, with an
+#' additional column labeled \code{name}, which contains the node names.
+#'
+#' Another way to create custom labels is by requesting auxiliary variables
+#' using the \code{columns} argument (which is passed to
+#' \code{\link{table_results}}), and then using these columns to construct a new
+#' label. See examples.
 #' @return An object of class 'tidy_nodes'
 #' @examples
+#' # Standard use extracts node names and shape
+#' # (rect for observed, oval for latent)
 #' library(lavaan)
 #' res <- sem("dist ~ speed", cars)
 #' get_nodes(res)
+#'
+#' # To label nodes with mean values, include meanstructure in the model
+#' # Note that it is possible to pass the argument 'digits' to table_results
+#' # through '...'
+#' res <- sem("dist ~ speed", cars, meanstructure = TRUE)
+#' get_nodes(res, digits = 3)
+#'
+#' # Pass an expression to the 'label' argument for custom labels
+#' get_nodes(res, label = paste0(name, " ", est_sig, "\n", confint))
+#'
+#' # Pass the argument 'columns' to table_results through '...' to retain
+#' # auxiliary columns for further processing
+#' nod <- get_nodes(res, columns = c("est_sig", "confint"))
+#' nod
+#' nod <- within(nod, {label <- paste0(name, " ", est_sig, "\n", confint)})
+#' nod
 #' @rdname get_nodes
 #' @keywords tidy_graph
 #' @export
-get_nodes <- function(x, label = "est_sig", ...){
+get_nodes <- function(x, label = paste(name, est_sig, sep = "\n"), ...){
   UseMethod("get_nodes", x)
 }
 
-#' @method get_nodes mplus.model
-#' @export
-get_nodes.mplus.model <- function(x, label = "est_sig", ...){
-  Args <- as.list(match.call()[-1])
-  Args$x <- table_results(x, columns = NULL)
-  do.call(get_nodes, Args)
-}
+# # @method get_nodes mplus.model
+# # @export
+# get_nodes.mplus.model <- function(x, label = "est_sig", ...){
+#   Args <- as.list(match.call()[-1])
+#   Args$x <- table_results(x, columns = NULL)
+#   do.call(get_nodes, Args)
+# }
 
 #' @method get_nodes lavaan
 #' @export
 #' @importFrom lavaan parameterTable lavInspect
-get_nodes.lavaan <- function(x, label = "est_sig", ...){
-  Args <- as.list(match.call()[-1])
-  Args$x <- table_results(x, columns = NULL)
-  do.call(get_nodes, Args)
+get_nodes.lavaan <- function(x, label = paste(name, est_sig, sep = "\n"), ...){
+  dots <- list(...)
+  cl <- match.call()
+  cl["columns"] <- list(NULL)
+  cl[[1L]] <- quote(table_results)
+  cl$x <- eval.parent(cl)
+  #cl$label <- force(label)
+  if("columns" %in% names(dots)){
+    cl[["columns"]] <- dots[["columns"]]
+  }
+  cl[[1L]] <- quote(get_nodes)
+  eval.parent(cl)
 }
+
+#' @method get_nodes mplusObject
+#' @export
+get_nodes.mplusObject <- get_nodes.lavaan
+
+
+#' @method get_nodes mplus.object
+#' @export
+get_nodes.mplus.object <- get_nodes.lavaan
+
+#' @method get_nodes mplus.model
+#' @export
+get_nodes.mplus.model <- get_nodes.lavaan
 
 #' @method get_nodes tidy_results
 #' @export
-get_nodes.tidy_results <- function(x, label = "est_sig", ...){
+get_nodes.tidy_results <- function(x, label = paste(name, est_sig, sep = "\n"), label_name = TRUE, ...){
+  dots <- list(...)
   if("group" %in% names(x)){
     x_list <- lapply(unique(x$group), function(i){
       tmp <- get_nodes(x = x[x$group == i, -which(names(x) == "group")])
@@ -657,19 +732,46 @@ get_nodes.tidy_results <- function(x, label = "est_sig", ...){
     return(do.call(rbind, x_list))
   }
   latent <- unique(x$lhs[x$op == "=~"])
-  obs <- unique(x$lhs[x$op %in% c("~~", "~", "~1")])
+
+  obs <- unique(c(x$lhs[x$op %in% c("~~", "~", "~1")], x$rhs[x$op %in% c("~")]))
   nodes <- unique(c(latent, obs))
   nodes <- data.frame(name = unique(nodes), shape = c("rect", "oval")[(unique(nodes) %in% latent)+1], stringsAsFactors = FALSE)
-  nodes$label <- nodes$name
-  if(!is.null(label)){
-    if(label %in% names(x)){
-      labelz <- x[x$op == "~1", ]
-      labelz <- labelz[match(nodes$name, labelz$lhs), ][[label]]
-      if(any(!is.na(labelz))){
-        nodes$label[!is.na(labelz)] <- apply(cbind(nodes$name[!is.na(labelz)], labelz[!is.na(labelz)]), 1, paste0, collapse = "\n")
-      }
+  #nodes$label <- nodes$name
+
+  # Make a data.frame based on the information about node means
+  node_df <- x[x$op == "~1", ]
+  # Keep only rows corresponding to the identified nodes
+  node_rows <- match(nodes$name, node_df$lhs)
+  if(any(!is.na(node_rows))){
+    node_df <- node_df[match(nodes$name, node_df$lhs), , drop = FALSE]
+    nodes <- merge(nodes, node_df, by.x = "name", by.y = "lhs", all.x = TRUE)
+  }
+  # If the user asked for a label
+
+  # Check if the label is an expression. If it is, substitute it
+  if (inherits(suppressWarnings(try(label, silent = TRUE)), "try-error")) {
+    label <- substitute(label)
+  }
+
+  if(is.character(label)){
+    if(!is.null(nodes[[label]])){
+      nodes[["label"]] <- nodes[[label]]
+    } else {
+      nodes[["label"]] <- nodes[["name"]]
+    }
+  } else {
+    if(!is.null(label)){
+      nodes[["label"]] <- tryCatch(eval(label, envir = nodes), error = function(e){
+        nodes[["name"]]
+      })
+    } else {
+    nodes[["label"]] <- ""
     }
   }
+
+  # Retain all requested columns
+  keep_cols <- c(c("name", "shape", "label"), dots[["columns"]])
+  nodes <- nodes[, keep_cols, drop = FALSE]
   class(nodes) <- c("tidy_nodes", class(nodes))
   nodes
 }
@@ -678,15 +780,50 @@ get_nodes.tidy_results <- function(x, label = "est_sig", ...){
 #' @description Attempts to extract edges from a SEM model object, where edges
 #' are defined as regression paths and covariances between variables (nodes).
 #' @param x A model object of class \code{mplusObject} or \code{lavaan}.
-#' @param label Character, indicating which column to use for edge labels.
-#' Defaults to 'est_sig', which consists of the estimate value with significance
-#' asterisks.
-#' @param ... Additional parameters to be passed to and from other functions.
+#' @param label Either a character, indicating which column to use for edge
+#' labels, or an expression. See Details.
+#' Defaults to \code{"est_sig"},
+#' which labels edges with the estimated value with significance asterisks,
+#' as obtained from \code{\link{table_results}}. See Details and examples for
+#' more information.
+#' @param ... Additional parameters passed to \code{\link{table_results}}. For
+#' example, users can pass the \code{digits} argument to control the number of
+#' digits in the edge label, or pass the \code{columns} argument to retain
+#' auxiliary columns in the \code{tidy_edges data.frame} for further processing
+#' (see Examples).
+#' @details The function \code{get_edges} identifies all regression paths,
+#' latent variable definitions, and covariances in the model as edges.
+#' The output of \code{table_results} for those
+#' paths is used to label the edges.
+#'
+#' ## Custom labels
+#'
+#' One way to create custom edge labels is by passing an expression to
+#' \code{label}. When an expression is
+#' passed to \code{label}, it is evaluated in the context of a \code{data.frame}
+#' containing the results
+#' of a call to \code{\link{table_results}} on the \code{x} argument.
+#'
+#' Another way to create custom labels is by requesting auxiliary variables
+#' using the \code{columns} argument (which is passed to
+#' \code{\link{table_results}}), and then using these columns to construct a new
+#' label. See examples.
 #' @return An object of class 'tidy_edges'
 #' @examples
+#' # Standard use
 #' library(lavaan)
 #' res <- sem("dist ~ speed", cars)
 #' get_edges(res)
+#'
+#' # Pass an expression to the 'label' argument for custom labels
+#' get_edges(res, label = paste(est_sig, confint))
+#'
+#' # Pass the argument 'columns' to table_results through '...' to retain
+#' # auxiliary columns for further processing
+#' edg <- get_edges(res, columns = c("est_sig", "confint"))
+#' edg
+#' edg <- within(edg, {label <- paste(est_sig, confint)})
+#' edg
 #' @rdname get_edges
 #' @keywords tidy_graph
 #' @export
@@ -694,45 +831,43 @@ get_edges <- function(x, label = "est_sig", ...){
   UseMethod("get_edges", x)
 }
 
-# #' @method get_edges mplusObject
-# #' @export
-# get_edges.mplusObject <- function(x, label = "est_sig", ...){
-#   estimate <- table_results(x, ...)
-#   estimate <- estimate[grepl("\\.(ON|WITH|BY)\\.", estimate$label), ]
-#   estimate$from <- estimate$to <- NA
-#   tmp <- do.call(rbind, strsplit(estimate$label, "\\."))
-#   tmp[tmp[, 2] == "ON", ] <- tmp[tmp[, 2] == "ON", 3:1]
-#   tmp <- cbind(tmp, "last")
-#   tmp[tmp[, 2] == "WITH", 4] <- "none"
-#   tmp <- setNames(data.frame(tmp[, -2], label = estimate[[label]]), c("from", "to", "arrow", "label"))
-#   class(tmp) <- c("tidy_edges", class(tmp))
-#   row.names(tmp) <- NULL
-#   tmp
-# }
-
-
 #' @method get_edges lavaan
 #' @export
 get_edges.lavaan <- function(x, label = "est_sig", ...){
-  Args <- as.list(match.call()[-1])
-  Args$x <- table_results(x, columns = NULL)
-  do.call(get_edges, Args)
+  dots <- list(...)
+  cl <- match.call()
+  cl[[1L]] <- quote(table_results)
+  cl["columns"] <- list(NULL)
+  cl$x <- eval.parent(cl)
+  if("columns" %in% names(dots)){
+    cl[["columns"]] <- dots[["columns"]]
+  }
+  cl[[1L]] <- str2lang("tidySEM:::get_edges.tidy_results")
+  eval.parent(cl)
 }
+
+#' @method get_edges mplusObject
+#' @export
+get_edges.mplusObject <- get_edges.lavaan
+
 
 #' @method get_edges mplus.object
 #' @export
 get_edges.mplus.object <- get_edges.lavaan
 
-
+#' @method get_edges mplus.model
+#' @export
+get_edges.mplus.model <- get_edges.lavaan
 
 #' @method get_edges tidy_results
 #' @export
 get_edges.tidy_results <- function(x, label = "est_sig", ..., remove_fixed = FALSE){
-  Args <- all_args()
+  dots <- list(...)
+  cl <- match.call()
   if("group" %in% names(x)){
     x_list <- lapply(unique(x$group), function(i){
-      Args$x <- x[x$group == i, -which(names(x) == "group")]
-      tmp <- do.call(get_edges, Args)
+      cl$x <- x[x$group == i, -which(names(x) == "group")]
+      tmp <- eval.parent(cl)
       tmp$group <- i
       tmp
     })
@@ -740,8 +875,8 @@ get_edges.tidy_results <- function(x, label = "est_sig", ..., remove_fixed = FAL
   }
   if("level" %in% names(x)){
     x_list <- lapply(unique(x$level), function(i){
-      Args$x <- x[x$level == i, -which(names(x) == "level")]
-      tmp <- do.call(get_edges, Args)
+      cl$x <- x[x$level == i, -which(names(x) == "level")]
+      tmp <- eval.parent(cl)
       tmp$from <- paste0(tmp$from, ".", i)
       tmp$to <- paste0(tmp$to, ".", i)
       tmp$level <- i
@@ -762,8 +897,32 @@ get_edges.tidy_results <- function(x, label = "est_sig", ..., remove_fixed = FAL
   x$arrow[x$op == "~"] <- "last"
   x$from[x$op == "~"] <- x$rhs[x$op == "~"]
   x$to[x$op == "~"] <- x$lhs[x$op == "~"]
-  tmp <- x[, c("from", "to", "arrow", label)]
-  tmp <- setNames(tmp, c("from", "to", "arrow", "label"))
+
+  # If the user asked for a label
+  # Check if the label is an expression. If it is, substitute it
+  if (inherits(suppressWarnings(try(label, silent = TRUE)), "try-error")) {
+    label <- substitute(label)
+  }
+  keep_cols <- dots[["columns"]]
+  if(is.character(label)){
+    if(!is.null(x[[label]])){
+      x[["label"]] <- x[[label]]
+      keep_cols <- c("label", dots[["columns"]])
+    }
+  } else {
+    if(!is.null(label)){
+      x[["label"]] <- tryCatch(eval(label, envir = x), error = function(e){
+        message("Could not construct label in get_edges().")
+      })
+      keep_cols <- c("label", dots[["columns"]])
+    }
+  }
+
+
+
+  tmp <- data.frame(as.list(x)[ c("from", "to", "arrow", keep_cols) ], check.names=FALSE)
+
+
   tmp$curvature <- tmp$connect_to <- tmp$connect_from <- NA
   tmp$curvature[x$op == "~~" & !x$lhs == x$rhs] <- 60
   class(tmp) <- c("tidy_edges", class(tmp))
@@ -848,8 +1007,8 @@ match.call.defaults <- function(...) {
 
 .plot_nodes <- function(p, df, text_size, ellipses_width, ellipses_height){
   # Prepare aesthetics ------------------------------------------------------
-  if("colour" %in% names(df)){
-    df$colour <- as.character(df$colour)
+  if(any(c("colour", "color") %in% names(df))){
+    df[[which(names(df) %in% c("colour", "color"))]] <- as.character(df[[which(names(df) %in% c("colour", "color"))]])
   } else {
     df$colour <- "black"
   }
@@ -862,7 +1021,7 @@ match.call.defaults <- function(...) {
 
   if(any(df$shape == "rect")){
     df_rect <- df[df$shape == "rect", ]
-    Args <- c("linetype", "size", "colour", "fill", "alpha")
+    Args <- c("linetype", "size", "colour", "color", "fill", "alpha")
     Args <- as.list(df_rect[which(names(df_rect) %in% Args)])
     Args <- c(list(
       data = df_rect,
@@ -1023,7 +1182,7 @@ match.call.defaults <- function(...) {
       M <- matrix(c(mean(c(this_row[["edge_xmin"]], this_row[["edge_xmax"]])),
                     mean(c(this_row[["edge_ymin"]], this_row[["edge_ymax"]]))), nrow = 1)
       radius <- dist(rbind(A, B))
-      AB <- matrix(c(B[1]-A[1], B[2]-A[2]), nrow=1)
+      AB <- B-A
       N <- matrix(c(AB[2], -AB[1]), nrow=1)
       C <- M + .5*(N * tan((this_row[["curvature"]]/180)*pi))
       radius <- dist(rbind(C, A))
@@ -1032,7 +1191,7 @@ match.call.defaults <- function(...) {
         atan2(c(this_row[["edge_ymin"]], this_row[["edge_ymax"]]) - C[2], c(this_row[["edge_xmin"]], this_row[["edge_xmax"]]) - C[1]) %% (2*pi)
       )
       angles <- angles[[which.min(sapply(angles, dist))]]
-      point_seq <- seq(angles[2], angles[1],length.out = npoints)
+      point_seq <- seq(angles[1], angles[2],length.out = npoints)
       out <- matrix(
         c(C[1] + radius * cos(point_seq),
           C[2] + radius * sin(point_seq),
@@ -1063,7 +1222,6 @@ match.call.defaults <- function(...) {
     df_edges$linetype[is.na(df_edges$curvature)] <- 1
   }
   if(any(df_edges$arrow == "curve")) browser() # Dit mag niet meer!
-
   p <- .plot_edges_internal(p, df_edges)
   # Add label and return ----------------------------------------------------
   .plot_label_internal(p, df_label, text_size)
@@ -1078,7 +1236,7 @@ match.call.defaults <- function(...) {
   }
   if(any(df$arrow != "none")){
     df_path <- df[!df$arrow == "none", ]
-    aes_args <- c("id", "arrow", "linetype", "size", "colour", "alpha")
+    aes_args <- c("id", "arrow", "linetype", "size", "colour", "color", "alpha")
     aes_args <- df_path[!duplicated(df_path$id), which(names(df_path) %in% aes_args)]
     Args <- list(
       data = df_path,
@@ -1093,7 +1251,7 @@ match.call.defaults <- function(...) {
   }
   if(any(df$arrow == "none")){
     df_path <- df[df$arrow == "none", ]
-    Args <- c("linetype", "size", "colour", "alpha")
+    Args <- c("linetype", "size", "colour", "color", "alpha")
     Args <- as.list(df_path[which(names(df_path) %in% Args)])
     Args <- c(list(
       data = df_path,
@@ -1107,7 +1265,7 @@ match.call.defaults <- function(...) {
 .plot_label_internal <- function(p, df, text_size){
   retain_cols <- c("x", "y", "label", "group", "level")
   retain_cols <- retain_cols[which(retain_cols %in% names(df))]
-  df <- df[, c(retain_cols, grep("^label_(fill|size|family|fontface|hjust|vjust|lineheight|colour|alpha)$", names(df), value = TRUE)), drop = FALSE]
+  df <- df[, c(retain_cols, grep("^label_(fill|size|family|fontface|hjust|vjust|lineheight|colour|color|alpha)$", names(df), value = TRUE)), drop = FALSE]
   if(nrow(df) > 0){
     names(df) <- gsub("^label_", "", names(df))
     # Prepare aesthetics ------------------------------------------------------
@@ -1117,7 +1275,7 @@ match.call.defaults <- function(...) {
     if(!"size" %in% names(df)){
       df$size <- text_size
     }
-    Args <- c("fill", "size", "family", "fontface", "hjust", "vjust", "lineheight", "colour", "alpha")
+    Args <- c("fill", "size", "family", "fontface", "hjust", "vjust", "lineheight", "colour","color",  "alpha")
     Args <- as.list(df[which(names(df) %in% Args)])
     Args <- c(list(
       data = df,

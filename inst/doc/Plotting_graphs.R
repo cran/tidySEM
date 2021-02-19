@@ -9,6 +9,7 @@ generate_svgs <- FALSE
 library(tidySEM)
 library(lavaan)
 library(ggplot2)
+library(dplyr)
 
 ## ---- eval = FALSE, echo = TRUE-----------------------------------------------
 #  library(lavaan)
@@ -105,6 +106,25 @@ get_nodes(fit)
 
 ## -----------------------------------------------------------------------------
 get_edges(fit)
+
+## -----------------------------------------------------------------------------
+get_edges(fit, label = paste(est, confint))
+
+## -----------------------------------------------------------------------------
+fit <- cfa(HS.model, data=HolzingerSwineford1939, meanstructure = TRUE)
+
+## -----------------------------------------------------------------------------
+get_nodes(fit)
+
+## -----------------------------------------------------------------------------
+get_nodes(fit, label = paste0(name, "\n", est, " ", confint))
+
+## -----------------------------------------------------------------------------
+get_edges(fit, label = "est", columns = "pval")
+
+## -----------------------------------------------------------------------------
+get_edges(fit, label = "est", columns = c("est", "pval")) %>%
+  within({ label[!is.na(pval)] = paste0(est[!is.na(pval)], ", p = ", pval[!is.na(pval)])})
 
 ## -----------------------------------------------------------------------------
 graph_data <- prepare_graph(model = fit, layout = lay)
@@ -255,4 +275,35 @@ p = graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
 
 if(generate_svgs) ggsave("pgfig7.svg", p, device = "svg", width= 4, height = 1)
 knitr::include_graphics("pgfig7.svg")
+
+## ---- eval = FALSE------------------------------------------------------------
+#  fit <- sem("mpg ~ cyl
+#             mpg ~ am", data = mtcars)
+#  
+#  p <- prepare_graph(fit,
+#                     edges = get_edges(fit, columns = "est"),
+#                     fix_coord = TRUE)
+#  edges(p) %>%
+#    mutate(color = "black",
+#           color = replace(color, arrow == "last" & as.numeric(est) < 0, "red"),
+#           color = replace(color, arrow == "last" & as.numeric(est) > 0, "green")) -> edges(p)
+#  
+#  plot(p)
+
+## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='30%'----------
+fit <- sem("mpg ~ cyl
+           mpg ~ am", data = mtcars)
+set.seed(15)
+p <- prepare_graph(fit,
+                   edges = get_edges(fit, columns = "est"),
+                   fix_coord = TRUE)
+edges(p) %>%
+  mutate(color = "black",
+         color = replace(color, arrow == "last" & as.numeric(est) < 0, "red"),
+         color = replace(color, arrow == "last" & as.numeric(est) > 0, "green")) -> edges(p)
+
+p <- plot(p)
+
+if(generate_svgs) ggsave("pgfig8.svg", p, device = "svg", width= 4, height = 4)
+knitr::include_graphics("pgfig8.svg")
 
