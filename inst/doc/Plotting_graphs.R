@@ -3,7 +3,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-generate_svgs <- FALSE
+generate_pngs <- TRUE
 
 ## ----setup, message=FALSE, warning = FALSE------------------------------------
 library(tidySEM)
@@ -32,8 +32,8 @@ fit <- cfa(HS.model, data=HolzingerSwineford1939)
 
 ## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
 p <- graph_sem(model = fit, text_size = 2, fix_coord = TRUE)
-if(generate_svgs) ggsave("pgfig1.svg", p, device = "svg", width= 9.5, height = 3)
-knitr::include_graphics("pgfig1.svg")
+if(generate_pngs) ggsave("pgfig1.png", p, device = "png", width= 9.5, height = 3)
+knitr::include_graphics("pgfig1.png")
 
 ## ----eval = TRUE, echo = TRUE-------------------------------------------------
 get_layout(fit)
@@ -98,11 +98,14 @@ lay <- get_layout("", "", "visual","","textual","","speed","", "",
 
 ## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
 p <- graph_sem(fit, layout = lay) + coord_fixed()
-if(generate_svgs) ggsave("pgfig2_1.svg", p, device = "svg", width= 9.5, height = 3)
-knitr::include_graphics("pgfig2_1.svg")
+if(generate_pngs) ggsave("pgfig2_1.png", p, device = "png", width= 9.5, height = 3)
+knitr::include_graphics("pgfig2_1.png")
 
-## -----------------------------------------------------------------------------
+## ---- eval = TRUE-------------------------------------------------------------
 get_nodes(fit)
+
+## ---- eval = FALSE, echo = FALSE, results= "asis"-----------------------------
+#  knitr::kable(get_nodes(fit))
 
 ## -----------------------------------------------------------------------------
 get_edges(fit)
@@ -120,11 +123,24 @@ get_nodes(fit)
 get_nodes(fit, label = paste0(name, "\n", est, " ", confint))
 
 ## -----------------------------------------------------------------------------
-get_edges(fit, label = "est", columns = "pval")
+p <- prepare_graph(fit)
+edges(p)
 
 ## -----------------------------------------------------------------------------
-get_edges(fit, label = "est", columns = c("est", "pval")) %>%
-  within({ label[!is.na(pval)] = paste0(est[!is.na(pval)], ", p = ", pval[!is.na(pval)])})
+prepare_graph(fit) %>%
+  edit_graph({ label = paste(est_sig_std, "\n", confint_std) }) %>%
+  plot()
+
+## -----------------------------------------------------------------------------
+prepare_graph(fit) %>%
+  edit_graph({ label = paste(est_sig_std, "\n", confint_std) }) %>%
+  edit_graph({ label = paste(name, "\n", est_sig_std, "\n", confint_std) }, element = "nodes") %>%
+  plot()
+
+## -----------------------------------------------------------------------------
+prepare_graph(fit) %>%
+  edit_graph({ label_color = "blue" }) %>%
+  plot()
 
 ## -----------------------------------------------------------------------------
 graph_data <- prepare_graph(model = fit, layout = lay)
@@ -153,16 +169,16 @@ graph_data <- prepare_graph(model = fit, layout = lay)
 
 ## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
 p <- plot(graph_data) + coord_fixed()
-if(generate_svgs) ggsave("pgfig2.svg", p, device = "svg", width= 9.5, height = 3)
-knitr::include_graphics("pgfig2.svg")
+if(generate_pngs) ggsave("pgfig2.png", p, device = "png", width= 9.5, height = 3)
+knitr::include_graphics("pgfig2.png")
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  graph_sem(model = fit, layout = lay, angle = 170)
 
 ## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
 p <- graph_sem(model = fit, layout = lay, angle = 170)
-if(generate_svgs) ggsave("pgfig3.svg", p, device = "svg", width= 9.5, height = 3)
-knitr::include_graphics("pgfig3.svg")
+if(generate_pngs) ggsave("pgfig3.png", p, device = "png", width= 9.5, height = 3)
+knitr::include_graphics("pgfig3.png")
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  edg <- data.frame(from = "x",
@@ -184,8 +200,8 @@ edg <- data.frame(from = "x",
 
 p <- graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
 
-if(generate_svgs) ggsave("pgfig4.svg", p, device = "svg", width= 4, height = 1)
-knitr::include_graphics("pgfig4.svg")
+if(generate_pngs) ggsave("pgfig4.png", p, device = "png", width= 4, height = 1)
+knitr::include_graphics("pgfig4.png")
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  edg <- data.frame(from = "x",
@@ -211,8 +227,8 @@ nod <- data.frame(name = c("x", "y"),
                     alpha = .5)
 p <- graph_sem(edges = edg, nodes = nod, layout = get_layout("x", "y", rows = 1))
 
-if(generate_svgs) ggsave("pgfig5.svg", p, device = "svg", width= 4, height = 1)
-knitr::include_graphics("pgfig5.svg")
+if(generate_pngs) ggsave("pgfig5.png", p, device = "png", width= 4, height = 1)
+knitr::include_graphics("pgfig5.png")
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  edges(graph_data) %>%
@@ -234,8 +250,8 @@ edges(graph_data) %>%
   mutate(alpha = replace(alpha, from == "visual" & to == "x2", .5)) -> edges(graph_data)
 p <- plot(graph_data)
 
-if(generate_svgs) ggsave("pgfig6.svg", p, device = "svg", width= 9.5, height = 3)
-knitr::include_graphics("pgfig6.svg")
+if(generate_pngs) ggsave("pgfig6.png", p, device = "png", width= 9.5, height = 3)
+knitr::include_graphics("pgfig6.png")
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  edg <- data.frame(from = "x",
@@ -273,37 +289,63 @@ edg <- data.frame(from = "x",
 
 p = graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
 
-if(generate_svgs) ggsave("pgfig7.svg", p, device = "svg", width= 4, height = 1)
-knitr::include_graphics("pgfig7.svg")
+if(generate_pngs) ggsave("pgfig7.png", p, device = "png", width= 4, height = 1)
+knitr::include_graphics("pgfig7.png")
+
+## ---- eval = TRUE, echo = FALSE, warning = FALSE, message = FALSE, out.width='30%'----
+fit <- sem("mpg ~ cyl
+           mpg ~ am", data = mtcars, meanstructure = TRUE)
+get_edges(fit)
+
+## ---- eval = FALSE, out.width="300px"-----------------------------------------
+#  set.seed(6)
+#  prepare_graph(fit) %>%
+#    color_pos_edges("green") %>%
+#    plot()
+
+## ---- echo = FALSE, out.width="300px"-----------------------------------------
+set.seed(6)
+prepare_graph(fit) %>%
+  color_pos_edges("green") %>%
+  plot() -> p
+ggsave("pgfig8.png", p, device = "png", width= 4, height = 4)
+knitr::include_graphics("pgfig8.png")
 
 ## ---- eval = FALSE------------------------------------------------------------
-#  fit <- sem("mpg ~ cyl
-#             mpg ~ am", data = mtcars)
-#  
-#  p <- prepare_graph(fit,
-#                     edges = get_edges(fit, columns = "est"),
-#                     fix_coord = TRUE)
-#  edges(p) %>%
-#    mutate(color = "black",
-#           color = replace(color, arrow == "last" & as.numeric(est) < 0, "red"),
-#           color = replace(color, arrow == "last" & as.numeric(est) > 0, "green")) -> edges(p)
-#  
-#  plot(p)
+#  prepare_graph(fit) %>%
+#    color_pos_edges("green") %>%
+#    color_neg_edges("red") %>%
+#    color_var("black") %>%
+#    alpha_var(.2) %>%
+#    plot()
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='30%'----------
-fit <- sem("mpg ~ cyl
-           mpg ~ am", data = mtcars)
-set.seed(15)
-p <- prepare_graph(fit,
-                   edges = get_edges(fit, columns = "est"),
-                   fix_coord = TRUE)
-edges(p) %>%
-  mutate(color = "black",
-         color = replace(color, arrow == "last" & as.numeric(est) < 0, "red"),
-         color = replace(color, arrow == "last" & as.numeric(est) > 0, "green")) -> edges(p)
+## ---- echo = FALSE, out.width="300px"-----------------------------------------
+set.seed(6)
+prepare_graph(fit) %>%
+  color_pos_edges("green") %>%
+  color_neg_edges("red") %>%
+  color_var("black") %>%
+  alpha_var(.2) %>%
+  plot() -> p
+ggsave("pgfig9.png", p, device = "png", width= 4, height = 4)
+knitr::include_graphics("pgfig9.png")
 
-p <- plot(p)
+## ---- eval = FALSE------------------------------------------------------------
+#  prepare_graph(fit) %>%
+#    # Add color column to the graph elements
+#    edit_graph({ color = "black" }) %>%
+#    # Conditionally change color to blue when the column 'est' contains the number 4
+#    if_edit(grepl("4", est), {color = "blue"}) %>%
+#    plot()
 
-if(generate_svgs) ggsave("pgfig8.svg", p, device = "svg", width= 4, height = 4)
-knitr::include_graphics("pgfig8.svg")
+## ---- echo = FALSE, out.width="300px"-----------------------------------------
+set.seed(6)
+prepare_graph(fit) %>%
+  # Add color column to the graph elements
+  edit_graph({ color = "black" }) %>% 
+  # Conditionally change color to blue when the column 'est' contains the number 4
+  if_edit(grepl("4", est), {color = "blue"}) %>%
+  plot()->p
+ggsave("pgfig10.png", p, device = "png", width= 4, height = 4)
+knitr::include_graphics("pgfig10.png")
 
