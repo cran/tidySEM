@@ -1,4 +1,4 @@
-1b2ae744a3273ab22176d5546fa1ace1 *DESCRIPTION
+88452ad938c1e192db86cafe584a9a87 *DESCRIPTION
 1b3d6c9734e506df5a39c60cf6a29cfa *NAMESPACE
 8bfc827dbdaea7655da2f2c41de9d9c1 *R/descriptives.R
 30acbd22fc107dcc778bc0fb5e3d9705 *R/motley_functions.R
@@ -6,11 +6,11 @@
 4ddd8b7fdc7ea6282dd7fbc8e4741a12 *R/plot-attributes.R
 63c8dad83c3b548a86e665ba431198d6 *R/plot-correlation_curves.R
 fa1959a9b9873447d1d2183f83e4d525 *R/plot-generate_layout.R
-942bebf69d5eae529199b7b73810942c *R/plot-plot_sem.R
+4e7841bf63b2a9db50ae9e940a4b7609 *R/plot-plot_sem.R
 50eba31b9fb2a5daf5ed29351a091dc8 *R/plot_ellipses.R
 ede98394c0445d3b2dd68ece0d320fc9 *R/print.R
 bc124672dc5a6139cd2d94ef7f82a625 *R/print_layout.R
-582e4aeeb1b066c1db4faa62ee6569f2 *R/results-table_results.R
+c5e7fd93ac8716d3021dabc4d3cdf239 *R/results-table_results.R
 47f50fe4e72ec44300f05f5502c66456 *R/results-table_results_mx_model.R
 27bcef8f646d886bdf58a3a1eb553fe6 *R/select_rows.R
 1118de1209f2456dd0967f915c7a7d7b *R/syntax-add_paths.R
@@ -35,10 +35,10 @@ d4dd8ca5fa0b7ee41fee8de950c7084e *inst/doc/Generating_syntax.Rmd
 518cfbb63119771506639b57fb101408 *inst/doc/Generating_syntax.html
 1335cfa67d8971be206688059ae5cd7f *inst/doc/Plotting_graphs.R
 112a535b82d2e36e6eb9ba376f8223f4 *inst/doc/Plotting_graphs.Rmd
-4493bb5b223b5742bd7b843e8d651456 *inst/doc/Plotting_graphs.html
+21f4a7bf851cc8152e96a7fe1fd4d49e *inst/doc/Plotting_graphs.html
 c7d34d42ed2369d3916a8b607fbca3ec *inst/doc/Tabulating_results.R
 9257e9eb28d542b6cc5da98c2286cc3c *inst/doc/Tabulating_results.Rmd
-2fd15b20c7feaebed8a74cdabee7388c *inst/doc/Tabulating_results.html
+2752801c0ccb1ea815094347bf3fe7eb *inst/doc/Tabulating_results.html
 be27972a45c0668980baade736fcfc75 *inst/doc/sem_graph.R
 91dcbec3fe46bc764cbe8c426c1f9634 *inst/doc/sem_graph.Rmd
 ff31503cad87a5363ec1912e3501aeae *inst/doc/sem_graph.html
@@ -90,10 +90,10 @@ c5df137559e86991e6cd6364be72b251 *tests/testthat/test-plot_digits.R
 bd67e934a94e2ca44eab799cb97ae205 *tests/testthat/test-plot_openmx.R
 638a1c0b7bc5283b9f30e305c1e0e79f *tests/testthat/test-plot_sem.R
 74c3fb9b94af13af9717e403f7b40852 *tests/testthat/test-plot_sem_ellipse.R
-0d1b073214d66d780884f9da58eb5122 *tests/testthat/test-results_digits.R
+8306be06118d94ecfd69e4e4c20eee93 *tests/testthat/test-results_digits.R
 e4d14be2b2e87e3aa360ff404a67f4b4 *tests/testthat/test-results_has_pval.R
-900dc722ffb15de451baa247094822de *tests/testthat/test-results_labels.R
-d30c932805d6e1951a7492cd384f993e *tests/testthat/test-syntax_cfa_mplus_lavaan.R
+b1ac39b8bb62be9bc75180260a7e3eff *tests/testthat/test-results_labels.R
+7ac9707a5a83286c56976216c467b24f *tests/testthat/test-syntax_cfa_mplus_lavaan.R
 1412719079d277115303ad7a41d9073b *tests/testthat/test-syntax_same_sem_addpaths.R
 52e6b6fc9c33028c0d6993a77f78824e *tests/testthat/test-tidy_sem_lavaan_cfa_same.R
 d4dd8ca5fa0b7ee41fee8de950c7084e *vignettes/Generating_syntax.Rmd

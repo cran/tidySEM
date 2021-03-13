@@ -392,9 +392,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb5-2"><a href="#cb5-2"></a><span class="co">#&gt;      [,1] [,2] [,3] [,4]     [,5]     </span></span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="co">#&gt; [1,] NA   NA   NA   &quot;x2&quot;     NA       </span></span>
 <span id="cb5-4"><a href="#cb5-4"></a><span class="co">#&gt; [2,] NA   &quot;x3&quot; &quot;x1&quot; &quot;speed&quot;  NA       </span></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; [3,] &quot;x5&quot; &quot;x4&quot; NA   &quot;visual&quot; NA       </span></span>
-<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#&gt; [4,] NA   &quot;x6&quot; &quot;x7&quot; &quot;x9&quot;     &quot;textual&quot;</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; [5,] NA   &quot;x8&quot; NA   NA       NA       </span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; [3,] NA   &quot;x4&quot; NA   &quot;visual&quot; NA       </span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#&gt; [4,] &quot;x5&quot; &quot;x6&quot; &quot;x7&quot; &quot;x9&quot;     &quot;textual&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; [5,] NA   NA   NA   &quot;x8&quot;     NA       </span></span>
 <span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
 <span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt; [1] &quot;layout_matrix&quot; &quot;matrix&quot;        &quot;array&quot;</span></span>
 <span id="cb5-10"><a href="#cb5-10"></a><span class="kw">get_layout</span>(fit, <span class="dt">layout_algorithm =</span> <span class="st">&quot;layout_on_grid&quot;</span>)</span>
@@ -533,7 +533,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb17-49"><a href="#cb17-49"></a><span class="co">#&gt; 22 textual 0.41 0.07 0.00 [0.26, 0.55] 0.41***    0.46   0.06     0.00</span></span>
 <span id="cb17-50"><a href="#cb17-50"></a><span class="co">#&gt; 23   speed 0.26 0.06 0.00 [0.15, 0.37] 0.26***    0.47   0.07     0.00</span></span>
 <span id="cb17-51"><a href="#cb17-51"></a><span class="co">#&gt; 24   speed 0.17 0.05 0.00 [0.08, 0.27] 0.17***    0.28   0.07     0.00</span></span>
-<span id="cb17-52"><a href="#cb17-52"></a><span class="co">#&gt;     confint_std est_sig_std         mplus_label show</span></span>
+<span id="cb17-52"><a href="#cb17-52"></a><span class="co">#&gt;     confint_std est_sig_std       label_results show</span></span>
 <span id="cb17-53"><a href="#cb17-53"></a><span class="co">#&gt; 1  [0.66, 0.88]     0.77***        visual.BY.x1 TRUE</span></span>
 <span id="cb17-54"><a href="#cb17-54"></a><span class="co">#&gt; 2  [0.31, 0.54]     0.42***        visual.BY.x2 TRUE</span></span>
 <span id="cb17-55"><a href="#cb17-55"></a><span class="co">#&gt; 3  [0.47, 0.69]     0.58***        visual.BY.x3 TRUE</span></span>
@@ -614,7 +614,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb18-49"><a href="#cb18-49"></a><span class="co">#&gt; 22  visual ~~ textual 0.41 0.07 0.00 [0.26, 0.55] 0.41***    0.46   0.06</span></span>
 <span id="cb18-50"><a href="#cb18-50"></a><span class="co">#&gt; 23  visual ~~   speed 0.26 0.06 0.00 [0.15, 0.37] 0.26***    0.47   0.07</span></span>
 <span id="cb18-51"><a href="#cb18-51"></a><span class="co">#&gt; 24 textual ~~   speed 0.17 0.05 0.00 [0.08, 0.27] 0.17***    0.28   0.07</span></span>
-<span id="cb18-52"><a href="#cb18-52"></a><span class="co">#&gt;    pval_std  confint_std est_sig_std         mplus_label show</span></span>
+<span id="cb18-52"><a href="#cb18-52"></a><span class="co">#&gt;    pval_std  confint_std est_sig_std       label_results show</span></span>
 <span id="cb18-53"><a href="#cb18-53"></a><span class="co">#&gt; 1      0.00 [0.66, 0.88]     0.77***        visual.BY.x1 TRUE</span></span>
 <span id="cb18-54"><a href="#cb18-54"></a><span class="co">#&gt; 2      0.00 [0.31, 0.54]     0.42***        visual.BY.x2 TRUE</span></span>
 <span id="cb18-55"><a href="#cb18-55"></a><span class="co">#&gt; 3      0.00 [0.47, 0.69]     0.58***        visual.BY.x3 TRUE</span></span>
@@ -657,7 +657,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb20-12"><a href="#cb20-12"></a><span class="co">#&gt; 10      x7  rect   x7\n4.19***      x7 ~1     4.19 0.06 0.00 [4.06, 4.31]</span></span>
 <span id="cb20-13"><a href="#cb20-13"></a><span class="co">#&gt; 11      x8  rect   x8\n5.53***      x8 ~1     5.53 0.06 0.00 [5.41, 5.64]</span></span>
 <span id="cb20-14"><a href="#cb20-14"></a><span class="co">#&gt; 12      x9  rect   x9\n5.37***      x9 ~1     5.37 0.06 0.00 [5.26, 5.49]</span></span>
-<span id="cb20-15"><a href="#cb20-15"></a><span class="co">#&gt;    est_sig est_std se_std pval_std  confint_std est_sig_std   mplus_label</span></span>
+<span id="cb20-15"><a href="#cb20-15"></a><span class="co">#&gt;    est_sig est_std se_std pval_std  confint_std est_sig_std label_results</span></span>
 <span id="cb20-16"><a href="#cb20-16"></a><span class="co">#&gt; 1     0.00    0.00   0.00     &lt;NA&gt; [0.00, 0.00]        0.00   Means.speed</span></span>
 <span id="cb20-17"><a href="#cb20-17"></a><span class="co">#&gt; 2     0.00    0.00   0.00     &lt;NA&gt; [0.00, 0.00]        0.00 Means.textual</span></span>
 <span id="cb20-18"><a href="#cb20-18"></a><span class="co">#&gt; 3     0.00    0.00   0.00     &lt;NA&gt; [0.00, 0.00]        0.00  Means.visual</span></span>
@@ -698,7 +698,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb21-25"><a href="#cb21-25"></a><span class="co">#&gt; 10 [4.06, 4.31] 4.19***    3.85   0.17     0.00 [3.52, 4.18]     3.85***</span></span>
 <span id="cb21-26"><a href="#cb21-26"></a><span class="co">#&gt; 11 [5.41, 5.64] 5.53***    5.47   0.23     0.00 [5.02, 5.92]     5.47***</span></span>
 <span id="cb21-27"><a href="#cb21-27"></a><span class="co">#&gt; 12 [5.26, 5.49] 5.37***    5.33   0.22     0.00 [4.89, 5.78]     5.33***</span></span>
-<span id="cb21-28"><a href="#cb21-28"></a><span class="co">#&gt;      mplus_label</span></span>
+<span id="cb21-28"><a href="#cb21-28"></a><span class="co">#&gt;    label_results</span></span>
 <span id="cb21-29"><a href="#cb21-29"></a><span class="co">#&gt; 1    Means.speed</span></span>
 <span id="cb21-30"><a href="#cb21-30"></a><span class="co">#&gt; 2  Means.textual</span></span>
 <span id="cb21-31"><a href="#cb21-31"></a><span class="co">#&gt; 3   Means.visual</span></span>
@@ -767,7 +767,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb22-50"><a href="#cb22-50"></a><span class="co">#&gt; 22 textual 0.41 0.07 0.00 [0.26, 0.55] 0.41***    0.46   0.06     0.00</span></span>
 <span id="cb22-51"><a href="#cb22-51"></a><span class="co">#&gt; 23   speed 0.26 0.06 0.00 [0.15, 0.37] 0.26***    0.47   0.07     0.00</span></span>
 <span id="cb22-52"><a href="#cb22-52"></a><span class="co">#&gt; 24   speed 0.17 0.05 0.00 [0.08, 0.27] 0.17***    0.28   0.07     0.00</span></span>
-<span id="cb22-53"><a href="#cb22-53"></a><span class="co">#&gt;     confint_std est_sig_std         mplus_label show</span></span>
+<span id="cb22-53"><a href="#cb22-53"></a><span class="co">#&gt;     confint_std est_sig_std       label_results show</span></span>
 <span id="cb22-54"><a href="#cb22-54"></a><span class="co">#&gt; 1  [0.66, 0.88]     0.77***        visual.BY.x1 TRUE</span></span>
 <span id="cb22-55"><a href="#cb22-55"></a><span class="co">#&gt; 2  [0.31, 0.54]     0.42***        visual.BY.x2 TRUE</span></span>
 <span id="cb22-56"><a href="#cb22-56"></a><span class="co">#&gt; 3  [0.47, 0.69]     0.58***        visual.BY.x3 TRUE</span></span>
@@ -846,7 +846,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb27-25"><a href="#cb27-25"></a><span class="co">#&gt; 10      x7 ~1     4.19 0.06 0.00 [4.06, 4.31] 4.19***    3.85   0.17     0.00</span></span>
 <span id="cb27-26"><a href="#cb27-26"></a><span class="co">#&gt; 11      x8 ~1     5.53 0.06 0.00 [5.41, 5.64] 5.53***    5.47   0.23     0.00</span></span>
 <span id="cb27-27"><a href="#cb27-27"></a><span class="co">#&gt; 12      x9 ~1     5.37 0.06 0.00 [5.26, 5.49] 5.37***    5.33   0.22     0.00</span></span>
-<span id="cb27-28"><a href="#cb27-28"></a><span class="co">#&gt;     confint_std est_sig_std   mplus_label show</span></span>
+<span id="cb27-28"><a href="#cb27-28"></a><span class="co">#&gt;     confint_std est_sig_std label_results show</span></span>
 <span id="cb27-29"><a href="#cb27-29"></a><span class="co">#&gt; 1  [0.00, 0.00]        0.00   Means.speed TRUE</span></span>
 <span id="cb27-30"><a href="#cb27-30"></a><span class="co">#&gt; 2  [0.00, 0.00]        0.00 Means.textual TRUE</span></span>
 <span id="cb27-31"><a href="#cb27-31"></a><span class="co">#&gt; 3  [0.00, 0.00]        0.00  Means.visual TRUE</span></span>
@@ -910,7 +910,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb27-89"><a href="#cb27-89"></a><span class="co">#&gt; 22 textual 0.41 0.07 0.00 [0.26, 0.55] 0.41***    0.46   0.06     0.00</span></span>
 <span id="cb27-90"><a href="#cb27-90"></a><span class="co">#&gt; 23   speed 0.26 0.06 0.00 [0.15, 0.37] 0.26***    0.47   0.07     0.00</span></span>
 <span id="cb27-91"><a href="#cb27-91"></a><span class="co">#&gt; 24   speed 0.17 0.05 0.00 [0.08, 0.27] 0.17***    0.28   0.07     0.00</span></span>
-<span id="cb27-92"><a href="#cb27-92"></a><span class="co">#&gt;     confint_std est_sig_std         mplus_label show</span></span>
+<span id="cb27-92"><a href="#cb27-92"></a><span class="co">#&gt;     confint_std est_sig_std       label_results show</span></span>
 <span id="cb27-93"><a href="#cb27-93"></a><span class="co">#&gt; 1  [0.66, 0.88]     0.77***        visual.BY.x1 TRUE</span></span>
 <span id="cb27-94"><a href="#cb27-94"></a><span class="co">#&gt; 2  [0.31, 0.54]     0.42***        visual.BY.x2 TRUE</span></span>
 <span id="cb27-95"><a href="#cb27-95"></a><span class="co">#&gt; 3  [0.47, 0.69]     0.58***        visual.BY.x3 TRUE</span></span>
@@ -1067,7 +1067,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 #&gt; 4 0.00 &lt;NA&gt;   [3.09, 3.09]     3.09    1.00   0.00     &lt;NA&gt;   [1.00, 1.00]
 #&gt; 5 0.00 &lt;NA&gt; [-0.45, -0.45]    -0.45   -0.52   0.00     &lt;NA&gt; [-0.52, -0.52]
 #&gt; 6 0.00 &lt;NA&gt;   [0.24, 0.24]     0.24    1.00   0.00     &lt;NA&gt;   [1.00, 1.00]
-#&gt;   est_sig_std   mplus_label  show
+#&gt;   est_sig_std label_results  show
 #&gt; 1    -0.74***    mpg.ON.cyl  TRUE
 #&gt; 2       0.21*     mpg.ON.am  TRUE
 #&gt; 3     0.24*** Variances.mpg  TRUE
