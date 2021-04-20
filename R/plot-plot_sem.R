@@ -230,6 +230,11 @@ graph_sem.lavaan <- function(model,
 #' @export
 graph_sem.mplus.model <- graph_sem.lavaan
 
+#' @method graph_sem mplusObject
+#' @rdname graph_sem
+#' @export
+graph_sem.mplusObject <- graph_sem.lavaan
+
 graph_model <- function(model, ...) {
   Args <- as.list(match.call()[-1])
   call_args <- list(x = model,
@@ -544,6 +549,11 @@ prepare_graph.lavaan <- function(model,
 #' @export
 prepare_graph.mplus.model <- prepare_graph.lavaan
 
+#' @method prepare_graph mplusObject
+#' @rdname prepare_graph
+#' @export
+prepare_graph.mplusObject <- prepare_graph.lavaan
+
 prepare_graph_model <- function(model, ...) {
   Args <- as.list(match.call()[-1])
   call_args <- list(x = model)
@@ -805,7 +815,7 @@ get_nodes.tidy_results <- function(x, label = paste(name, est_sig, sep = "\n"), 
       tmp$group <- i
       tmp
     })
-    return(do.call(rbind, x_list))
+    return(bind_list(x_list))
   }
   if("level" %in% names(x)){
     x_list <- lapply(unique(x$level), function(i){
@@ -815,7 +825,7 @@ get_nodes.tidy_results <- function(x, label = paste(name, est_sig, sep = "\n"), 
       tmp$level <- i
       tmp
     })
-    return(do.call(rbind, x_list))
+    return(bind_list(x_list))
   }
   latent <- unique(x$lhs[x$op == "=~"])
 
@@ -968,7 +978,7 @@ get_edges.tidy_results <- function(x, label = "est_sig", ...){
       tmp$group <- i
       tmp
     })
-    return(do.call(rbind, x_list))
+    return(bind_list(x_list))
   }
   if("level" %in% names(x)){
     x_list <- lapply(unique(x$level), function(i){
@@ -979,7 +989,7 @@ get_edges.tidy_results <- function(x, label = "est_sig", ...){
       tmp$level <- i
       tmp
     })
-    return(do.call(rbind, x_list))
+    return(bind_list(x_list))
   }
   if("label" %in% names(x)){
     names(x)[names(x) == "label"] <- "label_results"
@@ -1147,7 +1157,7 @@ match.call.defaults <- function(...) {
                              df_edges = df_edges[df_edges$group == i, -which(names(df_edges) == "group")],
                              angle = angle)
     })
-    return(do.call(rbind, x_list))
+    return(bind_list(x_list))
   }
   if("level" %in% names(df_nodes)){
     x_list <- lapply(unique(df_nodes$level), function(i){
@@ -1155,7 +1165,7 @@ match.call.defaults <- function(...) {
                              df_edges = df_edges[df_edges$level == i, -which(names(df_edges) == "level")],
                              angle = angle)
     })
-    return(do.call(rbind, x_list))
+    return(bind_list(x_list))
   }
   # End recursion
   connector_sides <-
@@ -1411,4 +1421,15 @@ reposition_variances <- function(df_edges){
     }, vv = variance_vars, vloc = df_edges$connect_from[variances])
   df_edges$connect_from[variances] <- df_edges$connect_to[variances] <- new_loc
   return(df_edges)
+}
+
+
+bind_list <- function(L, ...){
+  all_names <- unique(unlist(lapply(L, names)))
+  L <- lapply(L, function(x){
+    x[setdiff(all_names, names(x))] <- NA
+    x
+  })
+  Args <- c(L, list(...))
+  do.call(rbind, Args)
 }
