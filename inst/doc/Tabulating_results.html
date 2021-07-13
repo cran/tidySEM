@@ -14,22 +14,7 @@
 
 <title>Tabulating results from structural equation models</title>
 
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -41,21 +26,28 @@ document.addEventListener('DOMContentLoaded', function() {
     </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -75,7 +67,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -133,187 +125,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -329,252 +141,252 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(tidySEM)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(lavaan)</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(MplusAutomation)</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">#&gt; Version:  0.8.1</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">#&gt; We work hard to write this free software. Please help us get credit by citing: </span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">#&gt; </span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">#&gt; Hallquist, M. N. &amp; Wiley, J. F. (2018). MplusAutomation: An R Package for Facilitating Large-Scale Latent Variable Analyses in Mplus. Structural Equation Modeling, 25, 621-638. doi: 10.1080/10705511.2017.1402334.</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#&gt; </span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="co">#&gt; -- see citation(&quot;MplusAutomation&quot;).</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="kw">library</span>(dplyr)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MplusAutomation)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Version:  1.0.0</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; We work hard to write this free software. Please help us get credit by citing: </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Hallquist, M. N. &amp; Wiley, J. F. (2018). MplusAutomation: An R Package for Facilitating Large-Scale Latent Variable Analyses in Mplus. Structural Equation Modeling, 25, 621-638. doi: 10.1080/10705511.2017.1402334.</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -- see citation(&quot;MplusAutomation&quot;).</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
 <p><code>tidySEM</code> tabulates the results of different types of models in the same uniform way. This facilitates parsing the output into Tables and Figures for publication.</p>
 <div id="output-from-lavaan" class="section level2">
 <h2>Output from lavaan</h2>
 <p>As an example, let’s tabulate the results from a classic <code>lavaan</code> tutorial example for a multiple group model. First, we run the model:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>HS.model &lt;-<span class="st"> &#39;  visual =~ x1 + x2 + x3</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="st">              textual =~ x4 + x5 + x6</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="st">              speed   =~ x7 + x8 + x9 &#39;</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>fit &lt;-<span class="st"> </span><span class="kw">cfa</span>(HS.model, </span>
-<span id="cb2-5"><a href="#cb2-5"></a>           <span class="dt">data =</span> HolzingerSwineford1939, </span>
-<span id="cb2-6"><a href="#cb2-6"></a>           <span class="dt">group =</span> <span class="st">&quot;school&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>HS.model <span class="ot">&lt;-</span> <span class="st">&#39;  visual =~ x1 + x2 + x3</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">              textual =~ x4 + x5 + x6</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">              speed   =~ x7 + x8 + x9 &#39;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">cfa</span>(HS.model, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> HolzingerSwineford1939, </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">group =</span> <span class="st">&quot;school&quot;</span>)</span></code></pre></div>
 <p>The results can be tabulated using the <code>lavaan</code> function <code>summary()</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">summary</span>(fit)</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#&gt; lavaan 0.6-7 ended normally after 57 iterations</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt; </span></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt;   Estimator                                         ML</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt;   Number of free parameters                         60</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt;                                                       </span></span>
-<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt;   Number of observations per group:                   </span></span>
-<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt;     Pasteur                                        156</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt;     Grant-White                                    145</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt;                                                       </span></span>
-<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt; Model Test User Model:</span></span>
-<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt;                                                       </span></span>
-<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#&gt;   Test statistic                               115.851</span></span>
-<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt;   Degrees of freedom                                48</span></span>
-<span id="cb3-16"><a href="#cb3-16"></a><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span>
-<span id="cb3-17"><a href="#cb3-17"></a><span class="co">#&gt;   Test statistic for each group:</span></span>
-<span id="cb3-18"><a href="#cb3-18"></a><span class="co">#&gt;     Pasteur                                     64.309</span></span>
-<span id="cb3-19"><a href="#cb3-19"></a><span class="co">#&gt;     Grant-White                                 51.542</span></span>
-<span id="cb3-20"><a href="#cb3-20"></a><span class="co">#&gt; </span></span>
-<span id="cb3-21"><a href="#cb3-21"></a><span class="co">#&gt; Parameter Estimates:</span></span>
-<span id="cb3-22"><a href="#cb3-22"></a><span class="co">#&gt; </span></span>
-<span id="cb3-23"><a href="#cb3-23"></a><span class="co">#&gt;   Standard errors                             Standard</span></span>
-<span id="cb3-24"><a href="#cb3-24"></a><span class="co">#&gt;   Information                                 Expected</span></span>
-<span id="cb3-25"><a href="#cb3-25"></a><span class="co">#&gt;   Information saturated (h1) model          Structured</span></span>
-<span id="cb3-26"><a href="#cb3-26"></a><span class="co">#&gt; </span></span>
-<span id="cb3-27"><a href="#cb3-27"></a><span class="co">#&gt; </span></span>
-<span id="cb3-28"><a href="#cb3-28"></a><span class="co">#&gt; Group 1 [Pasteur]:</span></span>
-<span id="cb3-29"><a href="#cb3-29"></a><span class="co">#&gt; </span></span>
-<span id="cb3-30"><a href="#cb3-30"></a><span class="co">#&gt; Latent Variables:</span></span>
-<span id="cb3-31"><a href="#cb3-31"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-32"><a href="#cb3-32"></a><span class="co">#&gt;   visual =~                                           </span></span>
-<span id="cb3-33"><a href="#cb3-33"></a><span class="co">#&gt;     x1                1.000                           </span></span>
-<span id="cb3-34"><a href="#cb3-34"></a><span class="co">#&gt;     x2                0.394    0.122    3.220    0.001</span></span>
-<span id="cb3-35"><a href="#cb3-35"></a><span class="co">#&gt;     x3                0.570    0.140    4.076    0.000</span></span>
-<span id="cb3-36"><a href="#cb3-36"></a><span class="co">#&gt;   textual =~                                          </span></span>
-<span id="cb3-37"><a href="#cb3-37"></a><span class="co">#&gt;     x4                1.000                           </span></span>
-<span id="cb3-38"><a href="#cb3-38"></a><span class="co">#&gt;     x5                1.183    0.102   11.613    0.000</span></span>
-<span id="cb3-39"><a href="#cb3-39"></a><span class="co">#&gt;     x6                0.875    0.077   11.421    0.000</span></span>
-<span id="cb3-40"><a href="#cb3-40"></a><span class="co">#&gt;   speed =~                                            </span></span>
-<span id="cb3-41"><a href="#cb3-41"></a><span class="co">#&gt;     x7                1.000                           </span></span>
-<span id="cb3-42"><a href="#cb3-42"></a><span class="co">#&gt;     x8                1.125    0.277    4.057    0.000</span></span>
-<span id="cb3-43"><a href="#cb3-43"></a><span class="co">#&gt;     x9                0.922    0.225    4.104    0.000</span></span>
-<span id="cb3-44"><a href="#cb3-44"></a><span class="co">#&gt; </span></span>
-<span id="cb3-45"><a href="#cb3-45"></a><span class="co">#&gt; Covariances:</span></span>
-<span id="cb3-46"><a href="#cb3-46"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-47"><a href="#cb3-47"></a><span class="co">#&gt;   visual ~~                                           </span></span>
-<span id="cb3-48"><a href="#cb3-48"></a><span class="co">#&gt;     textual           0.479    0.106    4.531    0.000</span></span>
-<span id="cb3-49"><a href="#cb3-49"></a><span class="co">#&gt;     speed             0.185    0.077    2.397    0.017</span></span>
-<span id="cb3-50"><a href="#cb3-50"></a><span class="co">#&gt;   textual ~~                                          </span></span>
-<span id="cb3-51"><a href="#cb3-51"></a><span class="co">#&gt;     speed             0.182    0.069    2.628    0.009</span></span>
-<span id="cb3-52"><a href="#cb3-52"></a><span class="co">#&gt; </span></span>
-<span id="cb3-53"><a href="#cb3-53"></a><span class="co">#&gt; Intercepts:</span></span>
-<span id="cb3-54"><a href="#cb3-54"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-55"><a href="#cb3-55"></a><span class="co">#&gt;    .x1                4.941    0.095   52.249    0.000</span></span>
-<span id="cb3-56"><a href="#cb3-56"></a><span class="co">#&gt;    .x2                5.984    0.098   60.949    0.000</span></span>
-<span id="cb3-57"><a href="#cb3-57"></a><span class="co">#&gt;    .x3                2.487    0.093   26.778    0.000</span></span>
-<span id="cb3-58"><a href="#cb3-58"></a><span class="co">#&gt;    .x4                2.823    0.092   30.689    0.000</span></span>
-<span id="cb3-59"><a href="#cb3-59"></a><span class="co">#&gt;    .x5                3.995    0.105   38.183    0.000</span></span>
-<span id="cb3-60"><a href="#cb3-60"></a><span class="co">#&gt;    .x6                1.922    0.079   24.321    0.000</span></span>
-<span id="cb3-61"><a href="#cb3-61"></a><span class="co">#&gt;    .x7                4.432    0.087   51.181    0.000</span></span>
-<span id="cb3-62"><a href="#cb3-62"></a><span class="co">#&gt;    .x8                5.563    0.078   71.214    0.000</span></span>
-<span id="cb3-63"><a href="#cb3-63"></a><span class="co">#&gt;    .x9                5.418    0.079   68.440    0.000</span></span>
-<span id="cb3-64"><a href="#cb3-64"></a><span class="co">#&gt;     visual            0.000                           </span></span>
-<span id="cb3-65"><a href="#cb3-65"></a><span class="co">#&gt;     textual           0.000                           </span></span>
-<span id="cb3-66"><a href="#cb3-66"></a><span class="co">#&gt;     speed             0.000                           </span></span>
-<span id="cb3-67"><a href="#cb3-67"></a><span class="co">#&gt; </span></span>
-<span id="cb3-68"><a href="#cb3-68"></a><span class="co">#&gt; Variances:</span></span>
-<span id="cb3-69"><a href="#cb3-69"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-70"><a href="#cb3-70"></a><span class="co">#&gt;    .x1                0.298    0.232    1.286    0.198</span></span>
-<span id="cb3-71"><a href="#cb3-71"></a><span class="co">#&gt;    .x2                1.334    0.158    8.464    0.000</span></span>
-<span id="cb3-72"><a href="#cb3-72"></a><span class="co">#&gt;    .x3                0.989    0.136    7.271    0.000</span></span>
-<span id="cb3-73"><a href="#cb3-73"></a><span class="co">#&gt;    .x4                0.425    0.069    6.138    0.000</span></span>
-<span id="cb3-74"><a href="#cb3-74"></a><span class="co">#&gt;    .x5                0.456    0.086    5.292    0.000</span></span>
-<span id="cb3-75"><a href="#cb3-75"></a><span class="co">#&gt;    .x6                0.290    0.050    5.780    0.000</span></span>
-<span id="cb3-76"><a href="#cb3-76"></a><span class="co">#&gt;    .x7                0.820    0.125    6.580    0.000</span></span>
-<span id="cb3-77"><a href="#cb3-77"></a><span class="co">#&gt;    .x8                0.510    0.116    4.406    0.000</span></span>
-<span id="cb3-78"><a href="#cb3-78"></a><span class="co">#&gt;    .x9                0.680    0.104    6.516    0.000</span></span>
-<span id="cb3-79"><a href="#cb3-79"></a><span class="co">#&gt;     visual            1.097    0.276    3.967    0.000</span></span>
-<span id="cb3-80"><a href="#cb3-80"></a><span class="co">#&gt;     textual           0.894    0.150    5.963    0.000</span></span>
-<span id="cb3-81"><a href="#cb3-81"></a><span class="co">#&gt;     speed             0.350    0.126    2.778    0.005</span></span>
-<span id="cb3-82"><a href="#cb3-82"></a><span class="co">#&gt; </span></span>
-<span id="cb3-83"><a href="#cb3-83"></a><span class="co">#&gt; </span></span>
-<span id="cb3-84"><a href="#cb3-84"></a><span class="co">#&gt; Group 2 [Grant-White]:</span></span>
-<span id="cb3-85"><a href="#cb3-85"></a><span class="co">#&gt; </span></span>
-<span id="cb3-86"><a href="#cb3-86"></a><span class="co">#&gt; Latent Variables:</span></span>
-<span id="cb3-87"><a href="#cb3-87"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-88"><a href="#cb3-88"></a><span class="co">#&gt;   visual =~                                           </span></span>
-<span id="cb3-89"><a href="#cb3-89"></a><span class="co">#&gt;     x1                1.000                           </span></span>
-<span id="cb3-90"><a href="#cb3-90"></a><span class="co">#&gt;     x2                0.736    0.155    4.760    0.000</span></span>
-<span id="cb3-91"><a href="#cb3-91"></a><span class="co">#&gt;     x3                0.925    0.166    5.583    0.000</span></span>
-<span id="cb3-92"><a href="#cb3-92"></a><span class="co">#&gt;   textual =~                                          </span></span>
-<span id="cb3-93"><a href="#cb3-93"></a><span class="co">#&gt;     x4                1.000                           </span></span>
-<span id="cb3-94"><a href="#cb3-94"></a><span class="co">#&gt;     x5                0.990    0.087   11.418    0.000</span></span>
-<span id="cb3-95"><a href="#cb3-95"></a><span class="co">#&gt;     x6                0.963    0.085   11.377    0.000</span></span>
-<span id="cb3-96"><a href="#cb3-96"></a><span class="co">#&gt;   speed =~                                            </span></span>
-<span id="cb3-97"><a href="#cb3-97"></a><span class="co">#&gt;     x7                1.000                           </span></span>
-<span id="cb3-98"><a href="#cb3-98"></a><span class="co">#&gt;     x8                1.226    0.187    6.569    0.000</span></span>
-<span id="cb3-99"><a href="#cb3-99"></a><span class="co">#&gt;     x9                1.058    0.165    6.429    0.000</span></span>
-<span id="cb3-100"><a href="#cb3-100"></a><span class="co">#&gt; </span></span>
-<span id="cb3-101"><a href="#cb3-101"></a><span class="co">#&gt; Covariances:</span></span>
-<span id="cb3-102"><a href="#cb3-102"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-103"><a href="#cb3-103"></a><span class="co">#&gt;   visual ~~                                           </span></span>
-<span id="cb3-104"><a href="#cb3-104"></a><span class="co">#&gt;     textual           0.408    0.098    4.153    0.000</span></span>
-<span id="cb3-105"><a href="#cb3-105"></a><span class="co">#&gt;     speed             0.276    0.076    3.639    0.000</span></span>
-<span id="cb3-106"><a href="#cb3-106"></a><span class="co">#&gt;   textual ~~                                          </span></span>
-<span id="cb3-107"><a href="#cb3-107"></a><span class="co">#&gt;     speed             0.222    0.073    3.022    0.003</span></span>
-<span id="cb3-108"><a href="#cb3-108"></a><span class="co">#&gt; </span></span>
-<span id="cb3-109"><a href="#cb3-109"></a><span class="co">#&gt; Intercepts:</span></span>
-<span id="cb3-110"><a href="#cb3-110"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-111"><a href="#cb3-111"></a><span class="co">#&gt;    .x1                4.930    0.095   51.696    0.000</span></span>
-<span id="cb3-112"><a href="#cb3-112"></a><span class="co">#&gt;    .x2                6.200    0.092   67.416    0.000</span></span>
-<span id="cb3-113"><a href="#cb3-113"></a><span class="co">#&gt;    .x3                1.996    0.086   23.195    0.000</span></span>
-<span id="cb3-114"><a href="#cb3-114"></a><span class="co">#&gt;    .x4                3.317    0.093   35.625    0.000</span></span>
-<span id="cb3-115"><a href="#cb3-115"></a><span class="co">#&gt;    .x5                4.712    0.096   48.986    0.000</span></span>
-<span id="cb3-116"><a href="#cb3-116"></a><span class="co">#&gt;    .x6                2.469    0.094   26.277    0.000</span></span>
-<span id="cb3-117"><a href="#cb3-117"></a><span class="co">#&gt;    .x7                3.921    0.086   45.819    0.000</span></span>
-<span id="cb3-118"><a href="#cb3-118"></a><span class="co">#&gt;    .x8                5.488    0.087   63.174    0.000</span></span>
-<span id="cb3-119"><a href="#cb3-119"></a><span class="co">#&gt;    .x9                5.327    0.085   62.571    0.000</span></span>
-<span id="cb3-120"><a href="#cb3-120"></a><span class="co">#&gt;     visual            0.000                           </span></span>
-<span id="cb3-121"><a href="#cb3-121"></a><span class="co">#&gt;     textual           0.000                           </span></span>
-<span id="cb3-122"><a href="#cb3-122"></a><span class="co">#&gt;     speed             0.000                           </span></span>
-<span id="cb3-123"><a href="#cb3-123"></a><span class="co">#&gt; </span></span>
-<span id="cb3-124"><a href="#cb3-124"></a><span class="co">#&gt; Variances:</span></span>
-<span id="cb3-125"><a href="#cb3-125"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span id="cb3-126"><a href="#cb3-126"></a><span class="co">#&gt;    .x1                0.715    0.126    5.676    0.000</span></span>
-<span id="cb3-127"><a href="#cb3-127"></a><span class="co">#&gt;    .x2                0.899    0.123    7.339    0.000</span></span>
-<span id="cb3-128"><a href="#cb3-128"></a><span class="co">#&gt;    .x3                0.557    0.103    5.409    0.000</span></span>
-<span id="cb3-129"><a href="#cb3-129"></a><span class="co">#&gt;    .x4                0.315    0.065    4.870    0.000</span></span>
-<span id="cb3-130"><a href="#cb3-130"></a><span class="co">#&gt;    .x5                0.419    0.072    5.812    0.000</span></span>
-<span id="cb3-131"><a href="#cb3-131"></a><span class="co">#&gt;    .x6                0.406    0.069    5.880    0.000</span></span>
-<span id="cb3-132"><a href="#cb3-132"></a><span class="co">#&gt;    .x7                0.600    0.091    6.584    0.000</span></span>
-<span id="cb3-133"><a href="#cb3-133"></a><span class="co">#&gt;    .x8                0.401    0.094    4.249    0.000</span></span>
-<span id="cb3-134"><a href="#cb3-134"></a><span class="co">#&gt;    .x9                0.535    0.089    6.010    0.000</span></span>
-<span id="cb3-135"><a href="#cb3-135"></a><span class="co">#&gt;     visual            0.604    0.160    3.762    0.000</span></span>
-<span id="cb3-136"><a href="#cb3-136"></a><span class="co">#&gt;     textual           0.942    0.152    6.177    0.000</span></span>
-<span id="cb3-137"><a href="#cb3-137"></a><span class="co">#&gt;     speed             0.461    0.118    3.910    0.000</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lavaan 0.6-9 ended normally after 57 iterations</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Estimator                                         ML</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Number of model parameters                        60</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Number of observations per group:                   </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     Pasteur                                        156</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     Grant-White                                    145</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model Test User Model:</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Test statistic                               115.851</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Degrees of freedom                                48</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Test statistic for each group:</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     Pasteur                                     64.309</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     Grant-White                                 51.542</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Parameter Estimates:</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Standard errors                             Standard</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Information                                 Expected</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Information saturated (h1) model          Structured</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Group 1 [Pasteur]:</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Latent Variables:</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   visual =~                                           </span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x1                1.000                           </span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x2                0.394    0.122    3.220    0.001</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x3                0.570    0.140    4.076    0.000</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   textual =~                                          </span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x4                1.000                           </span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x5                1.183    0.102   11.613    0.000</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x6                0.875    0.077   11.421    0.000</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   speed =~                                            </span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x7                1.000                           </span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x8                1.125    0.277    4.057    0.000</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x9                0.922    0.225    4.104    0.000</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Covariances:</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   visual ~~                                           </span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     textual           0.479    0.106    4.531    0.000</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.185    0.077    2.397    0.017</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   textual ~~                                          </span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.182    0.069    2.628    0.009</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Intercepts:</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x1                4.941    0.095   52.249    0.000</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x2                5.984    0.098   60.949    0.000</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x3                2.487    0.093   26.778    0.000</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x4                2.823    0.092   30.689    0.000</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x5                3.995    0.105   38.183    0.000</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x6                1.922    0.079   24.321    0.000</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x7                4.432    0.087   51.181    0.000</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x8                5.563    0.078   71.214    0.000</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x9                5.418    0.079   68.440    0.000</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     visual            0.000                           </span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     textual           0.000                           </span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.000                           </span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variances:</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x1                0.298    0.232    1.286    0.198</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x2                1.334    0.158    8.464    0.000</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x3                0.989    0.136    7.271    0.000</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x4                0.425    0.069    6.138    0.000</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x5                0.456    0.086    5.292    0.000</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x6                0.290    0.050    5.780    0.000</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x7                0.820    0.125    6.580    0.000</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x8                0.510    0.116    4.406    0.000</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x9                0.680    0.104    6.516    0.000</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     visual            1.097    0.276    3.967    0.000</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     textual           0.894    0.150    5.963    0.000</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.350    0.126    2.778    0.005</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Group 2 [Grant-White]:</span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Latent Variables:</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   visual =~                                           </span></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x1                1.000                           </span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x2                0.736    0.155    4.760    0.000</span></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x3                0.925    0.166    5.583    0.000</span></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   textual =~                                          </span></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x4                1.000                           </span></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x5                0.990    0.087   11.418    0.000</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x6                0.963    0.085   11.377    0.000</span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   speed =~                                            </span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x7                1.000                           </span></span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x8                1.226    0.187    6.569    0.000</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     x9                1.058    0.165    6.429    0.000</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Covariances:</span></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   visual ~~                                           </span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     textual           0.408    0.098    4.153    0.000</span></span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.276    0.076    3.639    0.000</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   textual ~~                                          </span></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.222    0.073    3.022    0.003</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Intercepts:</span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x1                4.930    0.095   51.696    0.000</span></span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x2                6.200    0.092   67.416    0.000</span></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x3                1.996    0.086   23.195    0.000</span></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x4                3.317    0.093   35.625    0.000</span></span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x5                4.712    0.096   48.986    0.000</span></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x6                2.469    0.094   26.277    0.000</span></span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x7                3.921    0.086   45.819    0.000</span></span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x8                5.488    0.087   63.174    0.000</span></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x9                5.327    0.085   62.571    0.000</span></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     visual            0.000                           </span></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     textual           0.000                           </span></span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.000                           </span></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variances:</span></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x1                0.715    0.126    5.676    0.000</span></span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x2                0.899    0.123    7.339    0.000</span></span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x3                0.557    0.103    5.409    0.000</span></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x4                0.315    0.065    4.870    0.000</span></span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x5                0.419    0.072    5.812    0.000</span></span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x6                0.406    0.069    5.880    0.000</span></span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x7                0.600    0.091    6.584    0.000</span></span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x8                0.401    0.094    4.249    0.000</span></span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    .x9                0.535    0.089    6.010    0.000</span></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     visual            0.604    0.160    3.762    0.000</span></span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     textual           0.942    0.152    6.177    0.000</span></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     speed             0.461    0.118    3.910    0.000</span></span></code></pre></div>
 <p>Alternatively, we can use the <code>tidySEM</code> function <code>table_results()</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">table_results</span>(fit)</span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="co">#&gt;                              label est_sig   se pval       confint       group</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="co">#&gt; 1             visual.BY.x1.Pasteur    1.00 0.00 &lt;NA&gt;  [1.00, 1.00]     Pasteur</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="co">#&gt; 2             visual.BY.x2.Pasteur  0.39** 0.12 0.00  [0.15, 0.63]     Pasteur</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="co">#&gt; 3             visual.BY.x3.Pasteur 0.57*** 0.14 0.00  [0.30, 0.84]     Pasteur</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt; 4            textual.BY.x4.Pasteur    1.00 0.00 &lt;NA&gt;  [1.00, 1.00]     Pasteur</span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="co">#&gt; 5            textual.BY.x5.Pasteur 1.18*** 0.10 0.00  [0.98, 1.38]     Pasteur</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="co">#&gt; 6            textual.BY.x6.Pasteur 0.87*** 0.08 0.00  [0.72, 1.03]     Pasteur</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="co">#&gt; 7              speed.BY.x7.Pasteur    1.00 0.00 &lt;NA&gt;  [1.00, 1.00]     Pasteur</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="co">#&gt; 8              speed.BY.x8.Pasteur 1.12*** 0.28 0.00  [0.58, 1.67]     Pasteur</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="co">#&gt; 9              speed.BY.x9.Pasteur 0.92*** 0.22 0.00  [0.48, 1.36]     Pasteur</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a><span class="co">#&gt; 10            Variances.x1.Pasteur    0.30 0.23 0.20 [-0.16, 0.75]     Pasteur</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a><span class="co">#&gt; 11            Variances.x2.Pasteur 1.33*** 0.16 0.00  [1.02, 1.64]     Pasteur</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a><span class="co">#&gt; 12            Variances.x3.Pasteur 0.99*** 0.14 0.00  [0.72, 1.26]     Pasteur</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="co">#&gt; 13            Variances.x4.Pasteur 0.43*** 0.07 0.00  [0.29, 0.56]     Pasteur</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a><span class="co">#&gt; 14            Variances.x5.Pasteur 0.46*** 0.09 0.00  [0.29, 0.62]     Pasteur</span></span>
-<span id="cb4-17"><a href="#cb4-17"></a><span class="co">#&gt; 15            Variances.x6.Pasteur 0.29*** 0.05 0.00  [0.19, 0.39]     Pasteur</span></span>
-<span id="cb4-18"><a href="#cb4-18"></a><span class="co">#&gt; 16            Variances.x7.Pasteur 0.82*** 0.12 0.00  [0.58, 1.06]     Pasteur</span></span>
-<span id="cb4-19"><a href="#cb4-19"></a><span class="co">#&gt; 17            Variances.x8.Pasteur 0.51*** 0.12 0.00  [0.28, 0.74]     Pasteur</span></span>
-<span id="cb4-20"><a href="#cb4-20"></a><span class="co">#&gt; 18            Variances.x9.Pasteur 0.68*** 0.10 0.00  [0.48, 0.88]     Pasteur</span></span>
-<span id="cb4-21"><a href="#cb4-21"></a><span class="co">#&gt; 19        Variances.visual.Pasteur 1.10*** 0.28 0.00  [0.55, 1.64]     Pasteur</span></span>
-<span id="cb4-22"><a href="#cb4-22"></a><span class="co">#&gt; 20       Variances.textual.Pasteur 0.89*** 0.15 0.00  [0.60, 1.19]     Pasteur</span></span>
-<span id="cb4-23"><a href="#cb4-23"></a><span class="co">#&gt; 21         Variances.speed.Pasteur  0.35** 0.13 0.01  [0.10, 0.60]     Pasteur</span></span>
-<span id="cb4-24"><a href="#cb4-24"></a><span class="co">#&gt; 22     visual.WITH.textual.Pasteur 0.48*** 0.11 0.00  [0.27, 0.69]     Pasteur</span></span>
-<span id="cb4-25"><a href="#cb4-25"></a><span class="co">#&gt; 23       visual.WITH.speed.Pasteur   0.19* 0.08 0.02  [0.03, 0.34]     Pasteur</span></span>
-<span id="cb4-26"><a href="#cb4-26"></a><span class="co">#&gt; 24      textual.WITH.speed.Pasteur  0.18** 0.07 0.01  [0.05, 0.32]     Pasteur</span></span>
-<span id="cb4-27"><a href="#cb4-27"></a><span class="co">#&gt; 25                Means.x1.Pasteur 4.94*** 0.09 0.00  [4.76, 5.13]     Pasteur</span></span>
-<span id="cb4-28"><a href="#cb4-28"></a><span class="co">#&gt; 26                Means.x2.Pasteur 5.98*** 0.10 0.00  [5.79, 6.18]     Pasteur</span></span>
-<span id="cb4-29"><a href="#cb4-29"></a><span class="co">#&gt; 27                Means.x3.Pasteur 2.49*** 0.09 0.00  [2.31, 2.67]     Pasteur</span></span>
-<span id="cb4-30"><a href="#cb4-30"></a><span class="co">#&gt; 28                Means.x4.Pasteur 2.82*** 0.09 0.00  [2.64, 3.00]     Pasteur</span></span>
-<span id="cb4-31"><a href="#cb4-31"></a><span class="co">#&gt; 29                Means.x5.Pasteur 4.00*** 0.10 0.00  [3.79, 4.20]     Pasteur</span></span>
-<span id="cb4-32"><a href="#cb4-32"></a><span class="co">#&gt; 30                Means.x6.Pasteur 1.92*** 0.08 0.00  [1.77, 2.08]     Pasteur</span></span>
-<span id="cb4-33"><a href="#cb4-33"></a><span class="co">#&gt; 31                Means.x7.Pasteur 4.43*** 0.09 0.00  [4.26, 4.60]     Pasteur</span></span>
-<span id="cb4-34"><a href="#cb4-34"></a><span class="co">#&gt; 32                Means.x8.Pasteur 5.56*** 0.08 0.00  [5.41, 5.72]     Pasteur</span></span>
-<span id="cb4-35"><a href="#cb4-35"></a><span class="co">#&gt; 33                Means.x9.Pasteur 5.42*** 0.08 0.00  [5.26, 5.57]     Pasteur</span></span>
-<span id="cb4-36"><a href="#cb4-36"></a><span class="co">#&gt; 34            Means.visual.Pasteur    0.00 0.00 &lt;NA&gt;  [0.00, 0.00]     Pasteur</span></span>
-<span id="cb4-37"><a href="#cb4-37"></a><span class="co">#&gt; 35           Means.textual.Pasteur    0.00 0.00 &lt;NA&gt;  [0.00, 0.00]     Pasteur</span></span>
-<span id="cb4-38"><a href="#cb4-38"></a><span class="co">#&gt; 36             Means.speed.Pasteur    0.00 0.00 &lt;NA&gt;  [0.00, 0.00]     Pasteur</span></span>
-<span id="cb4-39"><a href="#cb4-39"></a><span class="co">#&gt; 37        visual.BY.x1.Grant-White    1.00 0.00 &lt;NA&gt;  [1.00, 1.00] Grant-White</span></span>
-<span id="cb4-40"><a href="#cb4-40"></a><span class="co">#&gt; 38        visual.BY.x2.Grant-White 0.74*** 0.15 0.00  [0.43, 1.04] Grant-White</span></span>
-<span id="cb4-41"><a href="#cb4-41"></a><span class="co">#&gt; 39        visual.BY.x3.Grant-White 0.92*** 0.17 0.00  [0.60, 1.25] Grant-White</span></span>
-<span id="cb4-42"><a href="#cb4-42"></a><span class="co">#&gt; 40       textual.BY.x4.Grant-White    1.00 0.00 &lt;NA&gt;  [1.00, 1.00] Grant-White</span></span>
-<span id="cb4-43"><a href="#cb4-43"></a><span class="co">#&gt; 41       textual.BY.x5.Grant-White 0.99*** 0.09 0.00  [0.82, 1.16] Grant-White</span></span>
-<span id="cb4-44"><a href="#cb4-44"></a><span class="co">#&gt; 42       textual.BY.x6.Grant-White 0.96*** 0.08 0.00  [0.80, 1.13] Grant-White</span></span>
-<span id="cb4-45"><a href="#cb4-45"></a><span class="co">#&gt; 43         speed.BY.x7.Grant-White    1.00 0.00 &lt;NA&gt;  [1.00, 1.00] Grant-White</span></span>
-<span id="cb4-46"><a href="#cb4-46"></a><span class="co">#&gt; 44         speed.BY.x8.Grant-White 1.23*** 0.19 0.00  [0.86, 1.59] Grant-White</span></span>
-<span id="cb4-47"><a href="#cb4-47"></a><span class="co">#&gt; 45         speed.BY.x9.Grant-White 1.06*** 0.16 0.00  [0.74, 1.38] Grant-White</span></span>
-<span id="cb4-48"><a href="#cb4-48"></a><span class="co">#&gt; 46        Variances.x1.Grant-White 0.71*** 0.13 0.00  [0.47, 0.96] Grant-White</span></span>
-<span id="cb4-49"><a href="#cb4-49"></a><span class="co">#&gt; 47        Variances.x2.Grant-White 0.90*** 0.12 0.00  [0.66, 1.14] Grant-White</span></span>
-<span id="cb4-50"><a href="#cb4-50"></a><span class="co">#&gt; 48        Variances.x3.Grant-White 0.56*** 0.10 0.00  [0.36, 0.76] Grant-White</span></span>
-<span id="cb4-51"><a href="#cb4-51"></a><span class="co">#&gt; 49        Variances.x4.Grant-White 0.32*** 0.06 0.00  [0.19, 0.44] Grant-White</span></span>
-<span id="cb4-52"><a href="#cb4-52"></a><span class="co">#&gt; 50        Variances.x5.Grant-White 0.42*** 0.07 0.00  [0.28, 0.56] Grant-White</span></span>
-<span id="cb4-53"><a href="#cb4-53"></a><span class="co">#&gt; 51        Variances.x6.Grant-White 0.41*** 0.07 0.00  [0.27, 0.54] Grant-White</span></span>
-<span id="cb4-54"><a href="#cb4-54"></a><span class="co">#&gt; 52        Variances.x7.Grant-White 0.60*** 0.09 0.00  [0.42, 0.78] Grant-White</span></span>
-<span id="cb4-55"><a href="#cb4-55"></a><span class="co">#&gt; 53        Variances.x8.Grant-White 0.40*** 0.09 0.00  [0.22, 0.59] Grant-White</span></span>
-<span id="cb4-56"><a href="#cb4-56"></a><span class="co">#&gt; 54        Variances.x9.Grant-White 0.53*** 0.09 0.00  [0.36, 0.71] Grant-White</span></span>
-<span id="cb4-57"><a href="#cb4-57"></a><span class="co">#&gt; 55    Variances.visual.Grant-White 0.60*** 0.16 0.00  [0.29, 0.92] Grant-White</span></span>
-<span id="cb4-58"><a href="#cb4-58"></a><span class="co">#&gt; 56   Variances.textual.Grant-White 0.94*** 0.15 0.00  [0.64, 1.24] Grant-White</span></span>
-<span id="cb4-59"><a href="#cb4-59"></a><span class="co">#&gt; 57     Variances.speed.Grant-White 0.46*** 0.12 0.00  [0.23, 0.69] Grant-White</span></span>
-<span id="cb4-60"><a href="#cb4-60"></a><span class="co">#&gt; 58 visual.WITH.textual.Grant-White 0.41*** 0.10 0.00  [0.22, 0.60] Grant-White</span></span>
-<span id="cb4-61"><a href="#cb4-61"></a><span class="co">#&gt; 59   visual.WITH.speed.Grant-White 0.28*** 0.08 0.00  [0.13, 0.42] Grant-White</span></span>
-<span id="cb4-62"><a href="#cb4-62"></a><span class="co">#&gt; 60  textual.WITH.speed.Grant-White  0.22** 0.07 0.00  [0.08, 0.37] Grant-White</span></span>
-<span id="cb4-63"><a href="#cb4-63"></a><span class="co">#&gt; 61            Means.x1.Grant-White 4.93*** 0.10 0.00  [4.74, 5.12] Grant-White</span></span>
-<span id="cb4-64"><a href="#cb4-64"></a><span class="co">#&gt; 62            Means.x2.Grant-White 6.20*** 0.09 0.00  [6.02, 6.38] Grant-White</span></span>
-<span id="cb4-65"><a href="#cb4-65"></a><span class="co">#&gt; 63            Means.x3.Grant-White 2.00*** 0.09 0.00  [1.83, 2.16] Grant-White</span></span>
-<span id="cb4-66"><a href="#cb4-66"></a><span class="co">#&gt; 64            Means.x4.Grant-White 3.32*** 0.09 0.00  [3.13, 3.50] Grant-White</span></span>
-<span id="cb4-67"><a href="#cb4-67"></a><span class="co">#&gt; 65            Means.x5.Grant-White 4.71*** 0.10 0.00  [4.52, 4.90] Grant-White</span></span>
-<span id="cb4-68"><a href="#cb4-68"></a><span class="co">#&gt; 66            Means.x6.Grant-White 2.47*** 0.09 0.00  [2.28, 2.65] Grant-White</span></span>
-<span id="cb4-69"><a href="#cb4-69"></a><span class="co">#&gt; 67            Means.x7.Grant-White 3.92*** 0.09 0.00  [3.75, 4.09] Grant-White</span></span>
-<span id="cb4-70"><a href="#cb4-70"></a><span class="co">#&gt; 68            Means.x8.Grant-White 5.49*** 0.09 0.00  [5.32, 5.66] Grant-White</span></span>
-<span id="cb4-71"><a href="#cb4-71"></a><span class="co">#&gt; 69            Means.x9.Grant-White 5.33*** 0.09 0.00  [5.16, 5.49] Grant-White</span></span>
-<span id="cb4-72"><a href="#cb4-72"></a><span class="co">#&gt; 70        Means.visual.Grant-White    0.00 0.00 &lt;NA&gt;  [0.00, 0.00] Grant-White</span></span>
-<span id="cb4-73"><a href="#cb4-73"></a><span class="co">#&gt; 71       Means.textual.Grant-White    0.00 0.00 &lt;NA&gt;  [0.00, 0.00] Grant-White</span></span>
-<span id="cb4-74"><a href="#cb4-74"></a><span class="co">#&gt; 72         Means.speed.Grant-White    0.00 0.00 &lt;NA&gt;  [0.00, 0.00] Grant-White</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table_results</span>(fit)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                              label est_sig   se pval       confint       group</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1             visual.BY.x1.Pasteur    1.00 0.00 &lt;NA&gt;  [1.00, 1.00]     Pasteur</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2             visual.BY.x2.Pasteur  0.39** 0.12 0.00  [0.15, 0.63]     Pasteur</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3             visual.BY.x3.Pasteur 0.57*** 0.14 0.00  [0.30, 0.84]     Pasteur</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4            textual.BY.x4.Pasteur    1.00 0.00 &lt;NA&gt;  [1.00, 1.00]     Pasteur</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5            textual.BY.x5.Pasteur 1.18*** 0.10 0.00  [0.98, 1.38]     Pasteur</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6            textual.BY.x6.Pasteur 0.87*** 0.08 0.00  [0.72, 1.03]     Pasteur</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7              speed.BY.x7.Pasteur    1.00 0.00 &lt;NA&gt;  [1.00, 1.00]     Pasteur</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8              speed.BY.x8.Pasteur 1.12*** 0.28 0.00  [0.58, 1.67]     Pasteur</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9              speed.BY.x9.Pasteur 0.92*** 0.22 0.00  [0.48, 1.36]     Pasteur</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10            Variances.x1.Pasteur    0.30 0.23 0.20 [-0.16, 0.75]     Pasteur</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11            Variances.x2.Pasteur 1.33*** 0.16 0.00  [1.02, 1.64]     Pasteur</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12            Variances.x3.Pasteur 0.99*** 0.14 0.00  [0.72, 1.26]     Pasteur</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13            Variances.x4.Pasteur 0.43*** 0.07 0.00  [0.29, 0.56]     Pasteur</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14            Variances.x5.Pasteur 0.46*** 0.09 0.00  [0.29, 0.62]     Pasteur</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15            Variances.x6.Pasteur 0.29*** 0.05 0.00  [0.19, 0.39]     Pasteur</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16            Variances.x7.Pasteur 0.82*** 0.12 0.00  [0.58, 1.06]     Pasteur</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17            Variances.x8.Pasteur 0.51*** 0.12 0.00  [0.28, 0.74]     Pasteur</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18            Variances.x9.Pasteur 0.68*** 0.10 0.00  [0.48, 0.88]     Pasteur</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19        Variances.visual.Pasteur 1.10*** 0.28 0.00  [0.55, 1.64]     Pasteur</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20       Variances.textual.Pasteur 0.89*** 0.15 0.00  [0.60, 1.19]     Pasteur</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21         Variances.speed.Pasteur  0.35** 0.13 0.01  [0.10, 0.60]     Pasteur</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22     visual.WITH.textual.Pasteur 0.48*** 0.11 0.00  [0.27, 0.69]     Pasteur</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23       visual.WITH.speed.Pasteur   0.19* 0.08 0.02  [0.03, 0.34]     Pasteur</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24      textual.WITH.speed.Pasteur  0.18** 0.07 0.01  [0.05, 0.32]     Pasteur</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 25                Means.x1.Pasteur 4.94*** 0.09 0.00  [4.76, 5.13]     Pasteur</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 26                Means.x2.Pasteur 5.98*** 0.10 0.00  [5.79, 6.18]     Pasteur</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 27                Means.x3.Pasteur 2.49*** 0.09 0.00  [2.31, 2.67]     Pasteur</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 28                Means.x4.Pasteur 2.82*** 0.09 0.00  [2.64, 3.00]     Pasteur</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 29                Means.x5.Pasteur 4.00*** 0.10 0.00  [3.79, 4.20]     Pasteur</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 30                Means.x6.Pasteur 1.92*** 0.08 0.00  [1.77, 2.08]     Pasteur</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 31                Means.x7.Pasteur 4.43*** 0.09 0.00  [4.26, 4.60]     Pasteur</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 32                Means.x8.Pasteur 5.56*** 0.08 0.00  [5.41, 5.72]     Pasteur</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 33                Means.x9.Pasteur 5.42*** 0.08 0.00  [5.26, 5.57]     Pasteur</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 34            Means.visual.Pasteur    0.00 0.00 &lt;NA&gt;  [0.00, 0.00]     Pasteur</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 35           Means.textual.Pasteur    0.00 0.00 &lt;NA&gt;  [0.00, 0.00]     Pasteur</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 36             Means.speed.Pasteur    0.00 0.00 &lt;NA&gt;  [0.00, 0.00]     Pasteur</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 37        visual.BY.x1.Grant-White    1.00 0.00 &lt;NA&gt;  [1.00, 1.00] Grant-White</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 38        visual.BY.x2.Grant-White 0.74*** 0.15 0.00  [0.43, 1.04] Grant-White</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 39        visual.BY.x3.Grant-White 0.92*** 0.17 0.00  [0.60, 1.25] Grant-White</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 40       textual.BY.x4.Grant-White    1.00 0.00 &lt;NA&gt;  [1.00, 1.00] Grant-White</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 41       textual.BY.x5.Grant-White 0.99*** 0.09 0.00  [0.82, 1.16] Grant-White</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 42       textual.BY.x6.Grant-White 0.96*** 0.08 0.00  [0.80, 1.13] Grant-White</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 43         speed.BY.x7.Grant-White    1.00 0.00 &lt;NA&gt;  [1.00, 1.00] Grant-White</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 44         speed.BY.x8.Grant-White 1.23*** 0.19 0.00  [0.86, 1.59] Grant-White</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 45         speed.BY.x9.Grant-White 1.06*** 0.16 0.00  [0.74, 1.38] Grant-White</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 46        Variances.x1.Grant-White 0.71*** 0.13 0.00  [0.47, 0.96] Grant-White</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 47        Variances.x2.Grant-White 0.90*** 0.12 0.00  [0.66, 1.14] Grant-White</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 48        Variances.x3.Grant-White 0.56*** 0.10 0.00  [0.36, 0.76] Grant-White</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 49        Variances.x4.Grant-White 0.32*** 0.06 0.00  [0.19, 0.44] Grant-White</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 50        Variances.x5.Grant-White 0.42*** 0.07 0.00  [0.28, 0.56] Grant-White</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 51        Variances.x6.Grant-White 0.41*** 0.07 0.00  [0.27, 0.54] Grant-White</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 52        Variances.x7.Grant-White 0.60*** 0.09 0.00  [0.42, 0.78] Grant-White</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 53        Variances.x8.Grant-White 0.40*** 0.09 0.00  [0.22, 0.59] Grant-White</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 54        Variances.x9.Grant-White 0.53*** 0.09 0.00  [0.36, 0.71] Grant-White</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 55    Variances.visual.Grant-White 0.60*** 0.16 0.00  [0.29, 0.92] Grant-White</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 56   Variances.textual.Grant-White 0.94*** 0.15 0.00  [0.64, 1.24] Grant-White</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 57     Variances.speed.Grant-White 0.46*** 0.12 0.00  [0.23, 0.69] Grant-White</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 58 visual.WITH.textual.Grant-White 0.41*** 0.10 0.00  [0.22, 0.60] Grant-White</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 59   visual.WITH.speed.Grant-White 0.28*** 0.08 0.00  [0.13, 0.42] Grant-White</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 60  textual.WITH.speed.Grant-White  0.22** 0.07 0.00  [0.08, 0.37] Grant-White</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 61            Means.x1.Grant-White 4.93*** 0.10 0.00  [4.74, 5.12] Grant-White</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 62            Means.x2.Grant-White 6.20*** 0.09 0.00  [6.02, 6.38] Grant-White</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 63            Means.x3.Grant-White 2.00*** 0.09 0.00  [1.83, 2.16] Grant-White</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 64            Means.x4.Grant-White 3.32*** 0.09 0.00  [3.13, 3.50] Grant-White</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 65            Means.x5.Grant-White 4.71*** 0.10 0.00  [4.52, 4.90] Grant-White</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 66            Means.x6.Grant-White 2.47*** 0.09 0.00  [2.28, 2.65] Grant-White</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 67            Means.x7.Grant-White 3.92*** 0.09 0.00  [3.75, 4.09] Grant-White</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 68            Means.x8.Grant-White 5.49*** 0.09 0.00  [5.32, 5.66] Grant-White</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 69            Means.x9.Grant-White 5.33*** 0.09 0.00  [5.16, 5.49] Grant-White</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 70        Means.visual.Grant-White    0.00 0.00 &lt;NA&gt;  [0.00, 0.00] Grant-White</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 71       Means.textual.Grant-White    0.00 0.00 &lt;NA&gt;  [0.00, 0.00] Grant-White</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 72         Means.speed.Grant-White    0.00 0.00 &lt;NA&gt;  [0.00, 0.00] Grant-White</span></span></code></pre></div>
 </div>
 <div id="output-from-mplus" class="section level2">
 <h2>Output from Mplus</h2>
 <p>Now, we’ll reproduce the same analysis in ‘Mplus’. The <code>tidySEM</code> package has a function <code>measurement()</code> to generate measurement models automatically. However, to illustrate the fact that <code>tidySEM</code> is compatible with existing solutions, we will specify the syntax for this example manually, using the package <code>MplusAutomation</code>. This code will only work on your machine if you have Mplus installed and R can find it. First, we run the model:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>fit &lt;-<span class="st"> </span><span class="kw">mplusModeler</span>(<span class="kw">mplusObject</span>(<span class="dt">VARIABLE =</span> <span class="st">&quot;grouping IS school (1 = GW 2 = Pas);&quot;</span>,</span>
-<span id="cb5-2"><a href="#cb5-2"></a>                                <span class="dt">MODEL =</span> <span class="kw">c</span>(<span class="st">&quot;visual BY x1 x2 x3;&quot;</span>,</span>
-<span id="cb5-3"><a href="#cb5-3"></a>                                          <span class="st">&quot;textual BY x4 x5 x6;&quot;</span>,</span>
-<span id="cb5-4"><a href="#cb5-4"></a>                                          <span class="st">&quot;speed BY x7 x8 x9;&quot;</span>),</span>
-<span id="cb5-5"><a href="#cb5-5"></a>                                <span class="dt">usevariables =</span> <span class="kw">c</span>(<span class="kw">paste0</span>(<span class="st">&quot;x&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">9</span>), <span class="st">&quot;school&quot;</span>),</span>
-<span id="cb5-6"><a href="#cb5-6"></a>                                <span class="dt">rdata =</span> HolzingerSwineford1939),</span>
-<span id="cb5-7"><a href="#cb5-7"></a>                    <span class="dt">modelout =</span> <span class="st">&quot;example.inp&quot;</span>,</span>
-<span id="cb5-8"><a href="#cb5-8"></a>                    <span class="dt">run =</span> 1L)</span>
-<span id="cb5-9"><a href="#cb5-9"></a>fit<span class="op">$</span>results<span class="op">$</span>parameters</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="fu">mplusObject</span>(<span class="at">VARIABLE =</span> <span class="st">&quot;grouping IS school (1 = GW 2 = Pas);&quot;</span>,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">MODEL =</span> <span class="fu">c</span>(<span class="st">&quot;visual BY x1 x2 x3;&quot;</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                          <span class="st">&quot;textual BY x4 x5 x6;&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                                          <span class="st">&quot;speed BY x7 x8 x9;&quot;</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                                <span class="at">usevariables =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">&quot;x&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>), <span class="st">&quot;school&quot;</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                <span class="at">rdata =</span> HolzingerSwineford1939),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">modelout =</span> <span class="st">&quot;example.inp&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">run =</span> 1L)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span>results<span class="sc">$</span>parameters</span></code></pre></div>
 <pre><code>#&gt; $unstandardized
 #&gt;           paramHeader   param    est    se  est_se    pval Group
 #&gt; 1           VISUAL.BY      X1  1.000 0.000 999.000 999.000    GW
@@ -650,163 +462,163 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 #&gt; 71 Residual.Variances      X8  0.541 0.099   5.483   0.000   PAS
 #&gt; 72 Residual.Variances      X9  0.654 0.101   6.476   0.000   PAS</code></pre>
 <p>The results can be tabulated using the <code>MplusAutomation</code> function <code>coef.mplus.model()</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">coef</span>(fit)</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="co">#&gt; $GW</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="co">#&gt;                 Label   est    se    pval</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="co">#&gt; 1          X1&lt;-VISUAL 1.000 0.000 999.000</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="co">#&gt; 2          X2&lt;-VISUAL 0.576 0.109   0.000</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a><span class="co">#&gt; 3          X3&lt;-VISUAL 0.798 0.130   0.000</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a><span class="co">#&gt; 4         X4&lt;-TEXTUAL 1.000 0.000 999.000</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a><span class="co">#&gt; 5         X5&lt;-TEXTUAL 1.120 0.066   0.000</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a><span class="co">#&gt; 6         X6&lt;-TEXTUAL 0.932 0.057   0.000</span></span>
-<span id="cb7-10"><a href="#cb7-10"></a><span class="co">#&gt; 7           X7&lt;-SPEED 1.000 0.000 999.000</span></span>
-<span id="cb7-11"><a href="#cb7-11"></a><span class="co">#&gt; 8           X8&lt;-SPEED 1.130 0.137   0.000</span></span>
-<span id="cb7-12"><a href="#cb7-12"></a><span class="co">#&gt; 9           X9&lt;-SPEED 1.009 0.160   0.000</span></span>
-<span id="cb7-13"><a href="#cb7-13"></a><span class="co">#&gt; 10   TEXTUAL&lt;-&gt;VISUAL 0.427 0.098   0.000</span></span>
-<span id="cb7-14"><a href="#cb7-14"></a><span class="co">#&gt; 11     SPEED&lt;-&gt;VISUAL 0.329 0.084   0.000</span></span>
-<span id="cb7-15"><a href="#cb7-15"></a><span class="co">#&gt; 12    SPEED&lt;-&gt;TEXTUAL 0.236 0.075   0.002</span></span>
-<span id="cb7-16"><a href="#cb7-16"></a><span class="co">#&gt; 13      VISUAL&lt;-Means 0.000 0.000 999.000</span></span>
-<span id="cb7-17"><a href="#cb7-17"></a><span class="co">#&gt; 14     TEXTUAL&lt;-Means 0.000 0.000 999.000</span></span>
-<span id="cb7-18"><a href="#cb7-18"></a><span class="co">#&gt; 15       SPEED&lt;-Means 0.000 0.000 999.000</span></span>
-<span id="cb7-19"><a href="#cb7-19"></a><span class="co">#&gt; 16     X1&lt;-Intercepts 4.854 0.094   0.000</span></span>
-<span id="cb7-20"><a href="#cb7-20"></a><span class="co">#&gt; 17     X2&lt;-Intercepts 6.066 0.077   0.000</span></span>
-<span id="cb7-21"><a href="#cb7-21"></a><span class="co">#&gt; 18     X3&lt;-Intercepts 2.153 0.084   0.000</span></span>
-<span id="cb7-22"><a href="#cb7-22"></a><span class="co">#&gt; 19     X4&lt;-Intercepts 3.354 0.088   0.000</span></span>
-<span id="cb7-23"><a href="#cb7-23"></a><span class="co">#&gt; 20     X5&lt;-Intercepts 4.680 0.098   0.000</span></span>
-<span id="cb7-24"><a href="#cb7-24"></a><span class="co">#&gt; 21     X6&lt;-Intercepts 2.463 0.084   0.000</span></span>
-<span id="cb7-25"><a href="#cb7-25"></a><span class="co">#&gt; 22     X7&lt;-Intercepts 4.065 0.083   0.000</span></span>
-<span id="cb7-26"><a href="#cb7-26"></a><span class="co">#&gt; 23     X8&lt;-Intercepts 5.430 0.083   0.000</span></span>
-<span id="cb7-27"><a href="#cb7-27"></a><span class="co">#&gt; 24     X9&lt;-Intercepts 5.286 0.078   0.000</span></span>
-<span id="cb7-28"><a href="#cb7-28"></a><span class="co">#&gt; 25    VISUAL&lt;-&gt;VISUAL 0.708 0.162   0.000</span></span>
-<span id="cb7-29"><a href="#cb7-29"></a><span class="co">#&gt; 26  TEXTUAL&lt;-&gt;TEXTUAL 0.870 0.133   0.000</span></span>
-<span id="cb7-30"><a href="#cb7-30"></a><span class="co">#&gt; 27      SPEED&lt;-&gt;SPEED 0.505 0.119   0.000</span></span>
-<span id="cb7-31"><a href="#cb7-31"></a><span class="co">#&gt; 28            X1&lt;-&gt;X1 0.654 0.131   0.000</span></span>
-<span id="cb7-32"><a href="#cb7-32"></a><span class="co">#&gt; 29            X2&lt;-&gt;X2 0.964 0.127   0.000</span></span>
-<span id="cb7-33"><a href="#cb7-33"></a><span class="co">#&gt; 30            X3&lt;-&gt;X3 0.641 0.113   0.000</span></span>
-<span id="cb7-34"><a href="#cb7-34"></a><span class="co">#&gt; 31            X4&lt;-&gt;X4 0.343 0.064   0.000</span></span>
-<span id="cb7-35"><a href="#cb7-35"></a><span class="co">#&gt; 32            X5&lt;-&gt;X5 0.376 0.074   0.000</span></span>
-<span id="cb7-36"><a href="#cb7-36"></a><span class="co">#&gt; 33            X6&lt;-&gt;X6 0.437 0.068   0.000</span></span>
-<span id="cb7-37"><a href="#cb7-37"></a><span class="co">#&gt; 34            X7&lt;-&gt;X7 0.625 0.103   0.000</span></span>
-<span id="cb7-38"><a href="#cb7-38"></a><span class="co">#&gt; 35            X8&lt;-&gt;X8 0.434 0.101   0.000</span></span>
-<span id="cb7-39"><a href="#cb7-39"></a><span class="co">#&gt; 36            X9&lt;-&gt;X9 0.522 0.101   0.000</span></span>
-<span id="cb7-40"><a href="#cb7-40"></a><span class="co">#&gt; </span></span>
-<span id="cb7-41"><a href="#cb7-41"></a><span class="co">#&gt; $PAS</span></span>
-<span id="cb7-42"><a href="#cb7-42"></a><span class="co">#&gt;                 Label    est    se    pval</span></span>
-<span id="cb7-43"><a href="#cb7-43"></a><span class="co">#&gt; 37         X1&lt;-VISUAL  1.000 0.000 999.000</span></span>
-<span id="cb7-44"><a href="#cb7-44"></a><span class="co">#&gt; 38         X2&lt;-VISUAL  0.576 0.109   0.000</span></span>
-<span id="cb7-45"><a href="#cb7-45"></a><span class="co">#&gt; 39         X3&lt;-VISUAL  0.798 0.130   0.000</span></span>
-<span id="cb7-46"><a href="#cb7-46"></a><span class="co">#&gt; 40        X4&lt;-TEXTUAL  1.000 0.000 999.000</span></span>
-<span id="cb7-47"><a href="#cb7-47"></a><span class="co">#&gt; 41        X5&lt;-TEXTUAL  1.120 0.066   0.000</span></span>
-<span id="cb7-48"><a href="#cb7-48"></a><span class="co">#&gt; 42        X6&lt;-TEXTUAL  0.932 0.057   0.000</span></span>
-<span id="cb7-49"><a href="#cb7-49"></a><span class="co">#&gt; 43          X7&lt;-SPEED  1.000 0.000 999.000</span></span>
-<span id="cb7-50"><a href="#cb7-50"></a><span class="co">#&gt; 44          X8&lt;-SPEED  1.130 0.137   0.000</span></span>
-<span id="cb7-51"><a href="#cb7-51"></a><span class="co">#&gt; 45          X9&lt;-SPEED  1.009 0.160   0.000</span></span>
-<span id="cb7-52"><a href="#cb7-52"></a><span class="co">#&gt; 46   TEXTUAL&lt;-&gt;VISUAL  0.410 0.107   0.000</span></span>
-<span id="cb7-53"><a href="#cb7-53"></a><span class="co">#&gt; 47     SPEED&lt;-&gt;VISUAL  0.178 0.067   0.008</span></span>
-<span id="cb7-54"><a href="#cb7-54"></a><span class="co">#&gt; 48    SPEED&lt;-&gt;TEXTUAL  0.180 0.063   0.004</span></span>
-<span id="cb7-55"><a href="#cb7-55"></a><span class="co">#&gt; 49      VISUAL&lt;-Means  0.148 0.127   0.244</span></span>
-<span id="cb7-56"><a href="#cb7-56"></a><span class="co">#&gt; 50     TEXTUAL&lt;-Means -0.576 0.117   0.000</span></span>
-<span id="cb7-57"><a href="#cb7-57"></a><span class="co">#&gt; 51       SPEED&lt;-Means  0.177 0.094   0.060</span></span>
-<span id="cb7-58"><a href="#cb7-58"></a><span class="co">#&gt; 52     X1&lt;-Intercepts  4.854 0.094   0.000</span></span>
-<span id="cb7-59"><a href="#cb7-59"></a><span class="co">#&gt; 53     X2&lt;-Intercepts  6.066 0.077   0.000</span></span>
-<span id="cb7-60"><a href="#cb7-60"></a><span class="co">#&gt; 54     X3&lt;-Intercepts  2.153 0.084   0.000</span></span>
-<span id="cb7-61"><a href="#cb7-61"></a><span class="co">#&gt; 55     X4&lt;-Intercepts  3.354 0.088   0.000</span></span>
-<span id="cb7-62"><a href="#cb7-62"></a><span class="co">#&gt; 56     X5&lt;-Intercepts  4.680 0.098   0.000</span></span>
-<span id="cb7-63"><a href="#cb7-63"></a><span class="co">#&gt; 57     X6&lt;-Intercepts  2.463 0.084   0.000</span></span>
-<span id="cb7-64"><a href="#cb7-64"></a><span class="co">#&gt; 58     X7&lt;-Intercepts  4.065 0.083   0.000</span></span>
-<span id="cb7-65"><a href="#cb7-65"></a><span class="co">#&gt; 59     X8&lt;-Intercepts  5.430 0.083   0.000</span></span>
-<span id="cb7-66"><a href="#cb7-66"></a><span class="co">#&gt; 60     X9&lt;-Intercepts  5.286 0.078   0.000</span></span>
-<span id="cb7-67"><a href="#cb7-67"></a><span class="co">#&gt; 61    VISUAL&lt;-&gt;VISUAL  0.796 0.192   0.000</span></span>
-<span id="cb7-68"><a href="#cb7-68"></a><span class="co">#&gt; 62  TEXTUAL&lt;-&gt;TEXTUAL  0.879 0.132   0.000</span></span>
-<span id="cb7-69"><a href="#cb7-69"></a><span class="co">#&gt; 63      SPEED&lt;-&gt;SPEED  0.322 0.085   0.000</span></span>
-<span id="cb7-70"><a href="#cb7-70"></a><span class="co">#&gt; 64            X1&lt;-&gt;X1  0.555 0.157   0.000</span></span>
-<span id="cb7-71"><a href="#cb7-71"></a><span class="co">#&gt; 65            X2&lt;-&gt;X2  1.296 0.161   0.000</span></span>
-<span id="cb7-72"><a href="#cb7-72"></a><span class="co">#&gt; 66            X3&lt;-&gt;X3  0.944 0.148   0.000</span></span>
-<span id="cb7-73"><a href="#cb7-73"></a><span class="co">#&gt; 67            X4&lt;-&gt;X4  0.445 0.072   0.000</span></span>
-<span id="cb7-74"><a href="#cb7-74"></a><span class="co">#&gt; 68            X5&lt;-&gt;X5  0.502 0.086   0.000</span></span>
-<span id="cb7-75"><a href="#cb7-75"></a><span class="co">#&gt; 69            X6&lt;-&gt;X6  0.263 0.051   0.000</span></span>
-<span id="cb7-76"><a href="#cb7-76"></a><span class="co">#&gt; 70            X7&lt;-&gt;X7  0.888 0.127   0.000</span></span>
-<span id="cb7-77"><a href="#cb7-77"></a><span class="co">#&gt; 71            X8&lt;-&gt;X8  0.541 0.099   0.000</span></span>
-<span id="cb7-78"><a href="#cb7-78"></a><span class="co">#&gt; 72            X9&lt;-&gt;X9  0.654 0.101   0.000</span></span>
-<span id="cb7-79"><a href="#cb7-79"></a><span class="co">#&gt; </span></span>
-<span id="cb7-80"><a href="#cb7-80"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
-<span id="cb7-81"><a href="#cb7-81"></a><span class="co">#&gt; [1] &quot;mplus.model.coefs.list&quot; &quot;list&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(fit)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $GW</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 Label   est    se    pval</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1          X1&lt;-VISUAL 1.000 0.000 999.000</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2          X2&lt;-VISUAL 0.576 0.109   0.000</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3          X3&lt;-VISUAL 0.798 0.130   0.000</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4         X4&lt;-TEXTUAL 1.000 0.000 999.000</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5         X5&lt;-TEXTUAL 1.120 0.066   0.000</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6         X6&lt;-TEXTUAL 0.932 0.057   0.000</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7           X7&lt;-SPEED 1.000 0.000 999.000</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8           X8&lt;-SPEED 1.130 0.137   0.000</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9           X9&lt;-SPEED 1.009 0.160   0.000</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10   TEXTUAL&lt;-&gt;VISUAL 0.427 0.098   0.000</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11     SPEED&lt;-&gt;VISUAL 0.329 0.084   0.000</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12    SPEED&lt;-&gt;TEXTUAL 0.236 0.075   0.002</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13      VISUAL&lt;-Means 0.000 0.000 999.000</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14     TEXTUAL&lt;-Means 0.000 0.000 999.000</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15       SPEED&lt;-Means 0.000 0.000 999.000</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16     X1&lt;-Intercepts 4.854 0.094   0.000</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17     X2&lt;-Intercepts 6.066 0.077   0.000</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18     X3&lt;-Intercepts 2.153 0.084   0.000</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19     X4&lt;-Intercepts 3.354 0.088   0.000</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20     X5&lt;-Intercepts 4.680 0.098   0.000</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21     X6&lt;-Intercepts 2.463 0.084   0.000</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22     X7&lt;-Intercepts 4.065 0.083   0.000</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23     X8&lt;-Intercepts 5.430 0.083   0.000</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24     X9&lt;-Intercepts 5.286 0.078   0.000</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 25    VISUAL&lt;-&gt;VISUAL 0.708 0.162   0.000</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 26  TEXTUAL&lt;-&gt;TEXTUAL 0.870 0.133   0.000</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 27      SPEED&lt;-&gt;SPEED 0.505 0.119   0.000</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 28            X1&lt;-&gt;X1 0.654 0.131   0.000</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 29            X2&lt;-&gt;X2 0.964 0.127   0.000</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 30            X3&lt;-&gt;X3 0.641 0.113   0.000</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 31            X4&lt;-&gt;X4 0.343 0.064   0.000</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 32            X5&lt;-&gt;X5 0.376 0.074   0.000</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 33            X6&lt;-&gt;X6 0.437 0.068   0.000</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 34            X7&lt;-&gt;X7 0.625 0.103   0.000</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 35            X8&lt;-&gt;X8 0.434 0.101   0.000</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 36            X9&lt;-&gt;X9 0.522 0.101   0.000</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $PAS</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 Label    est    se    pval</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 37         X1&lt;-VISUAL  1.000 0.000 999.000</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 38         X2&lt;-VISUAL  0.576 0.109   0.000</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 39         X3&lt;-VISUAL  0.798 0.130   0.000</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 40        X4&lt;-TEXTUAL  1.000 0.000 999.000</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 41        X5&lt;-TEXTUAL  1.120 0.066   0.000</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 42        X6&lt;-TEXTUAL  0.932 0.057   0.000</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 43          X7&lt;-SPEED  1.000 0.000 999.000</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 44          X8&lt;-SPEED  1.130 0.137   0.000</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 45          X9&lt;-SPEED  1.009 0.160   0.000</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 46   TEXTUAL&lt;-&gt;VISUAL  0.410 0.107   0.000</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 47     SPEED&lt;-&gt;VISUAL  0.178 0.067   0.008</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 48    SPEED&lt;-&gt;TEXTUAL  0.180 0.063   0.004</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 49      VISUAL&lt;-Means  0.148 0.127   0.244</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 50     TEXTUAL&lt;-Means -0.576 0.117   0.000</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 51       SPEED&lt;-Means  0.177 0.094   0.060</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 52     X1&lt;-Intercepts  4.854 0.094   0.000</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 53     X2&lt;-Intercepts  6.066 0.077   0.000</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 54     X3&lt;-Intercepts  2.153 0.084   0.000</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 55     X4&lt;-Intercepts  3.354 0.088   0.000</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 56     X5&lt;-Intercepts  4.680 0.098   0.000</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 57     X6&lt;-Intercepts  2.463 0.084   0.000</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 58     X7&lt;-Intercepts  4.065 0.083   0.000</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 59     X8&lt;-Intercepts  5.430 0.083   0.000</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 60     X9&lt;-Intercepts  5.286 0.078   0.000</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 61    VISUAL&lt;-&gt;VISUAL  0.796 0.192   0.000</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 62  TEXTUAL&lt;-&gt;TEXTUAL  0.879 0.132   0.000</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 63      SPEED&lt;-&gt;SPEED  0.322 0.085   0.000</span></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 64            X1&lt;-&gt;X1  0.555 0.157   0.000</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 65            X2&lt;-&gt;X2  1.296 0.161   0.000</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 66            X3&lt;-&gt;X3  0.944 0.148   0.000</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 67            X4&lt;-&gt;X4  0.445 0.072   0.000</span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 68            X5&lt;-&gt;X5  0.502 0.086   0.000</span></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 69            X6&lt;-&gt;X6  0.263 0.051   0.000</span></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 70            X7&lt;-&gt;X7  0.888 0.127   0.000</span></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 71            X8&lt;-&gt;X8  0.541 0.099   0.000</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 72            X9&lt;-&gt;X9  0.654 0.101   0.000</span></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;mplus.model.coefs.list&quot; &quot;list&quot;</span></span></code></pre></div>
 <p>Alternatively, we can use the <code>tidySEM</code> function <code>table_results()</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">table_results</span>(fit)</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt; Calculated confidence intervals from est and se.</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt;                        label  est_sig   se pval        confint group</span></span>
-<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt; 1            VISUAL.BY.X1.GW     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt; 2            VISUAL.BY.X2.GW  0.58*** 0.11 0.00 [ 0.36,  0.79]    GW</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt; 3            VISUAL.BY.X3.GW  0.80*** 0.13 0.00 [ 0.54,  1.05]    GW</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt; 4           TEXTUAL.BY.X4.GW     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; 5           TEXTUAL.BY.X5.GW  1.12*** 0.07 0.00 [ 0.99,  1.25]    GW</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt; 6           TEXTUAL.BY.X6.GW  0.93*** 0.06 0.00 [ 0.82,  1.04]    GW</span></span>
-<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt; 7             SPEED.BY.X7.GW     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt; 8             SPEED.BY.X8.GW  1.13*** 0.14 0.00 [ 0.86,  1.40]    GW</span></span>
-<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt; 9             SPEED.BY.X9.GW  1.01*** 0.16 0.00 [ 0.70,  1.32]    GW</span></span>
-<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt; 10    TEXTUAL.WITH.VISUAL.GW  0.43*** 0.10 0.00 [ 0.23,  0.62]    GW</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt; 11      SPEED.WITH.VISUAL.GW  0.33*** 0.08 0.00 [ 0.16,  0.49]    GW</span></span>
-<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt; 12     SPEED.WITH.TEXTUAL.GW   0.24** 0.07 0.00 [ 0.09,  0.38]    GW</span></span>
-<span id="cb8-16"><a href="#cb8-16"></a><span class="co">#&gt; 13           Means.VISUAL.GW     0.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
-<span id="cb8-17"><a href="#cb8-17"></a><span class="co">#&gt; 14          Means.TEXTUAL.GW     0.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
-<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt; 15            Means.SPEED.GW     0.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
-<span id="cb8-19"><a href="#cb8-19"></a><span class="co">#&gt; 16          Intercepts.X1.GW  4.85*** 0.09 0.00 [ 4.67,  5.04]    GW</span></span>
-<span id="cb8-20"><a href="#cb8-20"></a><span class="co">#&gt; 17          Intercepts.X2.GW  6.07*** 0.08 0.00 [ 5.92,  6.22]    GW</span></span>
-<span id="cb8-21"><a href="#cb8-21"></a><span class="co">#&gt; 18          Intercepts.X3.GW  2.15*** 0.08 0.00 [ 1.99,  2.32]    GW</span></span>
-<span id="cb8-22"><a href="#cb8-22"></a><span class="co">#&gt; 19          Intercepts.X4.GW  3.35*** 0.09 0.00 [ 3.18,  3.53]    GW</span></span>
-<span id="cb8-23"><a href="#cb8-23"></a><span class="co">#&gt; 20          Intercepts.X5.GW  4.68*** 0.10 0.00 [ 4.49,  4.87]    GW</span></span>
-<span id="cb8-24"><a href="#cb8-24"></a><span class="co">#&gt; 21          Intercepts.X6.GW  2.46*** 0.08 0.00 [ 2.30,  2.63]    GW</span></span>
-<span id="cb8-25"><a href="#cb8-25"></a><span class="co">#&gt; 22          Intercepts.X7.GW  4.07*** 0.08 0.00 [ 3.90,  4.23]    GW</span></span>
-<span id="cb8-26"><a href="#cb8-26"></a><span class="co">#&gt; 23          Intercepts.X8.GW  5.43*** 0.08 0.00 [ 5.27,  5.59]    GW</span></span>
-<span id="cb8-27"><a href="#cb8-27"></a><span class="co">#&gt; 24          Intercepts.X9.GW  5.29*** 0.08 0.00 [ 5.13,  5.44]    GW</span></span>
-<span id="cb8-28"><a href="#cb8-28"></a><span class="co">#&gt; 25       Variances.VISUAL.GW  0.71*** 0.16 0.00 [ 0.39,  1.03]    GW</span></span>
-<span id="cb8-29"><a href="#cb8-29"></a><span class="co">#&gt; 26      Variances.TEXTUAL.GW  0.87*** 0.13 0.00 [ 0.61,  1.13]    GW</span></span>
-<span id="cb8-30"><a href="#cb8-30"></a><span class="co">#&gt; 27        Variances.SPEED.GW  0.50*** 0.12 0.00 [ 0.27,  0.74]    GW</span></span>
-<span id="cb8-31"><a href="#cb8-31"></a><span class="co">#&gt; 28  Residual.Variances.X1.GW  0.65*** 0.13 0.00 [ 0.40,  0.91]    GW</span></span>
-<span id="cb8-32"><a href="#cb8-32"></a><span class="co">#&gt; 29  Residual.Variances.X2.GW  0.96*** 0.13 0.00 [ 0.72,  1.21]    GW</span></span>
-<span id="cb8-33"><a href="#cb8-33"></a><span class="co">#&gt; 30  Residual.Variances.X3.GW  0.64*** 0.11 0.00 [ 0.42,  0.86]    GW</span></span>
-<span id="cb8-34"><a href="#cb8-34"></a><span class="co">#&gt; 31  Residual.Variances.X4.GW  0.34*** 0.06 0.00 [ 0.22,  0.47]    GW</span></span>
-<span id="cb8-35"><a href="#cb8-35"></a><span class="co">#&gt; 32  Residual.Variances.X5.GW  0.38*** 0.07 0.00 [ 0.23,  0.52]    GW</span></span>
-<span id="cb8-36"><a href="#cb8-36"></a><span class="co">#&gt; 33  Residual.Variances.X6.GW  0.44*** 0.07 0.00 [ 0.30,  0.57]    GW</span></span>
-<span id="cb8-37"><a href="#cb8-37"></a><span class="co">#&gt; 34  Residual.Variances.X7.GW  0.62*** 0.10 0.00 [ 0.42,  0.83]    GW</span></span>
-<span id="cb8-38"><a href="#cb8-38"></a><span class="co">#&gt; 35  Residual.Variances.X8.GW  0.43*** 0.10 0.00 [ 0.24,  0.63]    GW</span></span>
-<span id="cb8-39"><a href="#cb8-39"></a><span class="co">#&gt; 36  Residual.Variances.X9.GW  0.52*** 0.10 0.00 [ 0.32,  0.72]    GW</span></span>
-<span id="cb8-40"><a href="#cb8-40"></a><span class="co">#&gt; 37          VISUAL.BY.X1.PAS     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;   PAS</span></span>
-<span id="cb8-41"><a href="#cb8-41"></a><span class="co">#&gt; 38          VISUAL.BY.X2.PAS  0.58*** 0.11 0.00 [ 0.36,  0.79]   PAS</span></span>
-<span id="cb8-42"><a href="#cb8-42"></a><span class="co">#&gt; 39          VISUAL.BY.X3.PAS  0.80*** 0.13 0.00 [ 0.54,  1.05]   PAS</span></span>
-<span id="cb8-43"><a href="#cb8-43"></a><span class="co">#&gt; 40         TEXTUAL.BY.X4.PAS     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;   PAS</span></span>
-<span id="cb8-44"><a href="#cb8-44"></a><span class="co">#&gt; 41         TEXTUAL.BY.X5.PAS  1.12*** 0.07 0.00 [ 0.99,  1.25]   PAS</span></span>
-<span id="cb8-45"><a href="#cb8-45"></a><span class="co">#&gt; 42         TEXTUAL.BY.X6.PAS  0.93*** 0.06 0.00 [ 0.82,  1.04]   PAS</span></span>
-<span id="cb8-46"><a href="#cb8-46"></a><span class="co">#&gt; 43           SPEED.BY.X7.PAS     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;   PAS</span></span>
-<span id="cb8-47"><a href="#cb8-47"></a><span class="co">#&gt; 44           SPEED.BY.X8.PAS  1.13*** 0.14 0.00 [ 0.86,  1.40]   PAS</span></span>
-<span id="cb8-48"><a href="#cb8-48"></a><span class="co">#&gt; 45           SPEED.BY.X9.PAS  1.01*** 0.16 0.00 [ 0.70,  1.32]   PAS</span></span>
-<span id="cb8-49"><a href="#cb8-49"></a><span class="co">#&gt; 46   TEXTUAL.WITH.VISUAL.PAS  0.41*** 0.11 0.00 [ 0.20,  0.62]   PAS</span></span>
-<span id="cb8-50"><a href="#cb8-50"></a><span class="co">#&gt; 47     SPEED.WITH.VISUAL.PAS   0.18** 0.07 0.01 [ 0.05,  0.31]   PAS</span></span>
-<span id="cb8-51"><a href="#cb8-51"></a><span class="co">#&gt; 48    SPEED.WITH.TEXTUAL.PAS   0.18** 0.06 0.00 [ 0.06,  0.30]   PAS</span></span>
-<span id="cb8-52"><a href="#cb8-52"></a><span class="co">#&gt; 49          Means.VISUAL.PAS     0.15 0.13 0.24 [-0.10,  0.40]   PAS</span></span>
-<span id="cb8-53"><a href="#cb8-53"></a><span class="co">#&gt; 50         Means.TEXTUAL.PAS -0.58*** 0.12 0.00 [-0.81, -0.35]   PAS</span></span>
-<span id="cb8-54"><a href="#cb8-54"></a><span class="co">#&gt; 51           Means.SPEED.PAS     0.18 0.09 0.06 [-0.01,  0.36]   PAS</span></span>
-<span id="cb8-55"><a href="#cb8-55"></a><span class="co">#&gt; 52         Intercepts.X1.PAS  4.85*** 0.09 0.00 [ 4.67,  5.04]   PAS</span></span>
-<span id="cb8-56"><a href="#cb8-56"></a><span class="co">#&gt; 53         Intercepts.X2.PAS  6.07*** 0.08 0.00 [ 5.92,  6.22]   PAS</span></span>
-<span id="cb8-57"><a href="#cb8-57"></a><span class="co">#&gt; 54         Intercepts.X3.PAS  2.15*** 0.08 0.00 [ 1.99,  2.32]   PAS</span></span>
-<span id="cb8-58"><a href="#cb8-58"></a><span class="co">#&gt; 55         Intercepts.X4.PAS  3.35*** 0.09 0.00 [ 3.18,  3.53]   PAS</span></span>
-<span id="cb8-59"><a href="#cb8-59"></a><span class="co">#&gt; 56         Intercepts.X5.PAS  4.68*** 0.10 0.00 [ 4.49,  4.87]   PAS</span></span>
-<span id="cb8-60"><a href="#cb8-60"></a><span class="co">#&gt; 57         Intercepts.X6.PAS  2.46*** 0.08 0.00 [ 2.30,  2.63]   PAS</span></span>
-<span id="cb8-61"><a href="#cb8-61"></a><span class="co">#&gt; 58         Intercepts.X7.PAS  4.07*** 0.08 0.00 [ 3.90,  4.23]   PAS</span></span>
-<span id="cb8-62"><a href="#cb8-62"></a><span class="co">#&gt; 59         Intercepts.X8.PAS  5.43*** 0.08 0.00 [ 5.27,  5.59]   PAS</span></span>
-<span id="cb8-63"><a href="#cb8-63"></a><span class="co">#&gt; 60         Intercepts.X9.PAS  5.29*** 0.08 0.00 [ 5.13,  5.44]   PAS</span></span>
-<span id="cb8-64"><a href="#cb8-64"></a><span class="co">#&gt; 61      Variances.VISUAL.PAS  0.80*** 0.19 0.00 [ 0.42,  1.17]   PAS</span></span>
-<span id="cb8-65"><a href="#cb8-65"></a><span class="co">#&gt; 62     Variances.TEXTUAL.PAS  0.88*** 0.13 0.00 [ 0.62,  1.14]   PAS</span></span>
-<span id="cb8-66"><a href="#cb8-66"></a><span class="co">#&gt; 63       Variances.SPEED.PAS  0.32*** 0.08 0.00 [ 0.16,  0.49]   PAS</span></span>
-<span id="cb8-67"><a href="#cb8-67"></a><span class="co">#&gt; 64 Residual.Variances.X1.PAS  0.56*** 0.16 0.00 [ 0.25,  0.86]   PAS</span></span>
-<span id="cb8-68"><a href="#cb8-68"></a><span class="co">#&gt; 65 Residual.Variances.X2.PAS  1.30*** 0.16 0.00 [ 0.98,  1.61]   PAS</span></span>
-<span id="cb8-69"><a href="#cb8-69"></a><span class="co">#&gt; 66 Residual.Variances.X3.PAS  0.94*** 0.15 0.00 [ 0.65,  1.23]   PAS</span></span>
-<span id="cb8-70"><a href="#cb8-70"></a><span class="co">#&gt; 67 Residual.Variances.X4.PAS  0.44*** 0.07 0.00 [ 0.30,  0.59]   PAS</span></span>
-<span id="cb8-71"><a href="#cb8-71"></a><span class="co">#&gt; 68 Residual.Variances.X5.PAS  0.50*** 0.09 0.00 [ 0.33,  0.67]   PAS</span></span>
-<span id="cb8-72"><a href="#cb8-72"></a><span class="co">#&gt; 69 Residual.Variances.X6.PAS  0.26*** 0.05 0.00 [ 0.16,  0.36]   PAS</span></span>
-<span id="cb8-73"><a href="#cb8-73"></a><span class="co">#&gt; 70 Residual.Variances.X7.PAS  0.89*** 0.13 0.00 [ 0.64,  1.14]   PAS</span></span>
-<span id="cb8-74"><a href="#cb8-74"></a><span class="co">#&gt; 71 Residual.Variances.X8.PAS  0.54*** 0.10 0.00 [ 0.35,  0.74]   PAS</span></span>
-<span id="cb8-75"><a href="#cb8-75"></a><span class="co">#&gt; 72 Residual.Variances.X9.PAS  0.65*** 0.10 0.00 [ 0.46,  0.85]   PAS</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table_results</span>(fit)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Calculated confidence intervals from est and se.</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        label  est_sig   se pval        confint group</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1            VISUAL.BY.X1.GW     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2            VISUAL.BY.X2.GW  0.58*** 0.11 0.00 [ 0.36,  0.79]    GW</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3            VISUAL.BY.X3.GW  0.80*** 0.13 0.00 [ 0.54,  1.05]    GW</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4           TEXTUAL.BY.X4.GW     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5           TEXTUAL.BY.X5.GW  1.12*** 0.07 0.00 [ 0.99,  1.25]    GW</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6           TEXTUAL.BY.X6.GW  0.93*** 0.06 0.00 [ 0.82,  1.04]    GW</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7             SPEED.BY.X7.GW     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8             SPEED.BY.X8.GW  1.13*** 0.14 0.00 [ 0.86,  1.40]    GW</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9             SPEED.BY.X9.GW  1.01*** 0.16 0.00 [ 0.70,  1.32]    GW</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10    TEXTUAL.WITH.VISUAL.GW  0.43*** 0.10 0.00 [ 0.23,  0.62]    GW</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11      SPEED.WITH.VISUAL.GW  0.33*** 0.08 0.00 [ 0.16,  0.49]    GW</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12     SPEED.WITH.TEXTUAL.GW   0.24** 0.07 0.00 [ 0.09,  0.38]    GW</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13           Means.VISUAL.GW     0.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14          Means.TEXTUAL.GW     0.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15            Means.SPEED.GW     0.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;    GW</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16          Intercepts.X1.GW  4.85*** 0.09 0.00 [ 4.67,  5.04]    GW</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17          Intercepts.X2.GW  6.07*** 0.08 0.00 [ 5.92,  6.22]    GW</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18          Intercepts.X3.GW  2.15*** 0.08 0.00 [ 1.99,  2.32]    GW</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19          Intercepts.X4.GW  3.35*** 0.09 0.00 [ 3.18,  3.53]    GW</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20          Intercepts.X5.GW  4.68*** 0.10 0.00 [ 4.49,  4.87]    GW</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21          Intercepts.X6.GW  2.46*** 0.08 0.00 [ 2.30,  2.63]    GW</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22          Intercepts.X7.GW  4.07*** 0.08 0.00 [ 3.90,  4.23]    GW</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23          Intercepts.X8.GW  5.43*** 0.08 0.00 [ 5.27,  5.59]    GW</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24          Intercepts.X9.GW  5.29*** 0.08 0.00 [ 5.13,  5.44]    GW</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 25       Variances.VISUAL.GW  0.71*** 0.16 0.00 [ 0.39,  1.03]    GW</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 26      Variances.TEXTUAL.GW  0.87*** 0.13 0.00 [ 0.61,  1.13]    GW</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 27        Variances.SPEED.GW  0.50*** 0.12 0.00 [ 0.27,  0.74]    GW</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 28  Residual.Variances.X1.GW  0.65*** 0.13 0.00 [ 0.40,  0.91]    GW</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 29  Residual.Variances.X2.GW  0.96*** 0.13 0.00 [ 0.72,  1.21]    GW</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 30  Residual.Variances.X3.GW  0.64*** 0.11 0.00 [ 0.42,  0.86]    GW</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 31  Residual.Variances.X4.GW  0.34*** 0.06 0.00 [ 0.22,  0.47]    GW</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 32  Residual.Variances.X5.GW  0.38*** 0.07 0.00 [ 0.23,  0.52]    GW</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 33  Residual.Variances.X6.GW  0.44*** 0.07 0.00 [ 0.30,  0.57]    GW</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 34  Residual.Variances.X7.GW  0.62*** 0.10 0.00 [ 0.42,  0.83]    GW</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 35  Residual.Variances.X8.GW  0.43*** 0.10 0.00 [ 0.24,  0.63]    GW</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 36  Residual.Variances.X9.GW  0.52*** 0.10 0.00 [ 0.32,  0.72]    GW</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 37          VISUAL.BY.X1.PAS     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;   PAS</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 38          VISUAL.BY.X2.PAS  0.58*** 0.11 0.00 [ 0.36,  0.79]   PAS</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 39          VISUAL.BY.X3.PAS  0.80*** 0.13 0.00 [ 0.54,  1.05]   PAS</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 40         TEXTUAL.BY.X4.PAS     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;   PAS</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 41         TEXTUAL.BY.X5.PAS  1.12*** 0.07 0.00 [ 0.99,  1.25]   PAS</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 42         TEXTUAL.BY.X6.PAS  0.93*** 0.06 0.00 [ 0.82,  1.04]   PAS</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 43           SPEED.BY.X7.PAS     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;   PAS</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 44           SPEED.BY.X8.PAS  1.13*** 0.14 0.00 [ 0.86,  1.40]   PAS</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 45           SPEED.BY.X9.PAS  1.01*** 0.16 0.00 [ 0.70,  1.32]   PAS</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 46   TEXTUAL.WITH.VISUAL.PAS  0.41*** 0.11 0.00 [ 0.20,  0.62]   PAS</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 47     SPEED.WITH.VISUAL.PAS   0.18** 0.07 0.01 [ 0.05,  0.31]   PAS</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 48    SPEED.WITH.TEXTUAL.PAS   0.18** 0.06 0.00 [ 0.06,  0.30]   PAS</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 49          Means.VISUAL.PAS     0.15 0.13 0.24 [-0.10,  0.40]   PAS</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 50         Means.TEXTUAL.PAS -0.58*** 0.12 0.00 [-0.81, -0.35]   PAS</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 51           Means.SPEED.PAS     0.18 0.09 0.06 [-0.01,  0.36]   PAS</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 52         Intercepts.X1.PAS  4.85*** 0.09 0.00 [ 4.67,  5.04]   PAS</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 53         Intercepts.X2.PAS  6.07*** 0.08 0.00 [ 5.92,  6.22]   PAS</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 54         Intercepts.X3.PAS  2.15*** 0.08 0.00 [ 1.99,  2.32]   PAS</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 55         Intercepts.X4.PAS  3.35*** 0.09 0.00 [ 3.18,  3.53]   PAS</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 56         Intercepts.X5.PAS  4.68*** 0.10 0.00 [ 4.49,  4.87]   PAS</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 57         Intercepts.X6.PAS  2.46*** 0.08 0.00 [ 2.30,  2.63]   PAS</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 58         Intercepts.X7.PAS  4.07*** 0.08 0.00 [ 3.90,  4.23]   PAS</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 59         Intercepts.X8.PAS  5.43*** 0.08 0.00 [ 5.27,  5.59]   PAS</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 60         Intercepts.X9.PAS  5.29*** 0.08 0.00 [ 5.13,  5.44]   PAS</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 61      Variances.VISUAL.PAS  0.80*** 0.19 0.00 [ 0.42,  1.17]   PAS</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 62     Variances.TEXTUAL.PAS  0.88*** 0.13 0.00 [ 0.62,  1.14]   PAS</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 63       Variances.SPEED.PAS  0.32*** 0.08 0.00 [ 0.16,  0.49]   PAS</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 64 Residual.Variances.X1.PAS  0.56*** 0.16 0.00 [ 0.25,  0.86]   PAS</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 65 Residual.Variances.X2.PAS  1.30*** 0.16 0.00 [ 0.98,  1.61]   PAS</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 66 Residual.Variances.X3.PAS  0.94*** 0.15 0.00 [ 0.65,  1.23]   PAS</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 67 Residual.Variances.X4.PAS  0.44*** 0.07 0.00 [ 0.30,  0.59]   PAS</span></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 68 Residual.Variances.X5.PAS  0.50*** 0.09 0.00 [ 0.33,  0.67]   PAS</span></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 69 Residual.Variances.X6.PAS  0.26*** 0.05 0.00 [ 0.16,  0.36]   PAS</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 70 Residual.Variances.X7.PAS  0.89*** 0.13 0.00 [ 0.64,  1.14]   PAS</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 71 Residual.Variances.X8.PAS  0.54*** 0.10 0.00 [ 0.35,  0.74]   PAS</span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 72 Residual.Variances.X9.PAS  0.65*** 0.10 0.00 [ 0.46,  0.85]   PAS</span></span></code></pre></div>
 </div>
 
 

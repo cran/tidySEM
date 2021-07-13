@@ -225,10 +225,28 @@ graph_sem.lavaan <- function(model,
   eval.parent(cl)
 }
 
+#' @method graph_sem MxModel
+#' @rdname graph_sem
+#' @export
+graph_sem.MxModel <- graph_sem.lavaan
+
 #' @method graph_sem mplus.model
 #' @rdname graph_sem
 #' @export
 graph_sem.mplus.model <- graph_sem.lavaan
+
+#' @method graph_sem character
+#' @rdname graph_sem
+#' @export
+graph_sem.character <- function(...){
+  cl <- match.call()
+  if(names(cl)[2L] == "model") cl[[1L]] <- str2lang("tidySEM:::graph_sem.lavaan")
+  if(names(cl)[2L] %in% c("layout", "edges", "nodes")) cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
+  if(as.list(cl[[2L]])[[1]] == "matrix") cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
+  if(as.list(cl[[2L]])[[1]] == "character") cl[[1L]] <- str2lang("tidySEM:::graph_sem.lavaan")
+  eval.parent(cl)
+}
+
 
 #' @method graph_sem mplusObject
 #' @rdname graph_sem
@@ -544,6 +562,23 @@ prepare_graph.lavaan <- function(model,
   do.call(prepare_graph_model, Args)
 }
 
+#' @method prepare_graph MxModel
+#' @rdname prepare_graph
+#' @export
+prepare_graph.MxModel <- prepare_graph.lavaan
+
+#' @method prepare_graph character
+#' @rdname prepare_graph
+#' @export
+prepare_graph.character <- function(...){
+  cl <- match.call()
+  if(names(cl)[2L] == "model") cl[[1L]] <- str2lang("tidySEM:::prepare_graph.lavaan")
+  if(names(cl)[2L] %in% c("layout", "edges", "nodes")) cl[[1L]] <- str2lang("tidySEM:::prepare_graph.default")
+  if(as.list(cl[[2L]])[[1]] == "matrix") cl[[1L]] <- str2lang("tidySEM:::prepare_graph.default")
+  if(as.list(cl[[2L]])[[1]] == "character") cl[[1L]] <- str2lang("tidySEM:::prepare_graph.lavaan")
+  eval.parent(cl)
+}
+
 #' @method prepare_graph mplus.model
 #' @rdname prepare_graph
 #' @export
@@ -758,7 +793,7 @@ globalVariables(c("name"))
 #' @rdname get_nodes
 #' @keywords tidy_graph
 #' @export
-get_nodes <- function(x, label = paste(name, est_sig, sep = "\n"), ...){
+get_nodes <- function(x, label = paste2(name, est_sig, sep = "\n"), ...){
   UseMethod("get_nodes", x)
 }
 
@@ -773,7 +808,7 @@ get_nodes <- function(x, label = paste(name, est_sig, sep = "\n"), ...){
 #' @method get_nodes lavaan
 #' @export
 #' @importFrom lavaan parameterTable lavInspect
-get_nodes.lavaan <- function(x, label = paste(name, est_sig, sep = "\n"), ...){
+get_nodes.lavaan <- function(x, label = paste2(name, est_sig, sep = "\n"), ...){
   dots <- list(...)
   cl <- match.call()
   cl["columns"] <- list(NULL)
@@ -789,9 +824,31 @@ get_nodes.lavaan <- function(x, label = paste(name, est_sig, sep = "\n"), ...){
   eval.parent(cl)
 }
 
+#' @method get_nodes default
+#' @export
+get_nodes.default <- function(x, label = paste2(name, est_sig, sep = "\n"), ...){
+  dots <- list(...)
+  cl <- match.call()
+  cl["columns"] <- list(NULL)
+  cl[[1L]] <- quote(table_results)
+  cl$x <- tryCatch(eval.parent(cl), error = function(e){
+    stop("Could not extract nodes from object.")
+  })
+  if("columns" %in% names(dots)){
+    cl["columns"] <- dots["columns"]
+  }
+  cl[[1L]] <- quote(get_nodes)
+  eval.parent(cl)
+}
+
 #' @method get_nodes mplusObject
 #' @export
 get_nodes.mplusObject <- get_nodes.lavaan
+
+
+#' @method get_nodes MxModel
+#' @export
+get_nodes.MxModel <- get_nodes.lavaan
 
 
 #' @method get_nodes mplus.object
@@ -804,7 +861,7 @@ get_nodes.mplus.model <- get_nodes.lavaan
 
 #' @method get_nodes tidy_results
 #' @export
-get_nodes.tidy_results <- function(x, label = paste(name, est_sig, sep = "\n"), label_name = TRUE, ...){
+get_nodes.tidy_results <- function(x, label = paste2(name, est_sig, sep = "\n"), label_name = TRUE, ...){
   dots <- list(...)
   cl <- match.call()
   cl[[1L]] <- str2lang("tidySEM:::get_nodes.tidy_results")
@@ -934,6 +991,23 @@ get_edges <- function(x, label = "est_sig", ...){
   UseMethod("get_edges", x)
 }
 
+#' @method get_edges default
+#' @export
+get_edges.default <- function(x, label = paste2(name, est_sig, sep = "\n"), ...){
+  dots <- list(...)
+  cl <- match.call()
+  cl["columns"] <- list(NULL)
+  cl[[1L]] <- quote(table_results)
+  cl$x <- tryCatch(eval.parent(cl), error = function(e){
+    stop("Could not extract edges from object.")
+  })
+  if("columns" %in% names(dots)){
+    cl["columns"] <- dots["columns"]
+  }
+  cl[[1L]] <- str2lang("tidySEM:::get_edges.tidy_results")
+  eval.parent(cl)
+}
+
 #' @method get_edges lavaan
 #' @export
 get_edges.lavaan <- function(x, label = "est_sig", ...){
@@ -954,6 +1028,9 @@ get_edges.lavaan <- function(x, label = "est_sig", ...){
 #' @export
 get_edges.mplusObject <- get_edges.lavaan
 
+#' @method get_edges MxModel
+#' @export
+get_edges.MxModel <- get_edges.lavaan
 
 #' @method get_edges mplus.object
 #' @export
@@ -1383,6 +1460,7 @@ match.call.defaults <- function(...) {
 .plot_label_internal <- function(p, df, text_size){
   retain_cols <- c("x", "y", "label", "group", "level")
   retain_cols <- retain_cols[which(retain_cols %in% names(df))]
+  use_geom_text <- isTRUE("geom_text" %in% names(df))
   df <- df[, c(retain_cols, grep("^label_(fill|size|family|fontface|hjust|vjust|lineheight|colour|color|alpha)$", names(df), value = TRUE)), drop = FALSE]
   if(nrow(df) > 0){
     names(df) <- gsub("^label_", "", names(df))
@@ -1393,14 +1471,22 @@ match.call.defaults <- function(...) {
     if(!"size" %in% names(df)){
       df$size <- text_size
     }
-    Args <- c("fill", "size", "family", "fontface", "hjust", "vjust", "lineheight", "colour","color",  "alpha")
+    #browser()
+    Args <- c("fill", "size", "family", "fontface", "hjust", "vjust", "lineheight", "colour","color",  "alpha", "geom_text")
     Args <- as.list(df[which(names(df) %in% Args)])
     Args <- c(list(
       data = df,
       mapping = aes_string(x = "x", y = "y", label = "label"),
-      label.size = NA),
+      label.size = NA
+      ),
       Args)
-    p <- p + do.call(geom_label, Args)
+    if(use_geom_text){
+      Args[c("geom_text", "fill", "label.size")] <- NULL
+      p <- p + do.call(geom_text, Args)
+    } else {
+      p <- p + do.call(geom_label, Args)
+    }
+
   }
   p
 }
@@ -1425,6 +1511,7 @@ reposition_variances <- function(df_edges){
 
 
 bind_list <- function(L, ...){
+  L <- L[which(!sapply(L, is.null))]
   all_names <- unique(unlist(lapply(L, names)))
   L <- lapply(L, function(x){
     x[setdiff(all_names, names(x))] <- NA
