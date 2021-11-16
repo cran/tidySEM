@@ -199,11 +199,17 @@ graph_sem.default <- function(edges = NULL,
 #' @rdname graph_sem
 #' @export
 graph_sem.lavaan <- function(model,
-                             edges = get_edges(x = model),
-                             layout = get_layout(x = model),
-                             nodes = get_nodes(x = model),
+                             edges = NULL,
+                             layout = NULL,
+                             nodes = NULL,
                              ...){
   dots <- list(...)
+  if(is.null(edges) | is.null(layout) | is.null(nodes)){
+    tabres <- table_results(model)
+    if(is.null(edges)) edges <- get_edges(x = model)
+    if(is.null(layout)) layout <- get_layout(x = model)
+    if(is.null(nodes)) nodes <- get_nodes(x = model)
+  }
   params_table_res <- c("label", "digits", "columns")
   edges <- substitute(edges)
   nodes <- substitute(nodes)
@@ -240,10 +246,19 @@ graph_sem.mplus.model <- graph_sem.lavaan
 #' @export
 graph_sem.character <- function(...){
   cl <- match.call()
-  if(names(cl)[2L] == "model") cl[[1L]] <- str2lang("tidySEM:::graph_sem.lavaan")
-  if(names(cl)[2L] %in% c("layout", "edges", "nodes")) cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
-  if(as.list(cl[[2L]])[[1]] == "matrix") cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
-  if(as.list(cl[[2L]])[[1]] == "character") cl[[1L]] <- str2lang("tidySEM:::graph_sem.lavaan")
+  cl_list <- as.list(cl)
+  if(isTRUE("model" %in% names(cl))){
+    if(inherits(cl_list[["model"]], "matrix")) cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
+    if(inherits(cl_list[["model"]], "character")) cl[[1L]] <- str2lang("tidySEM:::graph_sem.lavaan")
+  } else {
+    if(any(c("layout", "edges", "nodes") %in% names(cl))){
+      cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
+    } else {
+      if(inherits(cl_list[[2L]], "matrix")) cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
+      if(inherits(cl_list[[2L]], "character")) cl[[1L]] <- str2lang("tidySEM:::graph_sem.lavaan")
+    }
+  }
+  #if(names(cl)[2L] == "model") cl[[1L]] <- str2lang("tidySEM:::graph_sem.lavaan")
   eval.parent(cl)
 }
 
@@ -805,6 +820,23 @@ get_nodes <- function(x, label = paste2(name, est_sig, sep = "\n"), ...){
 #   do.call(get_nodes, Args)
 # }
 
+# @method get_nodes character
+# @export
+# get_nodes.character <- function(x, label = NULL, ...){
+#   dots <- list(...)
+#   cl <- match.call()
+#   cl["columns"] <- list(NULL)
+#   cl[[1L]] <- quote(table_results)
+#   cl$x <- eval.parent(cl)
+#   if("columns" %in% names(dots)){
+#     cl["columns"] <- dots["columns"]
+#   }
+#   cl[[1L]] <- quote(get_nodes)
+#   eval.parent(cl)
+# }
+
+
+
 #' @method get_nodes lavaan
 #' @export
 #' @importFrom lavaan parameterTable lavInspect
@@ -1008,6 +1040,21 @@ get_edges.default <- function(x, label = paste2(name, est_sig, sep = "\n"), ...)
   eval.parent(cl)
 }
 
+# @method get_edges character
+# @export
+# get_edges.character <- function(x, label = NULL, ...){
+#   dots <- list(...)
+#   cl <- match.call()
+#   cl["columns"] <- list(NULL)
+#   cl[[1L]] <- quote(table_results)
+#   cl$x <- eval.parent(cl)
+#   if("columns" %in% names(dots)){
+#     cl["columns"] <- dots["columns"]
+#   }
+#   cl[[1L]] <- quote(get_edges)
+#   eval.parent(cl)
+# }
+
 #' @method get_edges lavaan
 #' @export
 get_edges.lavaan <- function(x, label = "est_sig", ...){
@@ -1049,7 +1096,7 @@ get_edges.tidy_results <- function(x, label = "est_sig", ...){
     x$show <- attr(x, "user_specified")
   }
   if("group" %in% names(x)){
-    x_list <- lapply(unique(x$group), function(i){
+    x_list <- lapply(na.omit(unique(x$group)), function(i){
       cl$x <- x[x$group == i, -which(names(x) == "group")]
       tmp <- eval.parent(cl)
       tmp$group <- i
@@ -1058,7 +1105,7 @@ get_edges.tidy_results <- function(x, label = "est_sig", ...){
     return(bind_list(x_list))
   }
   if("level" %in% names(x)){
-    x_list <- lapply(unique(x$level), function(i){
+    x_list <- lapply(na.omit(unique(x$level)), function(i){
       cl$x <- x[x$level == i, -which(names(x) == "level")]
       tmp <- eval.parent(cl)
       tmp$from <- paste0(tmp$from, ".", i)
@@ -1412,7 +1459,7 @@ match.call.defaults <- function(...) {
     df_edges$linetype <- 2
     df_edges$linetype[is.na(df_edges$curvature)] <- 1
   }
-  if(any(df_edges$arrow == "curve")) browser() # Dit mag niet meer!
+  if(any(df_edges$arrow == "curve")) stop("Arrow cannot be 'curve'.")
   p <- .plot_edges_internal(p, df_edges)
   # Add label and return ----------------------------------------------------
   .plot_label_internal(p, df_label, text_size)
@@ -1481,6 +1528,7 @@ match.call.defaults <- function(...) {
       ),
       Args)
     if(use_geom_text){
+      Args$mapping <- aes_string(x = "x", y = "y", label = "label", customdata = "label")
       Args[c("geom_text", "fill", "label.size")] <- NULL
       p <- p + do.call(geom_text, Args)
     } else {

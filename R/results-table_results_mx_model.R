@@ -9,6 +9,35 @@ table_results.MxModel <- function (x, columns = c("label", "est_sig", "se", "pva
   digits <- force(digits)
   sum_x <- summary(x)
   results <- sum_x$parameters
+  results$openmx_label <- results$name
+  matrixnames <- grepl("\\[.+?\\]", results$name)
+  results$label[matrixnames] <- NA
+  results$name[!matrixnames] <- get_mx_names(x, results)[!matrixnames]
+# Add standardized --------------------------------------------------------
+  if(is.null(columns) | any(grepl("std_", columns))){ # Conditional, to save time
+    results_std <- mxStandardizeRAMPaths(x, SE = TRUE)
+    if(inherits(results_std, "list")){
+      for(n in names(results_std)){
+        results_std[[n]]$matrix <- paste(n, results_std[[n]]$matrix, sep = ".")
+      }
+      results_std <- bind_list(results_std)
+      renamez <- c("Raw.Value" = "Estimate", "Raw.SE" = "Std.Error", "Std.Value" = "std_est", "Std.SE" = "std_se", "label" = "openmx_label")
+      names(results_std)[match(names(renamez), names(results_std))] <- renamez[names(renamez) %in% names(results_std)]
+    }
+    # Remove redundant correlations
+    remove_these <- results_std$name[endsWith(results_std$matrix, ".S")]
+    remove_these <- remove_these[!remove_these %in% results$name]
+    if(length(remove_these) > 0){
+      these_rows <- which(results_std$name %in% remove_these)
+      flip_S <- results_std[these_rows, , drop = FALSE]
+      names(flip_S)[match(c("row", "col"), names(flip_S))] <- c("col", "row")
+      flip_S$name <- gsub("\\[(\\d+),(\\d+)\\]$", "\\[\\2,\\1\\]", flip_S$name)
+      results_std[these_rows, ] <- flip_S[, names(results_std)]
+    }
+    # Clean up name vs label
+    tab <- merge(results, results_std, by = "name", all = TRUE)
+    results <- two_to_one(tab)
+  }
 
 # Add algebras ------------------------------------------------------------
   results <- bind_list(list(results, get_algebras(x)))
@@ -24,13 +53,14 @@ table_results.MxModel <- function (x, columns = c("label", "est_sig", "se", "pva
   themns <- which(results$op == "~1")
   results$lhs[themns] <- results$col[themns]
   results$rhs[themns] <- results$row[themns]
-  fac_load <- results$op == "~" & results$rhs %in% x$latentVars & results$lhs %in% x$manifestVars
+  lvs <- unique(unlist(from_submodels(x, "latentVars")))
+  obsv <- unique(unlist(from_submodels(x, "manifestVars")))
+  fac_load <- results$op == "~" & results$rhs %in% lvs & results$lhs %in% obsv
   results$rhs[fac_load] <- results$row[fac_load]
   results$lhs[fac_load] <- results$col[fac_load]
   results$op[fac_load] <- "=~"
 
   results$confint <- conf_int(results$est, se = results$Std.Error)
-  browser()
   if(isTRUE(sum_x[["CI.Requested"]])){
     if(!all(is.na(sum_x[["CI"]]))) {
       ci_x <- data.frame(name = rownames(sum_x$CI),
@@ -45,9 +75,12 @@ table_results.MxModel <- function (x, columns = c("label", "est_sig", "se", "pva
   results$pvalue <- 2*pnorm(abs(results$Estimate)/results$Std.Error, lower.tail = FALSE)
   results$est_sig <- est_sig(results$est, sig = results$pvalue)
   results[c("estimate", "Estimate")] <- NULL
-  names(results)[match(c("Std.Error", "name"), names(results))] <- c("se", "openmx.label")
+  miscols <- colSums(is.na(results)) == nrow(results)
+  if(any(miscols)) results <- results[, !miscols, drop = FALSE]
+  names(results)[match(c("Std.Error"), names(results))] <- c("se")
   names(results) <- tolower(names(results))
-  results$label <- mx_to_lavaan_labels(results)
+  lav_labs <- mx_to_lavaan_labels(results)
+  results <- cbind(results, lav_labs)
   if(!is.null(columns)) {
     results[, na.omit(match(columns, names(results)))]
   }
@@ -110,6 +143,15 @@ submodels <- function(x, results, cols = c("name", "matrix", "row", "col", "Esti
   return(results)
 }
 
+from_submodels <- function(x, what = NULL, ...){
+  out <- do.call(`@`, list(x, what))
+  if(has_submod(x)){
+    submod <- names(attr(x, "submodels"))
+    out <- c(out, lapply(submod, function(i){ from_submodels(x[[i]], what = what) }))
+  }
+  return(out)
+}
+
 has_submod <- function(x, depth = 0){
   subs <- names(attr(x, "submodels"))
   if(depth == 0){
@@ -144,6 +186,7 @@ get_algebras <- function(x, ...){
   cl[[1L]] <- str2lang("tidySEM:::.get_algebras_internal")
   algs <- eval.parent(cl)
   Estimate <- unlist_mx(algs, "result")
+  if(is.null(Estimate)) return(NULL)
   out <- data.frame(name = names(Estimate),
                     matrix =  unlist_mx(algs, element = "name"),
                     row = unlist_mx(algs, element = "formula"),
@@ -200,7 +243,7 @@ unlist_mx <- function(i, element, ...){
   cl <- match.call()
   cl[[1L]] <- str2lang("tidySEM:::unlist_mx2")
   out <- unlist(eval.parent(cl))
-  names(out) <- gsub(".[", "[", names(out), fixed = TRUE)
+  if(!is.null(out)) names(out) <- gsub(".[", "[", names(out), fixed = TRUE)
   out
 }
 unlist_mx2 <- function(i, element, ...){
@@ -261,21 +304,91 @@ unlist_mx2 <- function(i, element, ...){
 # }
 
 mx_to_lavaan_labels <- function(x){
-  out <- x$openmx.label
+  out <- x$openmx_label
+  cat <- rep(NA, length(out))
   # Means
   these <- which(x$op == "~1")
   out[these] <- paste0("Means.", x$lhs[these])
+  cat[these] <- "Means"
   # Vars
   these <- which(x$op == "~~" & (x$rhs == x$lhs))
   out[these] <- paste0("Variances.", x$lhs[these])
+  cat[these] <- "Variances"
   # covs
   these <- which(x$op == "~~" & !(x$rhs == x$lhs))
-  out[these] <- paste0(x$lhs[these], ".WITH.", x$rhs[these])
+  out[these] <- paste0("Covariances.", x$lhs[these], ".WITH.", x$rhs[these])
+  cat[these] <- "Covariances"
   # lv def
   these <- which(x$op == "=~")
-  out[these] <- paste0(x$lhs[these], ".BY.", x$rhs[these])
+  out[these] <- paste0("Loadings.", x$lhs[these], ".BY.", x$rhs[these])
+  cat[these] <- "Loadings"
   # reg
   these <- which(x$op == "~")
-  out[these] <- paste0(x$lhs[these], ".ON.", x$rhs[these])
-  out
+  out[these] <- paste0("Regressions.", x$lhs[these], ".ON.", x$rhs[these])
+  cat[these] <- "Regressions"
+  cbind(label = out, Category = cat)
+}
+
+
+get_mx_names <- function(x, res){
+  out <- rep(NA, nrow(res))
+  if(length(x@submodels) > 0){
+    group_pars <- vector("numeric")
+    group_par_vals <- vector("character")
+    for(nam in names(x@submodels)){
+      group_pars_thisgrp <- which(startsWith(res$matrix, paste0(nam, ".")))
+      group_pars <- append(group_pars, group_pars_thisgrp)
+      resgrp <- res[group_pars_thisgrp, , drop = FALSE]
+      resgrp$matrix <- gsub(paste0("^", nam, "\\."), "", resgrp$matrix)
+      group_par_vals <- append(group_par_vals, get_mx_names(x[[nam]], resgrp))
+    }
+    if(length(group_pars) > 0){
+      out[group_pars] <- group_par_vals
+    }
+    res <- res[-group_pars, , drop = FALSE]
+  }
+  matcol <- which(names(res) == "matrix")
+  rowcol <- which(names(res) == "row")
+  colcol <- which(names(res) == "col")
+  res_par_vals <- apply(res, 1, function(thisrow){
+    tryCatch({
+      themat <- x[[thisrow[matcol]]]
+      if(!is.null(rownames(themat)) & !is.null(rownames(themat))){
+        return(paste0(x$name, ".", thisrow[matcol], "[", paste(match(thisrow[rowcol], rownames(themat$values)), match(thisrow[colcol], colnames(themat$values)), sep = ","), "]"))
+      }
+      if(is.null(rownames(themat)) & !is.null(colnames(themat)) & nrow(themat) == 1){
+        return(paste0(x$name, ".", thisrow[matcol], "[", paste(1, match(thisrow[colcol], colnames(themat$values)), sep = ","), "]"))
+      }
+      return(NA)
+    }, error = function(e){ NA })
+  })
+  if((length(x@submodels) > 0)){
+    if(length(group_pars) > 0){
+      out[-group_pars] <- res_par_vals
+      return(out)
+    }
+  } else {
+    return(res_par_vals)
+  }
+}
+
+
+two_to_one <- function(tab){
+  dupcol <- table(gsub("\\.[xy]", "", names(tab)))
+  unicol <- names(dupcol)[dupcol != 2]
+  dupcol <- names(dupcol)[dupcol == 2]
+  mergtab <- data.frame(lapply(dupcol, function(thisc){
+    vals <- tab[, startsWith(names(tab), thisc)]
+    out <- vals[[1]]
+    miss <- rowSums(is.na(vals))
+    out[miss == 1 & is.na(out)] <- vals[[2]][miss == 1 & is.na(out)]
+    out
+  }))
+  names(mergtab) <- dupcol
+  if(nrow(mergtab) > 0){
+    return(cbind(tab[names(tab) %in% unicol], mergtab))
+  } else {
+    return(tab)
+  }
+
 }

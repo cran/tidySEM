@@ -49,12 +49,6 @@
 #' df <- empathy[1:6]
 #' mx_mixture(model = "i =~ 1*ec1 + 1*ec2 + 1*ec3 +1*ec4 +1*ec5 +1*ec6
 #'                     s =~ 0*ec1 + 1*ec2 + 2*ec3 +3*ec4 +4*ec5 +5*ec6",
-#'                     meanstructure = TRUE, int.ov.free = FALSE,
-#'                     int.lv.free = TRUE, auto.fix.first = TRUE,
-#'                     auto.fix.single = TRUE, auto.var = TRUE,
-#'                     auto.cov.lv.x = TRUE, auto.efa = TRUE,
-#'                     auto.th = TRUE, auto.delta = TRUE,
-#'                     auto.cov.y = TRUE,
 #'                     classes = 2,
 #'                     data = df) -> res
 #' }
@@ -73,6 +67,9 @@ mx_mixture <- function(model,
 #' specification of latent profile models, also known as finite mixture models.
 #' By default, the function estimates free means for all observed variables
 #' across classes.
+#' @param data The data.frame to be used for model fitting.
+#' @param classes A vector of integers, indicating which class solutions to
+#' generate. Defaults to 1L. E.g., \code{classes = 1:6},
 #' @param variances Character vector. Specifies which variance components to
 #' estimate. Defaults to "equal" (constrain variances across classes); the
 #' other option is "varying" (estimate variances freely across classes). Each
@@ -83,10 +80,7 @@ mx_mixture <- function(model,
 #' to an assumption of conditional independence of the indicators); other
 #' options are "equal" (covariances between items constrained to be equal across
 #' classes), and "varying" (free covariances across classes).
-#' @param classes A vector of integers, indicating which class solutions to
-#' generate. Defaults to 1L. E.g., \code{classes = 1:6},
 #' \code{classes = c(1:4, 6:8)}.
-#' @param data The data.frame to be used for model fitting.
 #' @param run Logical, whether or not to run the model. If \code{run = TRUE},
 #' the function calls \code{\link{mixture_starts}} and \code{\link{run_mx}}.
 #' @param ... Additional arguments, passed to functions.
@@ -101,9 +95,9 @@ mx_mixture <- function(model,
 #'             classes = 2) -> res
 #' }
 mx_profiles <- function(data = NULL,
+                        classes = 1L,
                         variances = "equal",
                         covariances = "zero",
-                        classes = 1L,
                         run = TRUE,
                         ...){
   if(length(variances) > 0 & (!hasArg(covariances) | length(covariances) == 1)){
@@ -131,12 +125,18 @@ mx_profiles <- function(data = NULL,
     }, v = variances, c = covariances, SIMPLIFY = FALSE)
     out <- do.call(c, out)
   }
-  class(out) <- c("mixture_list", class(out))
   vlab <- paste0(c(varying = "free", equal = "equal")[variances], " var")
   clab <- paste0(c(zero = "no", varying = "free", equal = "equal")[covariances], " cov")
   clab[clab == "no cov"] <- NA
   lbs <- gsub(", $", "", paste2(vlab, clab, sep = ", "))
-  names(out) <- paste(rep(lbs, each = length(classes)), rep(classes, length(lbs)))
+  lbs <- paste(rep(lbs, each = length(classes)), rep(classes, length(lbs)))
+  if(inherits(out, "list")){
+    class(out) <- c("mixture_list", class(out))
+    names(out) <- lbs
+  }
+  if(inherits(out, "MxModel")){
+    out <- mxModel(out, name = lbs)
+  }
   out
 }
 
@@ -229,10 +229,11 @@ mx_mixture.character <- function(model,
     cl[["model"]] <- model
     cl[[1L]] <- str2lang("tidySEM:::as_mx_mixture")
     out <- eval.parent(cl)
+    cl[["model"]] <- out
+    cl[[1L]] <- str2lang("tidySEM:::mixture_starts")
+    out <- eval.parent(cl)
     if(run){
-      cl[["model"]] <- out
-      cl[[1L]] <- str2lang("tidySEM:::mixture_starts")
-      cl[["x"]] <- eval.parent(cl)
+      cl[["x"]] <- out
       cl[["model"]] <- NULL
       cl[[1L]] <- str2lang("tidySEM:::run_mx")
       return(eval.parent(cl))
@@ -270,7 +271,7 @@ mx_mixture.list <- function(model,
       stop("Function mx_mixture.list() requires argument 'model' to be a list of lavaan syntaxes or MxModels.")
     }
     # Develop functionality for MxModels
-    browser()
+    stop("Function mx_mixture() cannot yet handle a list of MxModels.")
   }
   if(run){
     cl[["model"]] <- out
@@ -289,13 +290,21 @@ as_mx_mixture <- function(model,
                           data,
                           ...){
   # Prepare mixture model
-  mix <- mxModel(
-    model = paste0("mix", classes),
-    lapply(model, function(x){ mxModel(x, mxFitFunctionML(vector=TRUE)) }),
-    mxData(data, type = "raw"),
-    mxMatrix(values=1, nrow=1, ncol=classes, free=c(FALSE,rep(TRUE, classes-1)), name="weights"),
-    mxExpectationMixture(paste0("class", 1:classes), scale="softmax"),
-    mxFitFunctionML())
+  if(classes > 1){
+    mix <- mxModel(
+      model = paste0("mix", classes),
+      lapply(model, function(x){ mxModel(x, mxFitFunctionML(vector=TRUE)) }),
+      mxData(data, type = "raw"),
+      mxMatrix(values=1, nrow=1, ncol=classes, lbound = 1e-4, free=c(FALSE,rep(TRUE, classes-1)), name="weights"),
+      mxExpectationMixture(paste0("class", 1:classes), scale="softmax"),
+      mxFitFunctionML())
+  } else {
+    mix <- mxModel(
+      model[[1]],
+      mxData(data, type = "raw"),
+      mxFitFunctionML(),
+      name = paste0("mix", classes))
+  }
   attr(mix, "tidySEM") <- "mixture"
   mix
 }
@@ -325,14 +334,20 @@ as_mx_mixture <- function(model,
 #' }
 #'
 #' If the argument \code{splits} is not provided, the function will call
-#' \code{cutree(hclust(dist(data)), k = classes))}, where \code{data} is
-#' extracted from the \code{model} argument.
+#' \code{\link[stats]{kmeans}}\code{(x = data, centers = classes)$cluster},
+#' where \code{data} is extracted from the \code{model} argument.
 #'
-#' Other sensible ways to split the data include:
+#' Sensible ways to split the data include:
 #' \itemize{
-#'   \item Using K-means clustering: \code{\link[stats]{kmeans}}\code{(x = data, centers = classes)$cluster}
-#'   \item Using agglomerative hierarchical clustering: \code{hclass(}\code{\link[mclust]{hc}}\code{(data = data), G = classes)[, 1]}
-#'   \item Using a random split: \code{\link{sample.int}}\code{(n = classes, size = nrow(data), replace = TRUE)}
+#'   \item Using Hierarchical clustering:
+#'    \code{cutree(hclust(dist(data)), k = classes))}
+#'   \item Using K-means clustering:
+#'   \code{\link[stats]{kmeans}}\code{(x = data, centers = classes)$cluster}
+#'   \item Using agglomerative hierarchical clustering:
+#'   \code{hclass(}\code{\link[mclust]{hc}}\code{(data = data), G = classes)[, 1]}
+#'   \item Using a random split:
+#'   \code{\link{sample.int}}\code{(n = classes,
+#'   size = nrow(data), replace = TRUE)}
 #' }
 #' @return Returns an \code{\link[OpenMx]{mxModel}} with starting values.
 #' @export
@@ -348,17 +363,41 @@ as_mx_mixture <- function(model,
 #'                            run = FALSE)
 #' mod <- mixture_starts(mod)
 #' }
+#' @references Shireman, E., Steinley, D. & Brusco, M.J. Examining the effect of
+#' initialization strategies on the performance of Gaussian mixture modeling.
+#' Behav Res 49, 282–293 (2017). <doi:10.3758/s13428-015-0697-6>
 #' @importFrom OpenMx mxModel mxRun mxTryHard mxAutoStart
 #' @importFrom methods hasArg
+#' @importFrom stats kmeans
 mixture_starts <- function(model,
                            splits,
                            ...){
-  stopifnot("mxModel is not a mixture model." = inherits(model@expectation, "MxExpectationMixture"))
+  stopifnot("mxModel is not a mixture model." = inherits(model@expectation, "MxExpectationMixture") | attr(model, "tidySEM") == "mixture")
   stopifnot("mxModel must contain data to determine starting values." = !(is.null(model@data) | is.null(model@data$observed)))
   classes <- length(model@submodels)
+  if(classes < 2){
+    return(mxAutoStart(model, type = "ULS"))
+  }
   data <- model@data$observed
   if(!hasArg(splits)){
-    splits <- cutree(hclust(dist(data)), k = classes)
+    splits <- try({kmeans(x = data, centers = classes)$cluster})
+    if(inherits(splits, "try-error")){
+      message("Could not initialize clusters using K-means.")
+      splits <- try({cutree(hclust(dist(data)), k = classes)})
+      if(inherits(splits, "try-error")){
+        stop("Could not initialize clusters using hierarchical clustering. Consider using a different clustering method, or imputing missing data.")
+      }
+    }
+    #
+  } else {
+    stopifnot("Number of unique values in splits must be identical to the number of latent classes." = length(unique(splits) == names(model@submodels)))
+  }
+  tab_split <- table(splits)
+  if(any(tab_split) < 2){
+    small_cats <- which(tab_split < 2)
+    choose_from <- which(tab_split > 2 + length(small_cats))
+    if(length(choose_from) == 0) stop("Some clusters were too small to determine sensible starting values in `mixture_starts()`. Either specify splits manually, or reduce the number of classes.")
+    splits[sample(which(splits %in% choose_from), length(small_cats))] <- small_cats
   }
 
   if(!classes == length(unique(splits))){

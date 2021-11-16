@@ -20,7 +20,7 @@
 # @importFrom OpenMx omxAssignFirstParameters mxCompare mxFitFunctionMultigroup
 # @importFrom lavaan mplus2lavaan.modelSyntax
 # @importFrom stats cutree dist hclust
-# @importFrom utils capture.output
+#' @importFrom OpenMx omxDefaultComputePlan mxComputeSimAnnealing
 run_mx <- function(x, ...){
   UseMethod("run_mx", x)
 }
@@ -29,8 +29,9 @@ run_mx <- function(x, ...){
 #' @export
 run_mx.tidy_sem <- function(x, ...){
   cl <- match.call()
+  cl[[1L]] <- quote(as_ram)
+  cl[["x"]] <- eval.parent(cl)
   cl[[1L]] <- quote(run_mx)
-  cl[["x"]] <- as_ram(x$syntax)
   cl[["data"]] <- x$data
   eval.parent(cl)
 }
@@ -39,11 +40,13 @@ run_mx.tidy_sem <- function(x, ...){
 #' @export
 run_mx.MxModel <- function(x, ...){
   dots <- list(...)
-  run_fun <- str2lang("OpenMx::mxRun")
+  run_fun <- "mxRun"
   run_args <- list()
   # Determine type of model and what elements are available
   if(!is.null(dots[["data"]])){
-    x <- mxModel(x, mxData(dots[["data"]], type = "raw"))
+    cl <- match.call()
+    cl[[1L]] <- str2lang("tidySEM:::mx_add_data")
+    x <- eval.parent(cl)
     dots[["data"]] <- NULL
   }
   if(length(x@intervals) > 0){
@@ -52,28 +55,75 @@ run_mx.MxModel <- function(x, ...){
 
   # Different approaches based on model type --------------------------------
   if(!is.null(attr(x, "tidySEM"))){
-    if(attr(x, "tidySEM") == "mixture"){
-      # maybe also try simulated annealing
-      run_fun <- str2lang("OpenMx::mxTryHard")
-      run_args <- c(run_args,
-                    list(
-                      extraTries = 100,
-                      intervals=TRUE,
-                      silent = TRUE,
-                      verbose = FALSE,
-                      bestInitsOutput = FALSE,
-                      exhaustive = TRUE))
+    if(attr(x, "tidySEM") == "mixture" & length(names(x@submodels)) > 0){
+      mix_method <- "annealing"
+      if(!is.null(dots[["method"]])){
+        mix_method <- dots[["method"]]
+      }
+      switch(mix_method,
+             "hard" = {
+               # tryhard
+               run_fun <- "mxTryHard"
+               run_args <- c(run_args,
+                             list(
+                               extraTries = 100,
+                               intervals=TRUE,
+                               silent = TRUE,
+                               verbose = FALSE,
+                               bestInitsOutput = FALSE,
+                               exhaustive = TRUE))
+             },
+             {
+               x <- mxModel(x, mxComputeSimAnnealing())
+               res <- try(mxRun(x), silent = TRUE)
+               if(inherits(res, "try-error")){
+                 message("Simulated annealing failed, suggesting bad starting values or an overly complex model. Trying `mxTryHard()`.")
+                 x <- mxTryHard(x)
+               } else {
+                 x <- res
+               }
+               x@compute <- NULL
+             })
     }
+  } else {
+    x <- mxAutoStart(x)
   }
   run_args <- c(
     list(
-      "name" = run_fun,
+      "name" = str2lang(run_fun),
       "model" = x
     ),
     run_args,
-    dots)
+    dots[which(names(dots) %in% formalArgs(run_fun))])
   cl <- as.call(run_args)
-  eval.parent(cl)
+  eval(cl)
+}
+
+mx_add_data <- function(x, data, ...){
+  dots <- list(...)
+  if(inherits(x$fitfunction, "MxFitFunctionMultigroup")){
+    if("groups" %in% names(dots)){
+      if(length(dots[["groups"]]) != 1 | !(dots[["groups"]][1] %in% names(data))){
+        stop("The argument 'groups' should contain the name of a column in 'data'.")
+      }
+      groupnames <- as.character(unique(data[[dots[["groups"]]]]))
+      if(!length(groupnames) == length(x$fitfunction$groups)){
+        stop("The column indicated by 'groups' contains ", length(groupnames), " unique values, but the model was specified for ", length(x$fitfunction$groups), " groups.")
+      }
+      if(all(groupnames %in% x$fitfunction$groups)){
+        groupnames <- x$fitfunction$groups # To get correct order
+      }
+      for(i in 1:length(groupnames)){
+        x[[x$fitfunction$groups[i]]] <-
+          mxModel(x[[x$fitfunction$groups[i]]],
+                  mxData(data[data[[dots[["groups"]]]] == groupnames[i], -which(names(data) == dots[["groups"]]), drop = FALSE],
+                         type = "raw"))
+      }
+    }
+  } else {
+    x <- mxModel(x, mxData(data, type = "raw"))
+  }
+  x
 }
 
 

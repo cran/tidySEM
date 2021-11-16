@@ -20,7 +20,8 @@
 #' to \code{lavaan} parameter tables. By default, is uses the arguments
 #' \code{int.ov.free = TRUE, int.lv.free = FALSE, auto.fix.first = TRUE,
 #' auto.fix.single = TRUE, auto.var = TRUE, auto.cov.lv.x = TRUE,
-#' auto.efa = TRUE, auto.th = TRUE, auto.delta = TRUE, auto.cov.y = TRUE}, akin
+#' auto.efa = TRUE, auto.th = TRUE, auto.delta = TRUE, auto.cov.y = TRUE,
+#' meanstructure = TRUE}, in a similar way
 #' to \code{\link[lavaan]{sem}} and \code{\link[lavaan]{cfa}}.
 #' @examples
 #' library(lavaan)
@@ -69,8 +70,12 @@ add_paths <- function(model, ...){ #, strict_check = TRUE
 #' @method add_paths tidy_sem
 #' @export
 add_paths.tidy_sem <- function(model, ...){ #, strict_check = TRUE
-  Args <- c(list(model = model$syntax), as.list(match.call()[-c(1:2)]))
-  model$syntax <- do.call(add_paths, Args)
+  cl <- match.call()
+  cl["model"] <- list(model$syntax)
+  if(!is.null(group_var(model))) cl[["ngroups"]] <- group_var(model, "ngroups")
+  cl[[1L]] <- quote(add_paths)
+  #Args <- c(list(model = model$syntax), as.list(match.call()[-c(1:2)]))
+  model$syntax <- eval.parent(cl)
   return(model)
 }
 
@@ -85,7 +90,7 @@ add_paths.default <- function(model, ...){ #, strict_check = TRUE
     #existing_pars <- max(unique(model$id))
   }
   # If use_cols is NULL, use all lav_partable columns
-  use_cols <- c("lhs", "op", "rhs", "block", "free", "label", "ustart", "plabel")
+  use_cols <- c("lhs", "op", "rhs", "block", "group", "free", "label", "ustart", "plabel")
   if(is.null(use_cols)){
     use_cols <- names(lav_partable_complete(data.frame("lhs" = NA, "op" = NA, "rhs" = NA)))
   } else {
@@ -116,7 +121,9 @@ add_paths.default <- function(model, ...){ #, strict_check = TRUE
   # Parse dots
   tab <- lavParseModelString(paste0(unlist(dots), collapse = ";"), as.data.frame. = TRUE)
   # Convert to lavaan
-  tab <- do.call(lavaanify, c(list(model = tab), Args_lav))
+  tab <- do.call(tidysem_lavaanify, c(list(model = tab), Args_lav))
+  # Drop == rows
+  tab <- tab[!tab$op == "==", , drop = FALSE]
   tab$free[!tab$free==0] <- 1
 
   # Use use_cols
@@ -161,7 +168,50 @@ add_paths.default <- function(model, ...){ #, strict_check = TRUE
 }
 
 
-get_pid <- function(tab, pidcols = c("lhs", "rhs", "op", "block")){
+get_pid <- function(tab, pidcols = c("lhs", "rhs", "op", "block", "label")){
   apply(tab[, pidcols], 1, function(x){paste0(c(sort(x[c("lhs", "rhs")]), x[!names(x) %in% c("lhs", "rhs")]), collapse = "_X_")})
 }
 
+
+tidysem_lavaanify <- function(..., data = NULL){
+  cl <- match.call()
+  if(!is.null(data)) cl[["data"]] <- NULL
+  cl[[1L]] <- str2lang("lavaan::lavaanify")
+  x <- eval.parent(cl)
+  if(!is.null(data)){
+    obs <- vnames(x, type = "ov")
+    ord <- sapply(data[obs], inherits, "ordered")
+    cats <- sapply(data[obs], inherits, "factor") & !ord
+    if(any(ord)){
+      thres <- sapply(data[obs[ord]], function(i){length(levels(i))})-1
+      thres <- thresh(thres)
+      cl[["model"]] <- thres
+      thres <- eval.parent(cl)
+      x <- x[-which(x$op %in% c("~1", "|", "~*~", "~~") & x$lhs %in% obs[ord] & x$user == 0), ]
+      x <- lav_partable_merge(x, thres, remove.duplicated = TRUE, fromLast = FALSE, warn = FALSE)
+    }
+  }
+  return(x)
+}
+
+#' @importFrom stats runif
+update_thresholds <- function(x, ...){
+  nax <- is.na(x)
+  if(any(!nax)){
+    if(!all(sign(diff(na.omit(x))) == 1)){
+      stop("The thresholds you are attempting to specify has starting values that are not strictly increasing, but type='RAM' models require them to be.")
+    }
+    out <- x
+    for(i in 1:10){
+      out[nax] <- sort(runif(length(x), min = min(out, na.rm = TRUE)-runif(1), max = max(out, na.rm = TRUE)+runif(1)))[nax]
+      inc <- sign(diff(na.omit(out))) == 1
+      if(all(inc)){
+        break
+      }
+      if(i == 10) stop("Could not complete thresholds; either specify all thresholds by hand, or remove constraints.")
+    }
+    return(out)
+  } else {
+    return(mxNormalQuantiles(length(x)))
+  }
+}

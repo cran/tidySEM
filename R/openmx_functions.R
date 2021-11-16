@@ -41,6 +41,12 @@ vnames <- getFromNamespace("vnames", "lavaan")
 #' @param x An object for which a method exists, such as a \code{tidy_sem}
 #' object, or character vector describing the user-specified model using
 #' the lavaan model syntax.
+# @param groups Optional character vector for multi-group models, containing
+# either group names, or if
+# \code{x} is an object that contains data, the name of the column that
+# contains a grouping
+# variable.
+# @param data Optional data.frame to include in the model.
 #' @param ... Parameters passed on to other functions.
 #' @return Returns an \code{\link[OpenMx]{mxModel}}.
 #' @examples
@@ -48,35 +54,39 @@ vnames <- getFromNamespace("vnames", "lavaan")
 #' @rdname as_ram
 #' @export
 #' @importFrom lavaan lavaanify
-#' @importFrom OpenMx mxModel
+#' @importFrom OpenMx mxModel imxReportProgress
 #' @importFrom OpenMx mxAutoStart mxData mxExpectationMixture mxPath
 #' @importFrom OpenMx mxFitFunctionML mxMatrix mxModel mxRun mxTryHard
 #' @importFrom OpenMx omxAssignFirstParameters mxCompare mxFitFunctionMultigroup
 #' @importFrom lavaan mplus2lavaan.modelSyntax
 #' @importFrom stats cutree dist hclust
 #' @importFrom methods formalArgs
+#' @import OpenMx
 as_ram <- function(x, ...){
   UseMethod("as_ram", x)
 }
 
 #' @method as_ram character
 #' @export
-as_ram.character <- function(x, ...){
-  defaults <- list(int.ov.free = TRUE, int.lv.free = FALSE, auto.fix.first = FALSE,
-                   auto.fix.single = TRUE, auto.var = TRUE, auto.cov.lv.x = TRUE,
-                   auto.efa = TRUE, auto.th = TRUE, auto.delta = TRUE, auto.cov.y = TRUE)
+as_ram.character <- function(x, groups = NULL, data = NULL, ...){
+  # defaults <- list(int.ov.free = TRUE, int.lv.free = FALSE, auto.fix.first = FALSE,
+  #                  auto.fix.single = TRUE, auto.var = TRUE, auto.cov.lv.x = TRUE,
+  #                  auto.efa = TRUE, auto.th = TRUE, auto.delta = TRUE, auto.cov.y = TRUE,
+  #                  meanstructure = TRUE)
   dots <- list(...)
+  Args_lav <- lav_from_dots(...)
   cl <- match.call()
-  cl[names(defaults)[!names(defaults) %in% names(cl)]] <- defaults[!names(defaults) %in% names(cl)]
-  lavaan_dots <- formalArgs(lavaan::lavaanify)
-  lavaan_dots <- lavaan_dots[!lavaan_dots == "model"]
-  lavaan_dots <- names(dots)[names(dots) %in% lavaan_dots]
-  if(isFALSE(is.null(lavaan_dots))){
-    cl[lavaan_dots] <- dots[lavaan_dots]
-  }
+  cl[names(Args_lav)] <- Args_lav
   cl[["model"]] <- x
-  cl[["x"]] <- NULL
-  cl[[1L]] <- str2lang("lavaan::lavaanify")
+  if(!is.null(groups)){
+    if(length(groups) == 1 & !is.null(data)){
+      cl[["ngroups"]] <- length(unique(data[[groups]]))
+    } else {
+      cl[["ngroups"]] <- length(groups)
+    }
+  }
+  cl <- cl[c(1L, which(names(cl) %in% c("model", "ngroups", "data", names(Args_lav))))]#lavaan_dots, names(defaults))))]
+  cl[[1L]] <- str2lang("tidySEM:::tidysem_lavaanify")
   x <- eval.parent(cl)
   cl <- match.call()
   cl[[1L]] <- quote(as_ram)
@@ -90,21 +100,78 @@ as_ram.tidy_sem <- function(x, ...){
   cl <- match.call()
   cl[[1L]] <- quote(as_ram)
   cl[["x"]] <- x$syntax
+  if(is.null(cl[["data"]])) cl[["data"]] <- x$data
+  gv <- group_var(x)
+  if(!is.null(gv)){
+    cl[["groups"]] <- gv
+  }
   eval.parent(cl)
 }
 
 #' @method as_ram data.frame
 #' @export
-as_ram.data.frame <- function(x, ...){
+as_ram.data.frame <- function(x, groups = NULL, data = NULL, ...){
   if(!all(c("lhs", "rhs", "op", "free", "ustart") %in% names(x))){
     stop("Not a valid lavaan parameter table.")
   }
   dots <- list(...)
+  groupnames <- groups
+  usedata <- !is.null(data)
+  if(length(groups) == 1 & usedata){
+    groupnames <- as.character(unique(data[[groups]]))
+  }
+  if(!is.null(x[["group"]])){
+    x <- x[!(x$group == 0), ]
+    if(length(unique(x[["group"]])) > 1){
+      cl <- match.call()
+      grps <- lapply(1:length(groupnames), function(i){
+        cl[["x"]] <- x[x$group == i, -which(names(x) == "group"), drop = FALSE]
+        if(usedata){
+          cl[["data"]] <- data[data[[groups]] == groupnames[i], -which(names(data) == groups), drop = FALSE]
+        }
+        cl[[1L]] <- str2lang("tidySEM::as_ram")
+        out <- eval.parent(cl)
+        Args <- list(
+          out,
+          name = groupnames[i],
+          mxFitFunctionML()
+        )
+        # if(usedata) {
+        #   Args <-
+        #     c(Args, list(mxData(data[data[[groups]] == groupnames[i], -which(names(data) == groups), drop = FALSE], type = "raw")))
+        # }
+        do.call(mxModel, Args)
+      })
+      grps <- do.call(mxModel, c(list(model = "mg", mxFitFunctionMultigroup(groupnames), grps)))
+      return(grps)
+    }
+  }
+  dots <- list(...)
   lavtab <- x
-  # Remove defined parameters
-  # if(any(lavtab$group == 0)){
-  #   stop("Develop")
-  # }
+  # Parse categorical variables
+  cats <- which(lavtab$op %in% c("|", "~*~"))
+  catlist <- NULL
+  if(length(cats) > 0){
+    cattab <- lavtab[cats, , drop = FALSE]
+    cattab$label[cattab$label == ""] <- NA
+    lavtab <- lavtab[-cats, ]
+    catlist <- lapply(unique(cattab$lhs), function(v){
+      vthres <- cattab[cattab$lhs == v & cattab$op == "|", ]
+      tvalues <- tryCatch(update_thresholds(vthres$ustart), error = function(e){
+        stop("Could not complete thresholds for variable '", v, "'; either specify all thresholds by hand, or remove constraints.")
+      })
+      vthres <- vthres[order(vthres$rhs), ]
+      Args <- list(
+        vars = v,
+        nThresh = nrow(vthres),
+        free = !(vthres$free == 0),
+        values = tvalues,
+        labels = vthres$label
+      )
+      do.call(mxThreshold, Args)
+    })
+  }
+  # Parse defined parameters
   defined <- NULL
   defined_parameters <- which(lavtab$block == 0 & lavtab$plabel == "")
   if(length(defined_parameters) > 0){
@@ -112,12 +179,14 @@ as_ram.data.frame <- function(x, ...){
     lavtab <- lavtab[-defined_parameters, ]
 
   }
-  # Starting values
-  #lavtab$ustart[lavtab$op == "~1"] <- 0
-  #lavtab$ustart[lavtab$op == "~~"] <- .5
   # Identify observed and latent
   vnames <- vnames(partable = lavtab, type = "all")
-  latent <- unlist(vnames[["lv"]])
+
+  if(!is.null(vnames[["lv"]])){
+    latent <- unlist(vnames[["lv"]])
+  } else {
+    latent <- vector("character")
+  }
   obs <- unlist(vnames[["ov"]])
   # Intercept needs rhs
   lavtab$rhs[lavtab$op == "~1"] <- "one"
@@ -157,6 +226,9 @@ as_ram.data.frame <- function(x, ...){
       })
     )
   }
+  if(!is.null(catlist)){
+    path_list <- c(path_list, catlist)
+  }
   # mxModel-specific arguments
   mxmodel_args <- list(
     model = "model",
@@ -167,6 +239,14 @@ as_ram.data.frame <- function(x, ...){
   if(isFALSE(is.null(mxmodel_dots))){
     mxmodel_args[mxmodel_dots] <- dots[mxmodel_dots]
   }
-  do.call(mxModel, c(mxmodel_args,
+  out <- do.call(mxModel, c(mxmodel_args,
                      path_list))
+  # Add data if available
+  if(usedata){
+    cl <- match.call()
+    cl[[1L]] <- str2lang("tidySEM:::mx_add_data")
+    cl[["x"]] <- out
+    out <- eval.parent(cl)
+  }
+  out
 }

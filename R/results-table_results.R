@@ -530,13 +530,14 @@ table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval"
     group_labels <- lavInspect(x, what = "group.label")
     if(!all(group_labels %in% unique(pars_unst$group))){
       if(is.numeric(pars_unst$group)){
-        pars_unst$group <- group_labels[pars_unst$group]
+        pars_unst$group[pars_unst$group > 0] <- group_labels[pars_unst$group]
+        pars_unst$group[pars_unst$group == 0] <- NA
       }
     }
-    pars_unst$label <- paste0(pars_unst$label, ".", pars_unst$group)
+    pars_unst$label <- paste2(pars_unst$label, pars_unst$group, sep = ".")
   }
   if("level" %in% names(pars_unst)){
-    pars_unst$label <- paste0(pars_unst$label, ".", pars_unst$level)
+    pars_unst$label <- paste2(pars_unst$label, pars_unst$level, sep = ".")
   }
   # Unst
   # Call conf_int
@@ -580,10 +581,10 @@ table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval"
   pars_std[c("lhs", "op", "rhs", "group", "z", "ci.lower", "ci.upper")] <- NULL
 
   names(pars_std)[na.omit(match(c("se", "pval", "est_sig", "confint"), names(pars_std)))] <- paste0(names(pars_std)[na.omit(match(c("se", "pval", "est_sig", "confint"), names(pars_std)))], "_std")
-  names(pars_std)[match("est.std", names(pars_std))] <- "est_std"
-
+  if("est.std" %in% names(pars_std)) names(pars_std)[which(names(pars_std) == "est.std")] <- "est_std"
+  if("label" %in% names(pars_std)) names(pars_std)[which(names(pars_std) == "label")] <- "lavaan_label"
   results <- cbind(pars_unst, pars_std)
-
+  results <- two_to_one(results)
   # Apply digits
   fixed_parameters <- is.na(results$z)
   value_columns <- names(results)[can_be_numeric(results)]
@@ -591,9 +592,7 @@ table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval"
   results[, value_columns] <- lapply(results[, value_columns],
                                        format_with_na, digits = digits, format = "f")
   results[fixed_parameters, c("z", "se", "pval", "se_std", "pval_std")[which(c("z", "se", "pval", "se_std", "pval_std") %in% names(results))]] <- ""
-  # if("label" %in% names(results)){
-  #   names(results)[names(results) == "label"] <- "lavaan_label"
-  # }
+
   if(!is.null(columns)){
     results <- results[, na.omit(match(columns, names(results))), drop = FALSE]
   } else {
@@ -619,11 +618,10 @@ table_results.character <- function(x, columns = c("label", "est_sig", "se", "pv
   cl[[1L]] <- str2lang("lavaan::lavaanify")
   cl[["model"]] <- x
   results <- eval.parent(cl)
-  if(length(unique(results$group)) == 1) results[["group"]] <- NULL
   class(results) <- c("tidy_results", class(results))
   results
 }
-# table_results("y ~ x")
+# table_results.character("y ~ x", ngroups = 2)
 
 can_be_numeric <- function(x){
   sapply(x, function(col){ tryCatch(expr = {as.numeric(col); return(TRUE)}, warning= function(w){ return(FALSE) }) })
