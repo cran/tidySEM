@@ -14,7 +14,7 @@
 #' @param variables A character vectors with the names of the variables to be
 #' plotted (optional).
 #' @param ci Numeric. What confidence interval should the error bars span?
-#' Defaults to a 95\% confidence interval. Set to NULL to remove erro rbars.
+#' Defaults to a 95\% confidence interval. Set to NULL to remove error bars.
 #' @param sd Logical. Whether to display a box encompassing +/- 1SD Defaults to
 #' TRUE.
 #' @param add_line Logical. Whether to display a line, connecting cluster
@@ -53,7 +53,6 @@ plot_profiles <- function(x, variables = NULL, ci = .95, sd = TRUE, add_line = F
 #' @import ggplot2
 #' @export
 plot_profiles.default <- function(x, variables = NULL, ci = .95, sd = TRUE, add_line = FALSE, rawdata = TRUE, bw = FALSE, alpha_range = c(0, .1), ...){
-    browser()
     df_plot <- droplevels(x[["df_plot"]])
     if(rawdata){
         df_raw <- droplevels(x[["df_raw"]])
@@ -247,7 +246,6 @@ plot_profiles.mixture_list <- function(x, variables = NULL, ci = .95, sd = TRUE,
     } else {
         df_raw <- NULL
     }
-browser()
     Args[["x"]] <- list(df_plot = df_plot, df_raw = df_raw)
 
     do.call(plot_profiles, Args)
