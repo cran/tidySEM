@@ -203,32 +203,10 @@ graph_sem.lavaan <- function(model,
                              layout = NULL,
                              nodes = NULL,
                              ...){
-  dots <- list(...)
-  if(is.null(edges) | is.null(layout) | is.null(nodes)){
-    tabres <- table_results(model)
-    if(is.null(edges)) edges <- get_edges(x = model)
-    if(is.null(layout)) layout <- get_layout(x = model)
-    if(is.null(nodes)) nodes <- get_nodes(x = model)
-  }
-  params_table_res <- c("label", "digits", "columns")
-  edges <- substitute(edges)
-  nodes <- substitute(nodes)
-  if(any(params_table_res %in% names(dots))){
-    # if("label" %in% names(dots)){
-    #   message("Note that the 'label' argument now has different default settings for get_edges() and get_nodes(). See ?get_edges and ?get_nodes.")
-    # }
-    for(thispar in params_table_res[params_table_res %in% names(dots)]){
-      edges[[thispar]] <- nodes[[thispar]] <- dots[[thispar]]
-    }
-  }
-
   cl <- match.call()
-  cl$edges <- eval(edges)
-  cl$layout <- eval(layout, environment())
-  cl$nodes <- eval(nodes)
-  cl[["model"]] <- NULL
-  cl[[1L]] <- str2lang("tidySEM:::graph_sem.default")
-  eval.parent(cl)
+  cl[[1]] <- quote(prepare_graph)
+  prep <- eval.parent(cl)
+  return(plot(prep))
 }
 
 #' @method graph_sem MxModel
@@ -558,22 +536,36 @@ prepare_graph.lavaan <- function(model,
                                  layout = get_layout(x = model),
                                  nodes = get_nodes(x = model),
                                  ...){
-  dots <- list(...)
-  params_table_res <- c("label", "digits", "columns")
+  dots <- match.call(expand.dots = FALSE)[["..."]]
+  pass_args <- c("label", "digits", "columns")
   edges <- substitute(edges)
+  layout <- substitute(layout)
   nodes <- substitute(nodes)
-  if(any(params_table_res %in% names(dots))){
-    # if("label" %in% names(dots)){
-    #   message("Note that the 'label' argument now has different default settings for get_edges() and get_nodes(). See ?get_edges and ?get_nodes.")
-    #   }
-    for(thispar in params_table_res[params_table_res %in% names(dots)]){
-      edges[[thispar]] <- nodes[[thispar]] <- dots[[thispar]]
+  if(any(pass_args %in% names(dots))){
+    for(this_arg in pass_args){
+      if(do.call(hasArg, list(this_arg))){
+        if(is.null(edges[[this_arg]])) edges[[this_arg]] <- dots[[this_arg]]
+        if(is.null(nodes[[this_arg]])) nodes[[this_arg]] <- dots[[this_arg]]
+        dots[[this_arg]] <- NULL
+      }
     }
   }
-  edges <- eval(edges)
-  nodes <- eval(nodes)
+  Args <- as.list(match.call(expand.dots = FALSE)[-1])
+  model <- model
+  Args[["..."]] <- NULL
+  Args[["model"]] <- model # To prevent issue with pipe
+  # Problem: the object `model` is available in this environment,
+  # but objects passed to get_edges() etc are not available in this environment.
+  # They are available in the parent environment, but `model` is not.
+  # Maybe make new environment and add model to it?
+  # It's a hack, but seems to pass all tests.
+  use_env <- parent.frame()
+  assign("model", model, envir = use_env)
+  Args[["edges"]] <-  eval(edges, envir = use_env)
+  Args[["nodes"]] <-  eval(nodes, envir = use_env)
+  Args[["layout"]] <- eval(layout, envir = use_env)
+  Args <- c(Args, dots)
 
-  Args <- all_args()
   do.call(prepare_graph_model, Args)
 }
 

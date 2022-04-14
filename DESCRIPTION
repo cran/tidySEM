@@ -1,8 +1,8 @@
 Package: tidySEM
 Type: Package
-Date: 2022-4-6
+Date: 2022-4-14
 Title: Tidy Structural Equation Modeling
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: 
     c(person(given = c("Caspar", "J."),
              family = "van Lissa",
@@ -26,9 +26,9 @@ Encoding: UTF-8
 RoxygenNote: 7.1.2
 LazyData: true
 NeedsCompilation: no
-Packaged: 2022-04-06 21:04:12 UTC; Lissa102
+Packaged: 2022-04-14 17:25:30 UTC; Lissa102
 Author: Caspar J. van Lissa [aut, cre]
     (<https://orcid.org/0000-0002-0808-5024>)
 Maintainer: Caspar J. van Lissa <c.j.vanlissa@uu.nl>
 Repository: CRAN
-Date/Publication: 2022-04-06 21:30:02 UTC
+Date/Publication: 2022-04-14 17:50:02 UTC

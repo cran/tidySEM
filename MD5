@@ -1,4 +1,4 @@
-66b34d8ec9ff4d2a7c6330e55aea31d4 *DESCRIPTION
+31870c93d84ba1157d522e616651c7b5 *DESCRIPTION
 f36e5c7b18cd97af0e61bb6773e3e623 *NAMESPACE
 53d8fd6ca7ac01491824e87acb85d134 *R/data-data_mix_ordinal.R
 cce515f710f5deb1a7fc85c8e3550e77 *R/data-mac.R
@@ -8,7 +8,7 @@ dc80d24cda72c25c6457df17191c51f7 *R/mixture-3step.R
 3f6d000d6476da1416f4712145262a63 *R/mixture_summaries.R
 60817dd9c73ec2e3e9f7e0023a797ab3 *R/motley_functions.R
 58f046fe0dfe1de627f4d4c01b3b082f *R/mplus_functions.R
-33b40d5e1ec7f40a63164c9bf4d6712a *R/mx_mixture.R
+55d415c8d38af8be93db15b33ff23d2e *R/mx_mixture.R
 6aba4d3f92702ba178e1f282ec672cc7 *R/mx_simple_thresholds.R
 7f00b949ad5cb6d7972fe76eb5deb490 *R/mx_temp_start.R
 a1627484b9b816a8b1944e904f0b166b *R/openmx_functions.R
@@ -17,7 +17,7 @@ a1627484b9b816a8b1944e904f0b166b *R/openmx_functions.R
 63c8dad83c3b548a86e665ba431198d6 *R/plot-correlation_curves.R
 e86fd145e2465dd7dfc463663a34c22e *R/plot-generate_layout.R
 b6f836b42b747ab2a7bd5f23f08eb610 *R/plot-mixture_densities.R
-cf3e6ad8a504de63d51ae3f192ec022e *R/plot-plot_sem.R
+c5373a1195707f4e2a246815e09cc97e *R/plot-plot_sem.R
 851b57531944d9bce7fd4ec66f79d269 *R/plot-profiles.R
 284839abe8915b3b0ba111184c71411c *R/plot-thresholds.R
 0033092b2597985137ca68a9f65285e3 *R/plot.R
@@ -47,7 +47,7 @@ d41d8cd98f00b204e9800998ecf8427e *R/table_results_lavaan.R
 1e9dd38fe52bb8cabba11816c5ffbd93 *R/utilities.R
 d41d8cd98f00b204e9800998ecf8427e *R/zzz.R
 a53edc65857f600084ad71766bf8e0c0 *README.md
-075bc292897831a1574aec4815695d2b *build/partial.rdb
+4c51c087e15af1dbb8866bf28ce11f1d *build/partial.rdb
 0aed1ba1d0207a2dab507a63e16e33d2 *build/vignette.rds
 33312015007ba59b2aa4e477e0d62b87 *data/curry_mac.csv
 5a5fbef457b5c833d4d27fc4eeec446b *data/data_mix_ordinal.csv
@@ -57,7 +57,7 @@ a53edc65857f600084ad71766bf8e0c0 *README.md
 c57a7a86e1f33a71189d17cae8352e56 *inst/doc/Generating_syntax.html
 1335cfa67d8971be206688059ae5cd7f *inst/doc/Plotting_graphs.R
 26a5cd364fb73fd6355f8e7e028b5607 *inst/doc/Plotting_graphs.Rmd
-3580693f35eedde38a9342cd2a00616b *inst/doc/Plotting_graphs.html
+62908a5a49b1d7418e650b3106d145f5 *inst/doc/Plotting_graphs.html
 c7819f0ba5638557751d0dfa72b8173d *inst/doc/Tabulating_results.R
 c4746cb2edcb48a14589d59a5cb328db *inst/doc/Tabulating_results.Rmd
 9fcdc1c4aa479630c77712ddccf3cef1 *inst/doc/Tabulating_results.html
@@ -124,6 +124,7 @@ b91c7bc5070a00c2c648e3b36313d517 *tests/testthat.R
 57a0b684a963efe3b592c46b71411728 *tests/testthat/test-get_edges_columns.R
 29f3a4f7f24fbf736725688b39081d55 *tests/testthat/test-get_nodes_label.R
 714cf75751641dcdd14e9e565ca33cdd *tests/testthat/test-get_nodes_multigroup_label.R
+9cbbfca88faf76ab5a952460bdf9c127 *tests/testthat/test-graph_sem_label.R
 adbe0bd41e04c9620f12afd20ef9dc3b *tests/testthat/test-minimal_plot.R
 fd21a7bef31705b4139a805f97581b09 *tests/testthat/test-multigroup_mx.R
 c00122b4a628b1179dd5984f5760255f *tests/testthat/test-openmx_binary.R
@@ -134,7 +135,7 @@ aaa4d6f344a50cfd220d83a08cfa3119 *tests/testthat/test-openmx_ordinal_thresh_cons
 ae823c4bf6b3d24a73bd440f09e165f0 *tests/testthat/test-plot_color_argument.R
 c5df137559e86991e6cd6364be72b251 *tests/testthat/test-plot_digits.R
 9e98b85afb5bca8eae1fd4a2cbd12a10 *tests/testthat/test-plot_group_labels.R
-6e4b4524359918aeddeaa01a0b9952ca *tests/testthat/test-plot_growth_model.R
+921e26e117063fb0554deaa2c210f5cc *tests/testthat/test-plot_growth_model.R
 54e3146de4b2df6cab064001cbb8bd7f *tests/testthat/test-plot_if_edit.R
 32e8499588efcd4054ef85c3436451e1 *tests/testthat/test-plot_if_edit_overwrite_aes.R
 71d8bde194680ab62330df2130e5fd11 *tests/testthat/test-plot_lav_cfa.R

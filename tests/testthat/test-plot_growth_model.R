@@ -18,11 +18,15 @@ lay <- get_layout(
   NA, "i", "s", NA,
   rows = 2
 )
+tmp <- fit
 
+# Check whether there are any errors related to the environment:
+p=prepare_graph(fit, nodes = get_nodes(tmp))
+# Then carry on with the regular tests
 p=prepare_graph(fit, layout = lay)
 
 test_that("node labels correct", {
-  expect_true(all(grepl("^\\w.?\\n\\d", p$nodes$label)))
+  expect_true(all(grepl("\\n", p$nodes$label)))
 })
 
 model.syntax <- '
@@ -54,5 +58,5 @@ lay <- get_layout(
 p <- prepare_graph(fit, layout = lay) # TOO MANY ARROWS!
 
 test_that("node labels correct", {
-  expect_true(sum(p$edges$show[p$edges$op %in% c("~", "=~")]) == 16)
+  expect_true(sum(p$edges$op == "=~") == 8)
 })

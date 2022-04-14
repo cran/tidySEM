@@ -201,20 +201,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;layout_matrix&quot; &quot;matrix&quot;        &quot;array&quot;</span></span></code></pre></div>
 <p>The <code>get_layout()</code> function relies on <code>igraph::layout_as_tree()</code> to place the nodes. Other layout functions from the <code>igraph</code> package can be used by specifying the <code>layout_algorithm = ...</code> argument:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_layout</span>(fit, <span class="at">layout_algorithm =</span> <span class="st">&quot;layout_in_circle&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3]      [,4]    [,5]</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] NA   NA   &quot;x5&quot;      NA      NA  </span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] &quot;x8&quot; &quot;x6&quot; &quot;x4&quot;      &quot;x3&quot;    &quot;x2&quot;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] NA   &quot;x7&quot; &quot;textual&quot; &quot;x1&quot;    NA  </span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,] NA   &quot;x9&quot; &quot;visual&quot;  &quot;speed&quot; NA  </span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;layout_matrix&quot; &quot;matrix&quot;        &quot;array&quot;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">get_layout</span>(fit, <span class="at">layout_algorithm =</span> <span class="st">&quot;layout_on_grid&quot;</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      [,1]     [,2]      [,3]    [,4]</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] &quot;x6&quot;     &quot;x7&quot;      &quot;x8&quot;    &quot;x9&quot;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] &quot;x2&quot;     &quot;x3&quot;      &quot;x4&quot;    &quot;x5&quot;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] &quot;visual&quot; &quot;textual&quot; &quot;speed&quot; &quot;x1&quot;</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;layout_matrix&quot; &quot;matrix&quot;        &quot;array&quot;</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3] [,4]     [,5]     </span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] NA   NA   &quot;x2&quot; NA       NA       </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] NA   &quot;x3&quot; &quot;x1&quot; &quot;speed&quot;  NA       </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] &quot;x5&quot; &quot;x4&quot; NA   &quot;visual&quot; NA       </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,] NA   &quot;x6&quot; &quot;x7&quot; &quot;x9&quot;     &quot;textual&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5,] NA   &quot;x8&quot; NA   NA       NA       </span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;layout_matrix&quot; &quot;matrix&quot;        &quot;array&quot;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">get_layout</span>(fit, <span class="at">layout_algorithm =</span> <span class="st">&quot;layout_on_grid&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      [,1]     [,2]      [,3]    [,4]</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] &quot;x6&quot;     &quot;x7&quot;      &quot;x8&quot;    &quot;x9&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] &quot;x2&quot;     &quot;x3&quot;      &quot;x4&quot;    &quot;x5&quot;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] &quot;visual&quot; &quot;textual&quot; &quot;speed&quot; &quot;x1&quot;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;layout_matrix&quot; &quot;matrix&quot;        &quot;array&quot;</span></span></code></pre></div>
 </div>
 <div id="specifying-layout-manually-in-r" class="section level4">
 <h4>Specifying layout manually in R</h4>
