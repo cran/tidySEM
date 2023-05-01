@@ -41,6 +41,7 @@ estimate_mx <- function(x, ...){
 #' res <- estimate_lavaan(model)
 #' summary(res)
 #' @rdname estimate_lavaan
+#' @importFrom lavaan sem
 #' @export
 estimate_lavaan <- function(x, func = "sem", ...){
   if(!has_data(x)) return(NULL)
@@ -71,8 +72,8 @@ estimate_lavaan <- function(x, func = "sem", ...){
 #' library(MplusAutomation)
 #' model <- tidy_sem(iris, "\\.")
 #' model <- measurement(model)
-#' if(mplusAvailable() == 0){
-#'   estimate_mplus(model)
+#' \dontrun{
+#'   estimate_mplus(model, run = 0L)
 #' }
 #' @rdname estimate_mplus
 #' @export

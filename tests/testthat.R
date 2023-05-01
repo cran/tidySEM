@@ -1,5 +1,4 @@
 library(testthat)
 library(tidySEM)
-library(MplusAutomation)
-library(tidyLPA)
+options("test_mplus" = FALSE)
 test_check("tidySEM")

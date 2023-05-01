@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Confirmatory LPA for the Caregiver Compass</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Confirmatory LPA for the Caregiver
+Compass</h1>
+
+
+
+<p>This is an example of confirmatory LPA using <code>tidySEM</code>.
+The simulated data are based on work by Zegwaard and colleagues, who
+sought to establish a typology of caregivers who support a close other
+receiving outpatient psychological care. Qualitative research among
+experts resulted in a theory postulating the existence of four types of
+caregivers (translated from the original Dutch):</p>
+<p><strong>Balanced</strong></p>
+<blockquote>
+<p>The balanced caregiver experiences relative balance between the costs
+and benefits of caring for a close other.</p>
+</blockquote>
+<p><strong>Imbalanced</strong></p>
+<blockquote>
+<p>The imbalanced caregiver experiences a precarious balance between the
+costs and benefits of caring for a close other.</p>
+</blockquote>
+<p><strong>Lonely</strong></p>
+<blockquote>
+<p>The lonely caregiver experiences a strong sense of isolation.</p>
+</blockquote>
+<p><strong>Entrapped</strong></p>
+<blockquote>
+<p>The entrapped caregiver strongly feels a sense of being entangled in
+responsibilities which are difficult to fulfill.</p>
+</blockquote>
+<p>The goal of this confirmatory study was to validate this hypothesized
+class solution in a sample of caregivers. A convenience sample was used,
+with no prior sample size justification. To view the data documentation,
+run the command <code>?tidySEM::zegwaard_carecompass</code> in the R
+console.</p>
+<div id="loading-the-data" class="section level2">
+<h2>Loading the Data</h2>
+<p>To load the data, simply attach the <code>tidySEM</code> package. For
+convenience, we assign the variables used for analysis to an object
+called <code>df</code>. We first only use the four scales:
+<code>c(&quot;burdened&quot;, &quot;trapped&quot;, &quot;negaffect&quot;, &quot;loneliness&quot;)</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;burdened&quot;</span>, <span class="st">&quot;trapped&quot;</span>, <span class="st">&quot;negaffect&quot;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;loneliness&quot;</span>)]</span></code></pre></div>
+</div>
+<div id="descriptive-statistics" class="section level2">
+<h2>Descriptive statistics</h2>
+<p>We use <code>tidySEM::descriptives()</code> to describe the data
+numerically. Because all scales are continuous, we select only columns
+for continuous data to de-clutter the table:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> tidySEM<span class="sc">::</span><span class="fu">descriptives</span>(df)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> desc[, <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;missing&quot;</span>, <span class="st">&quot;unique&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;median&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;sd&quot;</span>, <span class="st">&quot;min&quot;</span>, <span class="st">&quot;max&quot;</span>, <span class="st">&quot;skew_2se&quot;</span>, <span class="st">&quot;kurt_2se&quot;</span>)]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>desc</span></code></pre></div>
+<p>The table indicates two potential causes for concern: there is a
+small percentage of missingness, and all variables have relatively high
+kurtosis. Since there are some missing values, we can conduct an MCAR
+test using <code>mice::mcar(df)</code>. According to Hawkins’ test,
+there is no evidence to reject the assumptions of multivariate normality
+and MCAR, <span class="math inline">\(\tilde{\chi^2}(6) = 3.78,
+\tilde{p} = 0.71\)</span>. Missing data will be accounted for using
+FIML.</p>
+<p>Additionally, we can plot the data. The <code>ggplot2</code> function
+<code>geom_density()</code> is useful for continuous data. Visual
+inspection confirms the conclusions from the <code>descriptives()</code>
+table: the data are kurtotic (peaked).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> df</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_plot) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Value.&quot;</span>, <span class="fu">names</span>(df_plot))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">varying =</span> <span class="fu">names</span>(df_plot), <span class="at">direction =</span> <span class="st">&quot;long&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">timevar =</span> <span class="st">&quot;Variable&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_density</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+</div>
+<div id="conducting-latent-profile-analysis" class="section level2">
+<h2>Conducting Latent Profile Analysis</h2>
+<p>As all variables are continuous, we can use the convenience function
+<code>tidySEM::mx_profiles()</code>, which is a wrapper for the generic
+function <code>mx_mixture()</code> optimized for continuous indicators.
+Its default settings are appropriate for LPA, assuming fixed variances
+across classes and zero covariances. Its arguments are <code>data</code>
+and number of <code>classes</code>. All variables in <code>data</code>
+are included in the analysis, which is why we first selected the
+indicator variables. As this is a confirmatory LCA, we do not follow a
+strictly data-driven class enumeration procedure. We will set the
+maximum number of classes <span class="math inline">\(K\)</span> to one
+more than the theoretically expected number. We set a seed to ensure
+replicable results.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code></pre></div>
+<p>This analysis should produce some messages about cluster
+initialization. These relate to the selection of starting values, which
+relies on the K-means algorithm and is not robust to missing data. The
+algorithm automatically switches to hierarchical clustering, no further
+action is required.</p>
+</div>
+<div id="class-enumeration" class="section level2">
+<h2>Class Enumeration</h2>
+<p>To compare the fit of the theoretical model against other models, we
+create a model fit table using <code>table_fit()</code> and retain
+relevant columns. We also determine whether any models can be
+disqualified.</p>
+<p>In this example, all models converge without issues. If, for example,
+the two-class solution had not converged, we could use the function
+<code>res[[2]] &lt;- mxTryHard(res[[2]])</code> to aid convergence.</p>
+<p>Next, we check for local identifiability. The sample size is
+consistently reported as 513, which means that partially missing cases
+were indeed included via FIML. The smallest class size occurs in the
+5-class model, where the smallest class is assigned 7% of cases, or 38
+cases. This model has 28 parameters, approximately 6 per class. We thus
+have at least five observations per parameter in every class, and do not
+disqualify the 5-class model.</p>
+<p>There are concerns about theoretical interpretability of all
+solutions, as the entropies and minimum classification probabilities are
+all low. However, in this confirmatory use case, we address this when
+interpreting the results.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)  <span class="co"># model fit table</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>, <span class="st">&quot;prob_min&quot;</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;prob_max&quot;</span>, <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;n_max&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span></code></pre></div>
+<div id="using-ics" class="section level3">
+<h3>Using ICs</h3>
+<p>the 4-class solution has the lowest BIC, which means it is preferred
+over all other solutions including a 1-class solution and a solution
+with more classes. Note that a scree plot for the BIC can be plotted by
+calling <code>plot(fit)</code>. Following the elbow criterion, a
+three-class solution would also be defensible. The function
+<code>ic_weights(tab_compare)</code> allows us to compute IC weights; it
+indicates that, conditional on the set of models, the 4-class model has
+a posterior model probability of nearly 100%.</p>
+</div>
+<div id="using-lmr-tests" class="section level3">
+<h3>Using LMR tests</h3>
+<p>If we conduct LMR tests, we find that the tests are significant for
+all pairwise model comparisons, except for the 5-class model:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lr_lmr</span>(fit)</span></code></pre></div>
+</div>
+<div id="using-blrt-tests" class="section level3">
+<h3>Using BLRT tests</h3>
+<p>We can also use the BLRT test. As it is very computationally
+expensive, we will use a low number of replications here. In practice,
+one might use a much higher number (1000+) for published research. Keep
+in mind that the p-value of the BLRT is subject to Monte Carlo error; if
+it fluctuates when analyses are replicated or its value is very close to
+the critical threshold, consider increasing the number of
+replications.</p>
+<p>To accelerate computations, we can use the <code>future</code>
+package for parallel computing (see <code>?plan</code> to select the
+appropriate back-end for your system). To track the function’s progress,
+we use the <code>progressr</code> ecosystem, which allows users to
+choose how they want to be informed. The example below uses a progress
+bar:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(progressr)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession)  <span class="co"># Parallel processing for Windows</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">handlers</span>(<span class="st">&quot;progress&quot;</span>)  <span class="co"># Progress bar</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>res_blrt <span class="ot">&lt;-</span> <span class="fu">BLRT</span>(res, <span class="at">replications =</span> <span class="dv">20</span>)</span></code></pre></div>
+<p>In sum, across all class enumeration criteria, there is strong
+support for a 4-class solution.</p>
+</div>
+</div>
+<div id="optional-alternative-model-specifications" class="section level2">
+<h2>Optional: Alternative Model Specifications</h2>
+<p>In the case of confirmatory LCA, the theory would be refuted by
+strong evidence against the hypothesized model and number of classes. In
+the preceding, we only compared the theoretical model against models
+with different number of classes. Imagine, however, that a Reviewer
+argues that variance ought to be freely estimated across classes. We
+could compare our theoretical model against their competing model as
+follows. Note that we can put two models into a list to compare
+them.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>res_alt <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(df, <span class="at">classes =</span> <span class="dv">4</span>, <span class="at">variances =</span> <span class="st">&quot;varying&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>compare <span class="ot">&lt;-</span> <span class="fu">list</span>(res[[<span class="dv">4</span>]], res_alt)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table_fit</span>(compare)</span></code></pre></div>
+<p>The alternative model incurs 12 additional parameters for the free
+variances. Yet, it has a higher BIC, which indicates that this
+additional complexity does not outweigh the increase in fit.</p>
+</div>
+<div id="interpreting-the-final-class-solution" class="section level2">
+<h2>Interpreting the Final Class Solution</h2>
+<p>To interpret the final class solution, we first reorder the 4-class
+model by class size. This helps prevent label switching.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res_final <span class="ot">&lt;-</span> <span class="fu">mx_switch_labels</span>(res[[<span class="dv">4</span>]])</span></code></pre></div>
+<p>The 4-class model yielded classes of reasonable size; using
+<code>class_pro</code>the largest class comprised 33%, and the smallest
+comprised 16% of cases. However, the entropy was low, <span class="math inline">\(S = .75\)</span>, indicating poor class
+separability. Furthermore, the posterior classification probability
+ranged from <span class="math inline">\([.81, .92]\)</span>, which means
+that at least some classes had a high classification error. We produce a
+table of the results below.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table_results</span>(res_final, <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">&quot;label&quot;</span>, <span class="st">&quot;est&quot;</span>, <span class="st">&quot;se&quot;</span>, <span class="st">&quot;confint&quot;</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;class&quot;</span>))</span></code></pre></div>
+<p>The results are best interpreted by examining a plot of the model and
+data, however. Relevant plot functions are
+<code>plot_bivariate()</code>, <code>plot_density()</code>, and
+<code>plot_profiles()</code>. However, we omit the density plots,
+because <code>plot_bivariate()</code> also includes them.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_bivariate</span>(res_final)</span></code></pre></div>
+<p>On the diagonal of the bivariate plot are weighted density plots:
+normal approximations of the density function of observed data, weighed
+by class probability. On the off-diagonal are plots for each pair of
+indicators, with the class means indicated by a point, class standard
+deviations indicated by lines, and covariances indicated by circles. As
+this model has zero covariances, all circles are round (albeit warped by
+the different scales of the X and Y axes)</p>
+<p>The marginal density plots show that trappedness distinguishes
+classes rather well. For all other indicators, groups are not always
+clearly separated in terms of marginal density: class 2 and 3 coalesce
+on negative affect, 1 and 2 coalesce on loneliness, and 1 and 2 coalesce
+on burden. Nevertheless, the off-diagonal scatterplots show reasonable
+bivariate separation for all classes.</p>
+<p>We can obtain a more classic profile plot using
+<code>plot_profiles(res_final)</code>. This plot conveys less
+information than the bivariate plot, but is readily interpretable. Below
+is a comparison between the most common type of visualization for LPA,
+and the best-practices visualization provided by <code>tidySEM</code>.
+Note that the best practices plot includes class means and error bars,
+standard deviations, and a ribbon plot of raw data weighted by class
+probability to indicate how well the classes describe the observed
+distribution. The overlap between the classes is clearly visible in this
+figure; this is why the entropy and classification probabilities are
+relatively low.</p>
+<p>Based on the bivariate plot, we can label class 1 as the
+<em>balanced</em> type (33%), class 2 as the <em>imbalanced</em> type
+(29%), class 3 as the <em>entrapped</em> type (22%), and class 4 as the
+<em>lonely</em> type (16%). Note however that the observed classes do
+not match the hypothesized pattern of class parameters exactly.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_profiles</span>(res_final)</span></code></pre></div>
+</div>
+<div id="auxiliary-analyses" class="section level2">
+<h2>Auxiliary Analyses</h2>
+<p>We may want to compare the different classes on auxiliary variables
+or models. The <code>BCH()</code> function applies three-step analysis,
+which compares the classes using a multi-group model, controlling for
+classification error. We consider two examples: a single variable, and
+an auxiliary model.</p>
+<div id="comparing-means-or-proportions-across-classes" class="section level3">
+<h3>Comparing Means or Proportions Across Classes</h3>
+<p>For a single (continuous or ordinal) variable, we can call the BCH
+function and simply supply the auxiliary variable to the
+<code>data</code> argument, omitting the <code>model</code> argument.
+Below, we estimate an auxiliary model to compare the sex of patients
+between classes:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>aux_sex <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">data =</span> zegwaard_carecompass<span class="sc">$</span>sexpatient)</span></code></pre></div>
+<p>To obtain an omnibus likelihood ratio test of the significance of
+these sex differences across classes, as well as pairwise comparisons
+between classes, use <code>lr_test(aux_sex)</code>. The results indicate
+that there are significant sex differences across classes, <span class="math inline">\(\Delta LL(1) = 8.7, p = .003\)</span>. Pairwise
+comparisons indicate that class 3 differs significantly from classes 1
+and 2. The results can be reported in probability scale using
+<code>table_prob(aux_sex)</code>. It appears that the entrapped class
+disproportionately cares for female patients.</p>
+</div>
+<div id="comparing-auxiliary-models-across-classes" class="section level3">
+<h3>Comparing Auxiliary Models Across Classes</h3>
+<p>We can also compare a simple model between classes. Specifically, we
+will examine whether the distance predicts the frequency of visits
+differently across classes (treated as continuous).</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df_aux <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;freqvisit&quot;</span>, <span class="st">&quot;distance&quot;</span>)]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df_aux<span class="sc">$</span>freqvisit <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(df_aux<span class="sc">$</span>freqvisit)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>aux_model <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">model =</span> <span class="st">&quot;freqvisit ~ distance&quot;</span>, <span class="at">data =</span> df_aux)</span></code></pre></div>
+<p>To obtain an omnibus likelihood ratio test of the difference in
+regression coefficients across classes and pairwise comparisons between
+classes, use <code>lr_test(aux_model, compare = &quot;A&quot;)</code>. The results
+indicate that there are no significant sex differences across classes,
+<span class="math inline">\(\Delta LL(3) = 0.98, p = .81\)</span>. The
+results can be reported using <code>table_results(aux_model)</code>.</p>
+</div>
+</div>
+<div id="predicting-class-membership" class="section level2">
+<h2>Predicting class membership</h2>
+<p>This LCA model was developed to help classify care providers in a
+clinical context, so that mental healthcare professionals can provide
+tailored support to those who take care of their clients. In
+<code>tidySEM</code>, it is possible to predict class membership for new
+data. Imagine that we administer the care compass questionnaire to a new
+individual. We can assign their scale scores to a
+<code>data.frame</code>, and supply it to the <code>predict()</code>
+function via the <code>newdata</code> argument. The result includes the
+individual’s most likely class, as well as posterior probabilities for
+all classes.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">burdened =</span> <span class="dv">2</span>, <span class="at">trapped =</span> <span class="fl">0.5</span>, <span class="at">negaffect =</span> <span class="fl">1.5</span>,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">loneliness =</span> <span class="dv">4</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(res_final, <span class="at">newdata =</span> df_new)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

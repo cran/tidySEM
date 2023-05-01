@@ -15,7 +15,7 @@
 # }
 #' @method table_results rma
 #' @export
-table_results.rma <-  function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, ...){
+table_results.rma <-  function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, format_numeric = TRUE, ...){
 
   results <- do.call(cbind, x[c("b", "se", "zval", "pval", "ci.lb", "ci.ub")])
   results <- data.frame(label = rownames(results), results)
@@ -27,9 +27,10 @@ table_results.rma <-  function(x, columns = c("label", "est_sig", "se", "pval", 
   results$est_sig <- est_sig(results, digits)
 
   results$confint <- conf_int(results, digits)
-
-  results[, value_columns] <- lapply(results[, value_columns],
-                                     format_with_na, digits = digits, format = "f")
+  if(format_numeric){
+    results[, value_columns] <- lapply(results[, value_columns],
+                                       format_with_na, digits = digits, format = "f")
+  }
   rownames(results) <- NULL
   if(!all){
     results <- results[, c("b", "se", "zval", "pval", "ci.lb", "ci.ub")]
@@ -75,6 +76,8 @@ report_columns <- function(x = c("label", "est_sig", "se", "pval", "confint", "g
 #' formatted confidence interval, 6) grouping variable (if available), 7) level
 #' variable for multilevel models, if available.
 #' @param digits Number of digits to round to when formatting numeric columns.
+#' @param format_numeric Logical, indicating whether or not to format numeric
+#' columns. Defaults to `TRUE`.
 #' @param ... Logical expressions used to filter the rows of results returned.
 #' @return A data.frame of formatted results.
 #' @author Caspar J. van Lissa
@@ -90,13 +93,13 @@ report_columns <- function(x = c("label", "est_sig", "se", "pval", "confint", "g
 #'            data = HolzingerSwineford1939,
 #'            group = "school")
 #' table_results(fit)
-table_results <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, ...){
+table_results <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, format_numeric = TRUE, ...){
   UseMethod("table_results")
 }
 
 #' @method table_results mplusObject
 #' @export
-table_results.mplusObject <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, ...){
+table_results.mplusObject <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, format_numeric = TRUE, ...){
   cl <- match.call()
   cl$x <- x$results
   cl[[1L]] <- quote(table_results)
@@ -105,8 +108,9 @@ table_results.mplusObject <- function(x, columns = c("label", "est_sig", "se", "
 
 
 #' @method table_results mplus.model
+#' @importFrom MplusAutomation SummaryTable
 #' @export
-table_results.mplus.model <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, ...){
+table_results.mplus.model <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, format_numeric = TRUE, ...){
   Args <- list(x = x)
   cl <- match.call()
   get_res <- c("unstandardized", "stdyx.standardized")[which( c("unstandardized", "stdyx.standardized") %in% names(x$parameters))]
@@ -151,7 +155,7 @@ table_results.mplus.model <- function(x, columns = c("label", "est_sig", "se", "
   results
 }
 
-internal_table_mplusmodel <- function(x, parameters, digits = 2){
+internal_table_mplusmodel <- function(x, parameters, digits = 2, format_numeric = TRUE){
   results <- x$parameters[[parameters]]
   if(is.null(results[["se"]])){
     return(NULL)
@@ -203,7 +207,7 @@ internal_table_mplusmodel <- function(x, parameters, digits = 2){
   value_columns <- names(results)[can_be_numeric(results)]
   var_classes <- sapply(results[value_columns], class)
   results[value_columns[which(var_classes == "character")]] <- lapply(results[value_columns[which(var_classes == "character")]], as.numeric)
-  results[value_columns[which(var_classes == "factor")]] <- lapply(results[value_columns[which(var_classes == "factor")]], as.numeric.factor)
+  results[value_columns[which(var_classes == "factor")]] <- lapply(results[value_columns[which(var_classes == "factor")]], as_numeric_factor)
 
   constrained_rows <- results$pval == 999
 
@@ -211,7 +215,7 @@ internal_table_mplusmodel <- function(x, parameters, digits = 2){
   if(all(c("est", "pval") %in% names(results))){
     # Call est_sig
     cl <- match.call()
-    cl <- cl[c(1, which(names(cl) %in% names(formals("est_sig"))))]
+    cl <- cl[c(1, which(names(cl) %in% c("x", "digits", "sig")))]
     cl[["x"]] <- results$est
     cl[["sig"]] <- results$pval
     cl[[1L]] <- quote(est_sig)
@@ -220,11 +224,13 @@ internal_table_mplusmodel <- function(x, parameters, digits = 2){
 
   # Call conf_int
   cl <- match.call()
-  cl <- cl[c(1, which(names(cl) %in% names(formals("conf_int"))))]
+  cl <- cl[c(1, which(names(cl) %in% c("x", "digits", "se", "lb", "ub", "ci")))]
   cl[["x"]] <- results
   cl[[1L]] <- quote(conf_int)
   results$confint <- eval.parent(cl)
-  results[, value_columns] <- lapply(results[, value_columns], format_with_na, digits = digits, format = "f")
+  if(format_numeric){
+    results[, value_columns] <- lapply(results[, value_columns], format_with_na, digits = digits, format = "f")
+  }
   results[constrained_rows, which(names(results) %in% c("se", "pval", "est_se", "confint"))] <- NA
   id_cols <- c("paramHeader", "param", "Group", "betweenwithin", "LatentClass")
   results$id <- do.call(paste0, results[which(names(results) %in% id_cols)])
@@ -506,7 +512,7 @@ lav_getParameterLabels <-
 #' @importFrom lavaan parameterEstimates lavInspect standardizedsolution partable
 #' @method table_results lavaan
 #' @export
-table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, ...){
+table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, format_numeric = TRUE, ...){
   # Rename dictionary for consistency with mplus
   user_specified <- partable(x)
   remthese <- which(
@@ -542,19 +548,19 @@ table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval"
   # Unst
   # Call conf_int
   cl <- match.call()
-  cl <- cl[c(1, which(names(cl) %in% names(formals("conf_int"))))]
+  cl <- cl[c(1, which(names(cl) %in% c("x", "digits", "se", "lb", "ub", "ci")))]
   cl[["x"]] <- pars_unst$est
   cl[["lb"]] <- pars_unst$ci.lower
   cl[["ub"]] <-  pars_unst$ci.upper
   cl[[1L]] <- quote(conf_int)
-  pars_unst$confint <- eval.parent(cl)
+  pars_unst$confint <- eval(cl)
   # Call est_sig
   cl <- match.call()
-  cl <- cl[c(1, which(names(cl) %in% names(formals("est_sig"))))]
+  cl <- cl[c(1, which(names(cl) %in% c("x", "digits", "sig")))]
   cl[["x"]] <- pars_unst$est
   cl[["sig"]] <- pars_unst$pval
   cl[[1L]] <- quote(est_sig)
-  pars_unst$est_sig <- eval.parent(cl)
+  pars_unst$est_sig <- eval(cl)
   pars_unst[c("z", "ci.lower", "ci.upper")] <- NULL
 
   # Std
@@ -562,19 +568,19 @@ table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval"
   names(pars_std)[match(names(rename_dict), names(pars_std))] <- rename_dict[names(rename_dict) %in% names(pars_std)]
   # Call conf_int
   cl <- match.call()
-  cl <- cl[c(1, which(names(cl) %in% names(formals("conf_int"))))]
+  cl <- cl[c(1, which(names(cl) %in% c("x", "digits", "se", "lb", "ub", "ci")))]
   cl[["x"]] <- pars_std$est
   cl[["lb"]] <- pars_std$ci.lower
   cl[["ub"]] <-  pars_std$ci.upper
   cl[[1L]] <- quote(conf_int)
-  pars_std$confint <- eval.parent(cl)
+  pars_std$confint <- eval(cl)
   # Call est_sig
   cl <- match.call()
-  cl <- cl[c(1, which(names(cl) %in% names(formals("est_sig"))))]
+  cl <- cl[c(1, which(names(cl) %in% c("x", "digits", "sig")))]
   cl[["x"]] <- pars_std$est
   cl[["sig"]] <- pars_std$pval
   cl[[1L]] <- quote(est_sig)
-  pars_std$est_sig <- eval.parent(cl)
+  pars_std$est_sig <- eval(cl)
   # Remove redundant columns
 
 
@@ -588,9 +594,10 @@ table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval"
   # Apply digits
   fixed_parameters <- is.na(results$z)
   value_columns <- names(results)[can_be_numeric(results)]
-
-  results[, value_columns] <- lapply(results[, value_columns],
+  if(format_numeric){
+    results[, value_columns] <- lapply(results[, value_columns],
                                        format_with_na, digits = digits, format = "f")
+  }
   results[fixed_parameters, c("z", "se", "pval", "se_std", "pval_std")[which(c("z", "se", "pval", "se_std", "pval_std") %in% names(results))]] <- ""
 
   if(!is.null(columns)){
@@ -613,7 +620,7 @@ table_results.lavaan <- function(x, columns = c("label", "est_sig", "se", "pval"
 #' @importFrom blavaan blavInspect
 #' @method table_results blavaan
 #' @export
-table_results.blavaan <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, ...){
+table_results.blavaan <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, format_numeric = TRUE, ...){
   # Rename dictionary for consistency with mplus
   user_specified <- blavInspect(x, "list")
   remthese <- which(
@@ -663,9 +670,11 @@ table_results.blavaan <- function(x, columns = c("label", "est_sig", "se", "pval
   # Apply digits
   fixed_parameters <- is.na(results$z)
   value_columns <- names(results)[can_be_numeric(results)]
+  if(format_numeric){
+    results[, value_columns] <- lapply(results[, value_columns],
+                                       format_with_na, digits = digits, format = "f")
+  }
 
-  results[, value_columns] <- lapply(results[, value_columns],
-                                     format_with_na, digits = digits, format = "f")
   results[fixed_parameters, c("z", "se", "pval", "se_std", "pval_std")[which(c("z", "se", "pval", "se_std", "pval_std") %in% names(results))]] <- ""
 
   if(!is.null(columns)){
@@ -687,7 +696,7 @@ table_results.blavaan <- function(x, columns = c("label", "est_sig", "se", "pval
 
 #' @method table_results character
 #' @export
-table_results.character <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, ...){
+table_results.character <- function(x, columns = c("label", "est_sig", "se", "pval", "confint", "group", "level"), digits = 2, format_numeric = TRUE, ...){
   cl <- match.call()
   cl <- cl[-which(names(cl) %in% c("x", "columns", "digits"))]
   cl[[1L]] <- str2lang("lavaan::lavaanify")
@@ -699,7 +708,8 @@ table_results.character <- function(x, columns = c("label", "est_sig", "se", "pv
 # table_results.character("y ~ x", ngroups = 2)
 
 can_be_numeric <- function(x){
-  sapply(x, function(col){ tryCatch(expr = {as.numeric(col); return(TRUE)}, warning= function(w){ return(FALSE) }) })
+  out <- sapply(x, function(col){ tryCatch(expr = {as.numeric(col); return(TRUE)}, warning= function(w){ return(FALSE) }) })
+  out & !sapply(x, inherits, what = "logical")
 }
 
 format_with_na <- function(x, ...){

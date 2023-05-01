@@ -109,7 +109,12 @@ plot_density.mixture_list <-
         cl <- match.call()
 
         # If no variables have been specified, use all variables
-        var_names <- x[[1]]@submodels[[1]]@manifestVars
+        if(length(x[[1]]@submodels) > 0){
+          var_names <- x[[1]]@submodels[[1]]@manifestVars
+        }else{
+          var_names <- x[[1]]@manifestVars
+        }
+
         if (is.null(variables)) {
             variables <- var_names
         } else {
@@ -229,13 +234,13 @@ plot_density.MxModel <- function(x,
             plot_df <- plot_df[-which(plot_df$Class == "Total"),]
             density_plot <-
                 ggplot(plot_df,
-                       aes_string(x = "Value", y = "..count..", fill = "Class", weight = "Probability")) +
+                       aes(x = .data[["Value"]], y = ..count.., fill = .data[["Class"]], weight = .data[["Probability"]])) +
                 geom_density(position = "fill") + scale_fill_grey(start = 0.2, end = 0.8)
         } else {
             plot_df <- plot_df[-which(plot_df$Class == "Total"),]
             density_plot <-
                 ggplot(plot_df,
-                       aes_string(x = "Value", y = "..count..", fill = "Class", weight = "Probability")) +
+                       aes(x = .data[["Value"]], y = ..count.., fill = .data[["Class"]], weight = .data[["Probability"]])) +
                 scale_fill_manual(values = get_palette(length(levels(plot_df$Class))-1)) +
                 geom_density(position = "fill")
         }
@@ -247,9 +252,9 @@ plot_density.MxModel <- function(x,
         if (bw) {
             density_plot <-
                 ggplot(densities,
-                       aes_string(x = "x",
-                                  y = "y",
-                                  linetype = "Class"
+                       aes(x = .data[["x"]],
+                                  y = .data[["y"]],
+                                  linetype = .data[["Class"]]
                                   #size = "size"
                        )) + labs(x = "Value", y = "density")
             density_plot <- density_plot +
@@ -260,11 +265,11 @@ plot_density.MxModel <- function(x,
         } else{
             density_plot <-
                 ggplot(densities,
-                       aes_string(x = "x",
-                                  y = "y",
-                                  fill = "Class",
-                                  colour = "Class",
-                                  alpha = "alpha"#,
+                       aes(x = .data[["x"]],
+                                  y = .data[["y"]],
+                                  fill = .data[["Class"]],
+                                  colour = .data[["Class"]],
+                                  alpha = .data[["alpha"]]#,
                                   #size = "size"
                        )) + labs(x = "Value", y = "density")
             class_colors <- c(get_palette(length(levels(plot_df$Class))-1), "#000000")
@@ -296,7 +301,7 @@ plot_density.MxModel <- function(x,
                 data.frame(Title = titles,
                            Variable = vars,
                            Class = thisclass,
-                           suppressWarnings(density(as.numeric(thedf$Value), weights = thep))[c("x", "y")])
+                           suppressWarnings(density(as.numeric(thedf$Value), weights = thep, na.rm = TRUE))[c("x", "y")])
             })
             do.call(rbind, densities)
         } else {
@@ -315,13 +320,14 @@ plot_density.MxModel <- function(x,
 
 .extract_density_data <- function (x, variables = NULL, longform = TRUE)
 {
-    if (inherits(x, "MxModel")) {
+    if (inherits(x, what = c("MxModel", "MxRAMModel"))) {
         x <- list(x)
         names(x) <- x[[1]]@name
     }
     plot_df <- do.call(rbind, lapply(names(x), function(n){
         i <- x[[n]]
-        P <- class_prob(i, "individual")$individual
+        #P <- class_prob(i, "individual")$individual
+        P <- extract_postprob(i)
         colnames(P) <- 1:ncol(P)
         P <- cbind(P, Total = 1)
         P <- P/nrow(P)

@@ -54,10 +54,10 @@ plot_modelstats <- function(x,
       factor(plotdat$Statistic, labels = paste0(statistics, c(lowerbetter, higherbetter)[match(statistics, names(c(lowerbetter, higherbetter)))]))
     p <- ggplot(
       plotdat,
-      aes_string(
-        x = "Name",
-        y = "Value",
-        group = "Statistic"
+      aes(
+        x = .data[["Name"]],
+        y = .data[["Value"]],
+        group = .data[["Statistic"]]
       )
     ) +
       geom_line(na.rm = TRUE) +
@@ -69,9 +69,9 @@ plot_modelstats <- function(x,
   } else {
     p <- ggplot(
       plotdat,
-      aes_string(
-        x = "Name",
-        y = statistics,
+      aes(
+        x = .data[["Name"]],
+        y = .data[[statistics]],
         group = 1
       )
     ) +

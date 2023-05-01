@@ -35,8 +35,45 @@ table_fit.mixture_list <- function(x, ...) {
     rownames(out) <- NULL
   }
   out <- .renamefits(out, "mx")
+  remove_these <- c("saturatedDoF", "independenceDoF", "saturatedParameters",
+                    "independenceParameters", "ChiDoF", "satDoF", "indDoF", "RMSEANull",
+                    "TLI", "RMSEA", "modelName", "RMSEASquared", "observedStatistics", "df", "Minus2LogLikelihood", "p")
+
+  out <- out[, !names(out) %in% remove_these, drop = FALSE]
+  ordr <- c("Name", "Classes", "LL", "n", "Parameters",
+            "AIC", "BIC", "saBIC", "Entropy",
+            "prob_min", "prob_max", "n_min", "n_max")
+  out <- out[, c(ordr[ordr %in% names(out)], names(out)[!names(out) %in% ordr])]
+
   class(out) <- c("tidy_fit", class(out))
-  out
+  # tst <- try(lr_lmr(out), silent = TRUE)
+  # if(!inherits(tst, what = "try-error")){
+  #   out$lmr_lr <- tst$lmr_lr
+  #   out$lmr_p <- tst$lmr_p
+  # }
+  out$np_ratio <- out$n / out$Parameters
+  out$np_local <- (out$n*out$n_min) / ((out$Parameters - (out$Classes-1))/out$Classes)
+  return(out)
+}
+
+#' @method table_fit list
+#' @export
+table_fit.list <- function(x, ...) {
+  if(all(sapply(x, inherits, what = "MxModel"))){
+    cl <- match.call()
+    cl[[1L]] <- quote(table_fit)
+    class(x) <- c("mixture_list", class(x))
+    cl[["x"]] <- x
+    return(eval.parent(cl))
+  }
+  out <- lapply(x, function(i){
+    tryCatch({
+      table_fit(i)
+    }, error = function(e){NULL})
+  })
+  out <- bind_list(out)
+  class(out) <- c("tidy_fit", class(out))
+  return(out)
 }
 
 #' @importFrom utils getFromNamespace
@@ -62,14 +99,14 @@ table_fit.mplusObject <- function(x, ...) {
     cl["keepCols"] <- list(NULL)
   }
   if(any(!mixtures)){
-    cl[[1L]] <- quote(SummaryTable)
+    cl[[1L]] <- str2lang("MplusAutomation::SummaryTable")
     out[which(!mixtures)] <- lapply(which(!mixtures), function(i){
       cl[["modelList"]] <- modelList[[i]]
       eval.parent(cl)
     })
   }
   if(any(mixtures)){
-    cl[[1L]] <- quote(mixtureSummaryTable)
+    cl[[1L]] <- str2lang("MplusAutomation::mixtureSummaryTable")
     out[which(mixtures)] <- lapply(which(mixtures), function(i){
       cl[["modelList"]] <- modelList[[i]]
       eval.parent(cl)
@@ -158,6 +195,7 @@ table_fit.MxModel <- function(x, ...) {
                  "wallTime", "cpuTime", "optimizerEngine", "verbose", "npsolMessage"
   )
   fits <- fits[!names(fits) %in% dropthese]
+  fits[["saBIC"]] <- fits[["Minus2LogLikelihood"]] + fits[["estimatedParameters"]] * log((fits[["numObs"]]+2)/24)
   out <- as.data.frame(fits)
   rownames(out) <- NULL
   out

@@ -29,7 +29,7 @@
 #' reliability coefficient for two-item scales is computed, as described in
 #' Eisinga, R., Grotenhuis, M. te, & Pelzer, B. (2012). The reliability of a
 #' two-item scale: Pearson, Cronbach, or Spearman-Brown? International Journal
-#' of Public Health, 58(4), 637–642. <doi:10.1007/s00038-012-0416-3>.
+#' of Public Health, 58(4), 637–642. \doi{10.1007/s00038-012-0416-3}.
 #' These coefficients are marked with "(sb)".
 #' @rdname create_scales
 #' @export
@@ -105,7 +105,7 @@ create_scales.data.frame <- function(x, keys.list, missing = TRUE, impute = "non
 
   keys <- psych::make.keys(length(scoredatanames), keys.list = use_keys,
                     item.labels = scoredatanames)
-  scores <- psych::scoreItems(keys, data, missing = missing, impute = impute)
+  scores <- psych::scoreItems(keys, data, missing = missing, impute = impute, ...)
 
   table_descriptives <- data.frame(Subscale = colnames(scores$scores),
                                    Items = sapply(keys.list, length))

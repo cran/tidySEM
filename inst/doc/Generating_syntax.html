@@ -14,25 +14,38 @@
 
 <title>Generating syntax for structural equation models</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -50,55 +63,54 @@ pre > code.sourceCode { white-space: pre-wrap; }
 pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {   }
+{ }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -107,13 +119,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -125,7 +144,187 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -137,73 +336,121 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<h1 class="title toc-ignore">Generating syntax for structural equation models</h1>
+<h1 class="title toc-ignore">Generating syntax for structural equation
+models</h1>
 
 
 
-<p><code>tidySEM</code> offers a user-friendly, tidy workflow for generating syntax for SEM models. The workflow is top-down, meaning that syntax is generated based on conceptual model elements. In many cases, the generated syntax will suffice - but it is always customizable. The workflow also tries to intelligently guess which variables go together, but these defaults can be overridden.</p>
+<pre><code>#&gt; Warning: package &#39;OpenMx&#39; was built under R version 4.2.3
+#&gt; Warning: package &#39;dplyr&#39; was built under R version 4.2.3</code></pre>
+<p><code>tidySEM</code> offers a user-friendly, tidy workflow for
+generating syntax for SEM models. The workflow is top-down, meaning that
+syntax is generated based on conceptual model elements. In many cases,
+the generated syntax will suffice - but it is always customizable. The
+workflow also tries to intelligently guess which variables go together,
+but these defaults can be overridden.</p>
 <div id="the-tidysem-workflow" class="section level2">
 <h2>The tidySEM workflow</h2>
-<p>The workflow underlying syntax generation in <code>tidySEM</code> is as follows:</p>
+<p>The workflow underlying syntax generation in <code>tidySEM</code> is
+as follows:</p>
 <ol style="list-style-type: decimal">
-<li>Give the variables in your <code>data</code> object short, informative names, that are easily machine readable</li>
-<li>Convert the data to a <code>tidy_sem</code> object by running <code>model &lt;- tidy_sem(data)</code> <!--    * The `data_dictionary` called `dict` can be used to generate `keys(dict)`, for use with functions (reliability, factor analysis) from the `psych` library
+<li>Give the variables in your <code>data</code> object short,
+informative names, that are easily machine readable</li>
+<li>Convert the data to a <code>tidy_sem</code> object by running
+<code>model &lt;- tidy_sem(data)</code>
+<!--    * The `data_dictionary` called `dict` can be used to generate `keys(dict)`, for use with functions (reliability, factor analysis) from the `psych` library
     * The `data_dictionary` called `dict` can be used to generate syntax for structural equation models in `lavaan` or 'Mplus' (through `MplusAutomation`)--></li>
 <li>Add elements of syntax
 <ul>
 <li>E.g., <code>measurement(model)</code></li>
 </ul></li>
-<li><em>Optionally</em>, access the <code>dictionary</code>, <code>data</code>, and <code>syntax</code> elements in the <code>tidy_sem</code> object by calling <code>dictionary(model)</code>, <code>get_data(model)</code>, or <code>syntax(model)</code></li>
-<li><em>Optionally</em>, modify the <code>dictionary</code>, <code>data</code>, and <code>syntax</code> elements in the <code>tidy_sem</code> object <code>dictionary(model) &lt;- ...</code>, <code>get_data(model) &lt;- ...</code>, and <code>syntax(model) &lt;- ...</code></li>
+<li><em>Optionally</em>, access the <code>dictionary</code>,
+<code>data</code>, and <code>syntax</code> elements in the
+<code>tidy_sem</code> object by calling <code>dictionary(model)</code>,
+<code>get_data(model)</code>, or <code>syntax(model)</code></li>
+<li><em>Optionally</em>, modify the <code>dictionary</code>,
+<code>data</code>, and <code>syntax</code> elements in the
+<code>tidy_sem</code> object <code>dictionary(model) &lt;- ...</code>,
+<code>get_data(model) &lt;- ...</code>, and
+<code>syntax(model) &lt;- ...</code></li>
 <li>Run the analysis, either by:
 <ul>
-<li>Converting the <code>tidy_sem</code> object to <code>lavaan</code> syntax using <code>as_lavaan(model)</code> and using that as input for the <code>lavaan</code> functions <code>sem</code>, <code>lavaan</code>, or <code>cfa</code></li>
-<li>Converting the <code>tidy_sem</code> object to <code>OpenMx</code> using <code>as_ram(model)</code>, and using that as input for <code>mxRun</code> or `run_mx``</li>
-<li>Converting the <code>tidy_sem</code> object to <code>Mplus</code> using <code>as_mplus(model)</code>, and using that as input for <code>MplusAutomation::mplusObject()</code></li>
-<li>Using the functions <code>estimate_lavaan(model)</code>, <code>estimate_mx(model)</code>, or <code>estimate_mplus(model)</code></li>
+<li>Converting the <code>tidy_sem</code> object to <code>lavaan</code>
+syntax using <code>as_lavaan(model)</code> and using that as input for
+the <code>lavaan</code> functions <code>sem</code>, <code>lavaan</code>,
+or <code>cfa</code></li>
+<li>Converting the <code>tidy_sem</code> object to <code>OpenMx</code>
+using <code>as_ram(model)</code>, and using that as input for
+<code>mxRun</code> or `run_mx``</li>
+<li>Converting the <code>tidy_sem</code> object to <code>Mplus</code>
+using <code>as_mplus(model)</code>, and using that as input for
+<code>MplusAutomation::mplusObject()</code></li>
+<li>Using the functions <code>estimate_lavaan(model)</code>,
+<code>estimate_mx(model)</code>, or
+<code>estimate_mplus(model)</code></li>
 </ul></li>
 </ol>
-<p>All elements of the <code>tidy_sem</code> object are “tidy” data, i.e., tabular <code>data.frames</code>, and can be modified using the familiar suite of functions in the ‘tidyverse’. Thus, the data, dictionary, and syntax are all represented as <code>data.frame</code>s.</p>
+<p>All elements of the <code>tidy_sem</code> object are “tidy” data,
+i.e., tabular <code>data.frames</code>, and can be modified using the
+familiar suite of functions in the ‘tidyverse’. Thus, the data,
+dictionary, and syntax are all represented as
+<code>data.frame</code>s.</p>
 </div>
 <div id="example-running-a-cfa" class="section level2">
 <h2>Example: Running a CFA</h2>
 <div id="step-1-check-the-variable-names" class="section level3">
 <h3>Step 1: Check the variable names</h3>
-<p>As an example, let’s make a graph for a classic <code>lavaan</code> tutorial example for CFA. First, we check the data names:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> HolzingerSwineford1939</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;id&quot;     &quot;sex&quot;    &quot;ageyr&quot;  &quot;agemo&quot;  &quot;school&quot; &quot;grade&quot;  &quot;x1&quot;     &quot;x2&quot;    </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;x3&quot;     &quot;x4&quot;     &quot;x5&quot;     &quot;x6&quot;     &quot;x7&quot;     &quot;x8&quot;     &quot;x9&quot;</span></span></code></pre></div>
-<p>These names are not informative, as the items named <code>x..</code> are indicators of three different latent variables. We will rename them accordingly:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df)[<span class="fu">grepl</span>(<span class="st">&quot;^x&quot;</span>, <span class="fu">names</span>(df))] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;vis_1&quot;</span>, <span class="st">&quot;vis_2&quot;</span>, <span class="st">&quot;vis_3&quot;</span>, <span class="st">&quot;tex_1&quot;</span>, <span class="st">&quot;tex_2&quot;</span>, <span class="st">&quot;tex_3&quot;</span>, <span class="st">&quot;spe_1&quot;</span>, <span class="st">&quot;spe_2&quot;</span>, <span class="st">&quot;spe_3&quot;</span>)</span></code></pre></div>
+<p>As an example, let’s make a graph for a classic <code>lavaan</code>
+tutorial example for CFA. First, we check the data names:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> HolzingerSwineford1939</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;id&quot;     &quot;sex&quot;    &quot;ageyr&quot;  &quot;agemo&quot;  &quot;school&quot; &quot;grade&quot;  &quot;x1&quot;     &quot;x2&quot;    </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;x3&quot;     &quot;x4&quot;     &quot;x5&quot;     &quot;x6&quot;     &quot;x7&quot;     &quot;x8&quot;     &quot;x9&quot;</span></span></code></pre></div>
+<p>These names are not informative, as the items named <code>x..</code>
+are indicators of three different latent variables. We will rename them
+accordingly:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df)[<span class="fu">grepl</span>(<span class="st">&quot;^x&quot;</span>, <span class="fu">names</span>(df))] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;vis_1&quot;</span>, <span class="st">&quot;vis_2&quot;</span>, <span class="st">&quot;vis_3&quot;</span>, <span class="st">&quot;tex_1&quot;</span>, <span class="st">&quot;tex_2&quot;</span>, <span class="st">&quot;tex_3&quot;</span>, <span class="st">&quot;spe_1&quot;</span>, <span class="st">&quot;spe_2&quot;</span>, <span class="st">&quot;spe_3&quot;</span>)</span></code></pre></div>
 </div>
 <div id="guidelines-for-naming-variables" class="section level3">
 <h3>Guidelines for naming variables</h3>
-<p>In general, it is good practice to name variables using the following information:</p>
+<p>In general, it is good practice to name variables using the following
+information:</p>
 <ul>
-<li>Scale name (or if the variable is not part of a scale, observed variable name)</li>
+<li>Scale name (or if the variable is not part of a scale, observed
+variable name)</li>
 <li>Measurement occasion (if longitudinal)</li>
-<li>Respondent id (if multiple respondents completed the same scales)</li>
-<li>Scale item number, which <code>tidySEM</code> expects to be separated from the remainder of the variable name by a splitting character (e.g., <code>scale_item</code>)</li>
+<li>Respondent id (if multiple respondents completed the same
+scales)</li>
+<li>Scale item number, which <code>tidySEM</code> expects to be
+separated from the remainder of the variable name by a splitting
+character (e.g., <code>scale_item</code>)</li>
 </ul>
-<p>Roughly speaking, elements of the variable name should be ordered from “slow-changing” to “fast-changing”; i.e.; there are only a few scales, with possibly several measurement occasions or respondents, and many items.</p>
+<p>Roughly speaking, elements of the variable name should be ordered
+from “slow-changing” to “fast-changing”; i.e.; there are only a few
+scales, with possibly several measurement occasions or respondents, and
+many items.</p>
 </div>
 <div id="step-2-generate-a-dictionary" class="section level3">
 <h3>Step 2: Generate a dictionary</h3>
-<p>A dictionary indicates which variables in the data belong to, for example, the same scale. When the data have informative names, it is possible to construct a data dictionary automatically:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">tidy_sem</span>(df)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>model</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; A tidy_sem object</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [0;30m[0;32mv  [0m  $dictionary[0m</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [0;30m[0;32mv  [0m  $data[0m</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [0;30m[0;37mo  [0m  $syntax[0m</span></span></code></pre></div>
+<p>A dictionary indicates which variables in the data belong to, for
+example, the same scale. When the data have informative names, it is
+possible to construct a data dictionary automatically:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">tidy_sem</span>(df)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>model</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; A tidy_sem object</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [0;30m[0;32mv  [0m  $dictionary[0m</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [0;30m[0;32mv  [0m  $data[0m</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [0;30m[0;37mo  [0m  $syntax[0m</span></span></code></pre></div>
 </div>
 <div id="step-3-generate-syntax" class="section level3">
 <h3>Step 3: Generate syntax</h3>
-<p>We can automatically add basic syntax to the <code>sem_syntax</code> object, by passing it to a syntax-generating function like <code>measurement()</code>, which adds a measurement model for any scales in the object:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">measurement</span>() <span class="ot">-&gt;</span> model</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div>
+<p>We can automatically add basic syntax to the <code>sem_syntax</code>
+object, by passing it to a syntax-generating function like
+<code>measurement()</code>, which adds a measurement model for any
+scales in the object:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">measurement</span>() <span class="ot">-&gt;</span> model</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div>
 <pre><code>#&gt; A tidy_sem object
 #&gt; [0;30m[0;32mv  [0m  $dictionary[0m
 #&gt; [0;30m[0;32mv  [0m  $data[0m
@@ -211,97 +458,106 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="step-4-run-the-model" class="section level3">
 <h3>Step 4: Run the model</h3>
-<p>The resulting model can be evaluated as ‘lavaan’ syntax, ‘OpenMx’ syntax, or ‘Mplus’ syntax, using the <code>as_lavaan</code>, <code>as_ram</code>, and <code>as_mplus</code> functions. For example, using lavaan:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>()</span></code></pre></div>
-<pre><code>#&gt; lavaan 0.6-9 ended normally after 35 iterations
+<p>The resulting model can be evaluated as ‘lavaan’ syntax, ‘OpenMx’
+syntax, or ‘Mplus’ syntax, using the <code>as_lavaan</code>,
+<code>as_ram</code>, and <code>as_mplus</code> functions. For example,
+using lavaan:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>()</span></code></pre></div>
+<pre><code>#&gt; lavaan 0.6.15 ended normally after 35 iterations
 #&gt; 
 #&gt;   Estimator                                         ML
 #&gt;   Optimization method                           NLMINB
 #&gt;   Number of model parameters                        30
-#&gt;                                                       
+#&gt; 
 #&gt;   Number of observations                           301
-#&gt;                                                       
+#&gt; 
 #&gt; Model Test User Model:
 #&gt;                                                       
 #&gt;   Test statistic                                85.306
 #&gt;   Degrees of freedom                                24
 #&gt;   P-value (Chi-square)                           0.000</code></pre>
-<p>The same model can be estimated in ‘Mplus’ through the R-package <code>MplusAutomation</code>. This requires ‘Mplus’ to be installed.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_mx</span>()</span></code></pre></div>
-<p>The same model can be estimated in ‘Mplus’ through the R-package <code>MplusAutomation</code>. This requires ‘Mplus’ to be installed.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MplusAutomation)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_mplus</span>()</span></code></pre></div>
+<p>The same model can be estimated in ‘Mplus’ through the R-package
+<code>MplusAutomation</code>. This requires ‘Mplus’ to be installed.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_mx</span>()</span></code></pre></div>
+<p>The same model can be estimated in ‘Mplus’ through the R-package
+<code>MplusAutomation</code>. This requires ‘Mplus’ to be installed.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MplusAutomation)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_mplus</span>()</span></code></pre></div>
 </div>
 <div id="optional-step-5-access-the-dictionary-data-and-syntax" class="section level3">
 <h3>Optional step 5: Access the dictionary, data, and syntax</h3>
-<p>The dictionary and syntax can be examined using <code>dictionary(model)</code> and <code>syntax(model)</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dictionary</span>(model)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      name scale      type  label</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1      id  &lt;NA&gt;  observed     id</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     sex  &lt;NA&gt;  observed    sex</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   ageyr  &lt;NA&gt;  observed  ageyr</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   agemo  &lt;NA&gt;  observed  agemo</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  school  &lt;NA&gt;  observed school</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6   grade  &lt;NA&gt;  observed  grade</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7   vis_1   vis indicator  vis_1</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8   vis_2   vis indicator  vis_2</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9   vis_3   vis indicator  vis_3</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10  tex_1   tex indicator  tex_1</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11  tex_2   tex indicator  tex_2</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12  tex_3   tex indicator  tex_3</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13  spe_1   spe indicator  spe_1</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14  spe_2   spe indicator  spe_2</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15  spe_3   spe indicator  spe_3</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16    vis  &lt;NA&gt;    latent    vis</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17    tex  &lt;NA&gt;    latent    tex</span></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18    spe  &lt;NA&gt;    latent    spe</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">syntax</span>(model)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      lhs op   rhs block group free label ustart plabel</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    vis =~ vis_1     1     1    0            1   .p1.</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2    vis =~ vis_2     1     1    1           NA   .p2.</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    vis =~ vis_3     1     1    1           NA   .p3.</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4    tex =~ tex_1     1     1    0            1   .p4.</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    tex =~ tex_2     1     1    1           NA   .p5.</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6    tex =~ tex_3     1     1    1           NA   .p6.</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7    spe =~ spe_1     1     1    0            1   .p7.</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8    spe =~ spe_2     1     1    1           NA   .p8.</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9    spe =~ spe_3     1     1    1           NA   .p9.</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 vis_1 ~~ vis_1     1     1    1           NA  .p10.</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 vis_2 ~~ vis_2     1     1    1           NA  .p11.</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 vis_3 ~~ vis_3     1     1    1           NA  .p12.</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13 tex_1 ~~ tex_1     1     1    1           NA  .p13.</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14 tex_2 ~~ tex_2     1     1    1           NA  .p14.</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 tex_3 ~~ tex_3     1     1    1           NA  .p15.</span></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16 spe_1 ~~ spe_1     1     1    1           NA  .p16.</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17 spe_2 ~~ spe_2     1     1    1           NA  .p17.</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18 spe_3 ~~ spe_3     1     1    1           NA  .p18.</span></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19   vis ~~   vis     1     1    1           NA  .p19.</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20   tex ~~   tex     1     1    1           NA  .p20.</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21   spe ~~   spe     1     1    1           NA  .p21.</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22   vis ~~   tex     1     1    1           NA  .p22.</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23   vis ~~   spe     1     1    1           NA  .p23.</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24   tex ~~   spe     1     1    1           NA  .p24.</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 25 vis_1 ~1           1     1    1           NA  .p25.</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 26 vis_2 ~1           1     1    1           NA  .p26.</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 27 vis_3 ~1           1     1    1           NA  .p27.</span></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 28 tex_1 ~1           1     1    1           NA  .p28.</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 29 tex_2 ~1           1     1    1           NA  .p29.</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 30 tex_3 ~1           1     1    1           NA  .p30.</span></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 31 spe_1 ~1           1     1    1           NA  .p31.</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 32 spe_2 ~1           1     1    1           NA  .p32.</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 33 spe_3 ~1           1     1    1           NA  .p33.</span></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 34   vis ~1           1     1    0            0  .p34.</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 35   tex ~1           1     1    0            0  .p35.</span></span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 36   spe ~1           1     1    0            0  .p36.</span></span></code></pre></div>
+<p>The dictionary and syntax can be examined using
+<code>dictionary(model)</code> and <code>syntax(model)</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dictionary</span>(model)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      name scale      type  label</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1      id  &lt;NA&gt;  observed     id</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     sex  &lt;NA&gt;  observed    sex</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   ageyr  &lt;NA&gt;  observed  ageyr</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   agemo  &lt;NA&gt;  observed  agemo</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  school  &lt;NA&gt;  observed school</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6   grade  &lt;NA&gt;  observed  grade</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7   vis_1   vis indicator  vis_1</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8   vis_2   vis indicator  vis_2</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9   vis_3   vis indicator  vis_3</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10  tex_1   tex indicator  tex_1</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11  tex_2   tex indicator  tex_2</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12  tex_3   tex indicator  tex_3</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13  spe_1   spe indicator  spe_1</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14  spe_2   spe indicator  spe_2</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15  spe_3   spe indicator  spe_3</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16    vis  &lt;NA&gt;    latent    vis</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17    tex  &lt;NA&gt;    latent    tex</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18    spe  &lt;NA&gt;    latent    spe</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">syntax</span>(model)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      lhs op   rhs block group free label ustart plabel</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    vis =~ vis_1     1     1    0            1   .p1.</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2    vis =~ vis_2     1     1    1           NA   .p2.</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    vis =~ vis_3     1     1    1           NA   .p3.</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4    tex =~ tex_1     1     1    0            1   .p4.</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    tex =~ tex_2     1     1    1           NA   .p5.</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6    tex =~ tex_3     1     1    1           NA   .p6.</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7    spe =~ spe_1     1     1    0            1   .p7.</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8    spe =~ spe_2     1     1    1           NA   .p8.</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9    spe =~ spe_3     1     1    1           NA   .p9.</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 vis_1 ~~ vis_1     1     1    1           NA  .p10.</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 vis_2 ~~ vis_2     1     1    1           NA  .p11.</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 vis_3 ~~ vis_3     1     1    1           NA  .p12.</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13 tex_1 ~~ tex_1     1     1    1           NA  .p13.</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14 tex_2 ~~ tex_2     1     1    1           NA  .p14.</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 tex_3 ~~ tex_3     1     1    1           NA  .p15.</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16 spe_1 ~~ spe_1     1     1    1           NA  .p16.</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17 spe_2 ~~ spe_2     1     1    1           NA  .p17.</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18 spe_3 ~~ spe_3     1     1    1           NA  .p18.</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19   vis ~~   vis     1     1    1           NA  .p19.</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20   tex ~~   tex     1     1    1           NA  .p20.</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21   spe ~~   spe     1     1    1           NA  .p21.</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22   vis ~~   tex     1     1    1           NA  .p22.</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23   vis ~~   spe     1     1    1           NA  .p23.</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24   tex ~~   spe     1     1    1           NA  .p24.</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 25 vis_1 ~1           1     1    1           NA  .p25.</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 26 vis_2 ~1           1     1    1           NA  .p26.</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 27 vis_3 ~1           1     1    1           NA  .p27.</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 28 tex_1 ~1           1     1    1           NA  .p28.</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 29 tex_2 ~1           1     1    1           NA  .p29.</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 30 tex_3 ~1           1     1    1           NA  .p30.</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 31 spe_1 ~1           1     1    1           NA  .p31.</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 32 spe_2 ~1           1     1    1           NA  .p32.</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 33 spe_3 ~1           1     1    1           NA  .p33.</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 34   vis ~1           1     1    0            0  .p34.</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 35   tex ~1           1     1    0            0  .p35.</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 36   spe ~1           1     1    0            0  .p36.</span></span></code></pre></div>
 </div>
 <div id="optional-step-6-modify-the-dictionary-and-syntax" class="section level3">
 <h3>Optional step 6: Modify the dictionary and syntax</h3>
-<p>At this stage, we may want to modify the basic syntax slightly. The functions <code>dictionary(model) &lt;- ...</code> and <code>syntax(model) &lt;- ...</code> can be used to modify the dictionary and syntax:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dictionary</span>(model) <span class="sc">|&gt;</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">ifelse</span>(label <span class="sc">==</span> <span class="st">&quot;vis&quot;</span>, <span class="st">&quot;Visual&quot;</span>, label))</span></code></pre></div>
+<p>At this stage, we may want to modify the basic syntax slightly. The
+functions <code>dictionary(model) &lt;- ...</code> and
+<code>syntax(model) &lt;- ...</code> can be used to modify the
+dictionary and syntax:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dictionary</span>(model) <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">ifelse</span>(label <span class="sc">==</span> <span class="st">&quot;vis&quot;</span>, <span class="st">&quot;Visual&quot;</span>, label))</span></code></pre></div>
 <pre><code>#&gt;      name scale      type  label
 #&gt; 1      id  &lt;NA&gt;  observed     id
 #&gt; 2     sex  &lt;NA&gt;  observed    sex
@@ -321,41 +577,48 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 #&gt; 16    vis  &lt;NA&gt;    latent Visual
 #&gt; 17    tex  &lt;NA&gt;    latent    tex
 #&gt; 18    spe  &lt;NA&gt;    latent    spe</code></pre>
-<p>For example, imagine we want to change the model, so that all items of the “spe” subscale load on the “tex” latent variable. We would first replace the latent variable “spe” with “tex”, and secondly remove all mention of the “spe” latent variable:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">syntax</span>(model) <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lhs =</span> <span class="fu">ifelse</span>(lhs <span class="sc">==</span> <span class="st">&quot;spe&quot;</span> <span class="sc">&amp;</span> op <span class="sc">==</span> <span class="st">&quot;=~&quot;</span>, <span class="st">&quot;tex&quot;</span>, lhs)) <span class="sc">|&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(lhs <span class="sc">==</span> <span class="st">&quot;spe&quot;</span> <span class="sc">|</span> rhs <span class="sc">==</span> <span class="st">&quot;spe&quot;</span>)) <span class="ot">-&gt;</span> <span class="fu">syntax</span>(model)</span></code></pre></div>
+<p>For example, imagine we want to change the model, so that all items
+of the “spe” subscale load on the “tex” latent variable. We would first
+replace the latent variable “spe” with “tex”, and secondly remove all
+mention of the “spe” latent variable:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">syntax</span>(model) <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lhs =</span> <span class="fu">ifelse</span>(lhs <span class="sc">==</span> <span class="st">&quot;spe&quot;</span> <span class="sc">&amp;</span> op <span class="sc">==</span> <span class="st">&quot;=~&quot;</span>, <span class="st">&quot;tex&quot;</span>, lhs)) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(lhs <span class="sc">==</span> <span class="st">&quot;spe&quot;</span> <span class="sc">|</span> rhs <span class="sc">==</span> <span class="st">&quot;spe&quot;</span>)) <span class="ot">-&gt;</span> <span class="fu">syntax</span>(model)</span></code></pre></div>
 <p>The modified model could then be run:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_lavaan</span>(model)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lavaan 0.6-9 ended normally after 28 iterations</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Estimator                                         ML</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Number of model parameters                        27</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Number of observations                           301</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model Test User Model:</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Test statistic                               330.994</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Degrees of freedom                                27</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_lavaan</span>(model)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lavaan 0.6.15 ended normally after 28 iterations</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Estimator                                         ML</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Number of model parameters                        27</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Number of observations                           301</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model Test User Model:</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Test statistic                               330.994</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Degrees of freedom                                27</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   P-value (Chi-square)                           0.000</span></span></code></pre></div>
 </div>
 <div id="optional-step-7-adding-paths" class="section level3">
 <h3>Optional step 7: Adding paths</h3>
-<p>In addition to the way of editing the <code>data.frame</code> with model syntax described in Step 6, it is also possible to add (or modify) paths by adding <code>lavaan</code> syntax. For example, imagine that - instead of having “vis” and “tex” correlate, we want to add a regression path between them:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_paths</span>(<span class="st">&quot;vis ~ tex&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>() <span class="sc">|&gt;</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(<span class="at">estimates =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>#&gt; lavaan 0.6-9 ended normally after 27 iterations
+<p>In addition to the way of editing the <code>data.frame</code> with
+model syntax described in Step 6, it is also possible to add (or modify)
+paths by adding <code>lavaan</code> syntax. For example, imagine that -
+instead of having “vis” and “tex” correlate, we want to add a regression
+path between them:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_paths</span>(<span class="st">&quot;vis ~ tex&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>() <span class="sc">|&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(<span class="at">estimates =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>#&gt; lavaan 0.6.15 ended normally after 27 iterations
 #&gt; 
 #&gt;   Estimator                                         ML
 #&gt;   Optimization method                           NLMINB
 #&gt;   Number of model parameters                        27
-#&gt;                                                       
+#&gt; 
 #&gt;   Number of observations                           301
-#&gt;                                                       
+#&gt; 
 #&gt; Model Test User Model:
 #&gt;                                                       
 #&gt;   Test statistic                               330.994
@@ -414,20 +677,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 #&gt;    .spe_3             0.908    0.075   12.055    0.000
 #&gt;    .vis               0.625    0.134    4.673    0.000
 #&gt;     tex               0.560    0.073    7.638    0.000</code></pre>
-<p>This function accepts both quoted (character) and unquoted arguments. So, for example, if we want to add a cross-loading from “spe_1” on “vis”, in addition to the regression path before, we could use the following code:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_paths</span>(<span class="st">&quot;vis ~ tex&quot;</span>, <span class="at">vis =</span><span class="sc">~</span> spe_1) <span class="sc">|&gt;</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>()</span></code></pre></div>
+<p>This function accepts both quoted (character) and unquoted arguments.
+So, for example, if we want to add a cross-loading from “spe_1” on
+“vis”, in addition to the regression path before, we could use the
+following code:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_paths</span>(<span class="st">&quot;vis ~ tex&quot;</span>, <span class="at">vis =</span><span class="sc">~</span> spe_1) <span class="sc">|&gt;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>()</span></code></pre></div>
 <pre><code>#&gt; Warning in lav_object_post_check(object): lavaan WARNING: some estimated ov
 #&gt; variances are negative
-#&gt; lavaan 0.6-9 ended normally after 64 iterations
+#&gt; lavaan 0.6.15 ended normally after 64 iterations
 #&gt; 
 #&gt;   Estimator                                         ML
 #&gt;   Optimization method                           NLMINB
 #&gt;   Number of model parameters                        27
-#&gt;                                                       
+#&gt; 
 #&gt;   Number of observations                           301
-#&gt;                                                       
+#&gt; 
 #&gt; Model Test User Model:
 #&gt;                                                       
 #&gt;   Test statistic                               407.730

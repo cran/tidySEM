@@ -19,7 +19,7 @@ get_fit <- function(x, ...) {
 
 
 
-calc_fitindices <- function(model, fitindices, ...){
+calc_fitindices <- function(model, ...){
   UseMethod("calc_fitindices", model)
 }
 
@@ -30,24 +30,24 @@ calc_fitindices.MxModel <- function (model, type = NULL, ...){
     parameters <- sums[["estimatedParameters"]]
     n <- sums[["numObs"]]
     if(length(names(model@submodels)) < 2){
-      fits = c("Entropy" = 1, "prob_min" = 1, "prob_max" = 1, "n_min" = 1, "n_max" = 1)
+      fits = c("Classes" = 1, "Entropy" = 1, "prob_min" = 1, "prob_max" = 1, "n_min" = 1, "n_max" = 1)
     } else {
       post_prob <- extract_postprob(model)
       class <- apply(post_prob, 1, which.max)
-      class_tab <- table(class)
+      class_tab <- table(factor(class, levels = 1:length(names(model@submodels))))
       if (length(class_tab) == ncol(post_prob)) {
         prop_n <- range(prop.table(class_tab))
       }
       else {
         prop_n <- c(0, max(prop.table(class_tab)))
       }
-      fits <- c(
+      fits <- c("Classes" = length(names(model@submodels)),
         ifelse(ncol(post_prob) == 1, 1, 1 + (1/(nrow(post_prob) *
                                                   log(ncol(post_prob)))) * (sum(rowSums(post_prob *
                                                                                           log(post_prob + 1e-12))))),
         range(diag(classification_probs_mostlikely(post_prob, class))),
         prop_n)
-      names(fits) <- c("Entropy", "prob_min", "prob_max", "n_min", "n_max")
+      names(fits) <- c("Classes", "Entropy", "prob_min", "prob_max", "n_min", "n_max")
     }
     c(sums, fits)
   } else {
@@ -115,13 +115,15 @@ class_prob <- function(x, type = c("sum.posterior", "sum.mostlikely", "mostlikel
 #' @export
 class_prob.MxModel <- function(x, type = c("sum.posterior", "sum.mostlikely", "mostlikely.class", "avg.mostlikely", "individual"), ...){
   post_probs <- extract_postprob(x)
+  post_probs_pred <- cbind(post_probs, predicted = apply(post_probs, 1, which.max) )
+
   out <- lapply(type, function(thetype){
     switch(thetype,
            "mostlikely.class" = classification_probs_mostlikely(post_probs),
            "avg.mostlikely" = avgprobs_mostlikely(post_probs),
            "sum.posterior" = sum_postprob(x),
            "sum.mostlikely" = sum_mostlikely(x),
-           post_probs)
+           post_probs_pred)
   })
   names(out) <- type
   out
@@ -181,26 +183,30 @@ classification_probs_mostlikely <- function (post_prob, class = NULL)
 {
   if (is.null(dim(post_prob)))
     return(1)
-  if(is.null(class)) class <- apply(post_prob, 1, which.max)
+  if (is.null(class))
+    class <- apply(post_prob, 1, which.max)
   avg_probs <- avgprobs_mostlikely(post_prob, class)
   avg_probs[is.na(avg_probs)] <- 0
-  C <- dim(post_prob)[2]
-  N <- sapply(1:C, function(x) sum(class == x))
-  tab <- mapply(function(this_row, this_col) {
-    (avg_probs[this_row, this_col] * N[this_row])/(sum(avg_probs[,
-                                                                 this_col] * N, na.rm = TRUE))
-  }, this_row = rep(1:C, C), this_col = rep(1:C, each = C))
-  matrix(tab, C, C, byrow = TRUE)
+  class_counts <- as.integer(table(ordered(class, levels = 1:ncol(post_prob)))) # Use ordered to ensure empty classes are included
+  tab <- avg_probs * class_counts
+  tab <- tab / matrix(colSums(avg_probs * class_counts), ncol = ncol(tab), nrow = nrow(tab), byrow = TRUE)
+  rownames(tab) <- paste0("assigned.", 1:nrow(tab))
+  colnames(tab) <- paste0("avgprob.", 1:nrow(tab))
+  return(t(tab))
 }
+
 
 avgprobs_mostlikely <- function (post_prob, class = NULL)
 {
   if (is.null(dim(post_prob)))
     return(1)
   if(is.null(class)) class <- apply(post_prob, 1, which.max)
-  t(sapply(1:ncol(post_prob), function(i) {
+  tab <- t(sapply(1:ncol(post_prob), function(i) {
     colMeans(post_prob[class == i, , drop = FALSE])
   }))
+  rownames(tab) <- paste0("assigned.", 1:nrow(tab))
+  colnames(tab) <- paste0("meanprob.", colnames(tab))
+  return(tab)
 }
 
 
@@ -232,45 +238,3 @@ icl_default <- function(post_prob, BIC){
     }
   }, error = function(e){ NA })
 }
-
-#' @title Conduct Bootstrapped Likelihood Ratio Test
-#' @description Conduct Bootstrapped Likelihood Ratio Test to compare two
-#' mixture models.
-#' @param x An object for which a method exists.
-#' @param ... further arguments to be passed to or from other methods.
-#' @return A data.frame.
-#' @examples
-#' \dontrun{
-#' df <- iris[, 1, drop = FALSE]
-#' names(df) <- "x"
-#' res <- mx_mixture(model = "x ~ m{C}*1
-#'                            x ~~ v{C}*x", classes = 1:2, data = df)
-#' BLRT(res, replications = 4)
-#' }
-#' @export
-BLRT <- function(x, ...){
-  UseMethod("BLRT", x)
-}
-
-#' @method BLRT mixture_list
-#' @export
-BLRT.mixture_list <- function(x, ...){
-  if(length(x) > 1){
-    out <- mapply(function(k, km1){
-      tryCatch({
-        unlist(mxCompare(k, km1, boot = TRUE, ...)[2, c("diffLL", "diffdf", "p")])
-        },
-               error = function(e){
-                 c("diffLL" = NA, "diffdf" = NA, "p" = NA)
-               })
-    }, k = x[-1], km1 = x[-length(x)])
-    rbind(data.frame(diffLL = NA, diffdf = NA, p = NA),
-          t(out))
-  } else {
-    data.frame(diffLL = NA, diffdf = NA, p = NA)
-  }
-}
-
-#' @method BLRT list
-#' @export
-BLRT.list <- BLRT.mixture_list

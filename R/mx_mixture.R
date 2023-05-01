@@ -80,9 +80,9 @@ mx_mixture <- function(model,
 #' to an assumption of conditional independence of the indicators); other
 #' options are "equal" (covariances between items constrained to be equal across
 #' classes), and "varying" (free covariances across classes).
-#' \code{classes = c(1:4, 6:8)}.
 #' @param run Logical, whether or not to run the model. If \code{run = TRUE},
 #' the function calls \code{\link{mixture_starts}} and \code{\link{run_mx}}.
+#' @param expand_grid Logical, whether or not to estimate all possible combinations of the `variances` and `covariances` arguments. Defaults to `FALSE`.
 #' @param ... Additional arguments, passed to functions.
 #' @return Returns an \code{\link[OpenMx]{mxModel}}.
 #' @export
@@ -94,12 +94,19 @@ mx_mixture <- function(model,
 #' mx_profiles(data = df,
 #'             classes = 2) -> res
 #' }
+#' @importFrom OpenMx imxReportProgress
 mx_profiles <- function(data = NULL,
                         classes = 1L,
                         variances = "equal",
                         covariances = "zero",
                         run = TRUE,
+                        expand_grid = FALSE,
                         ...){
+  if(expand_grid){
+    grd <- expand.grid(variances, covariances, stringsAsFactors = FALSE)
+    variances <- grd[[1]]
+    covariances <- grd[[2]]
+  }
   if(length(variances) > 0 & (!hasArg(covariances) | length(covariances) == 1)){
     covariances <- rep(covariances, length(variances))
   }
@@ -115,6 +122,7 @@ mx_profiles <- function(data = NULL,
   cl[[1L]] <- str2lang("tidySEM:::mx_mixture")
   if("variances" %in% names(cl)) cl[["variances"]] <- NULL
   if("covariances" %in% names(cl)) cl[["covariances"]] <- NULL
+  cl[["data"]] <- data
   if(length(variances) == 1){
     cl[["model"]] <- profile_syntax(variances, covariances, names(data))
     out <- eval.parent(cl)
@@ -134,7 +142,7 @@ mx_profiles <- function(data = NULL,
     class(out) <- c("mixture_list", class(out))
     names(out) <- lbs
   }
-  if(inherits(out, "MxModel")){
+  if(inherits(out, what = c("MxModel", "MxRAMModel"))){
     out <- mxModel(out, name = lbs)
   }
   out
@@ -211,7 +219,7 @@ mx_growth_mixture <- function(model,
 #' @keywords mixture models openmx
 #' @examples
 #' \dontrun{
-#' df <- data_mixture_ordinal
+#' df <- data_mix_ordinal
 #' df[1:4] <- lapply(df, ordered)
 #' mx_lca(data = df,
 #'        classes = 2) -> res
@@ -260,6 +268,7 @@ mx_lca <- function(data = NULL,
     })
     cl[["classes"]] <- classes
     cl[["model"]] <- model
+    cl[["data"]] <- data
     cl[[1L]] <- str2lang("tidySEM:::as_mx_mixture")
     out <- eval.parent(cl)
     # cl[["model"]] <- out
@@ -298,6 +307,7 @@ mx_mixture.character <- function(model,
       eval.parent(cl)
     })
     attr(out, "tidySEM") <- "list"
+    class(out) <- c("mixture_list", class(out))
     return(out)
   } else {
     dots_asram <- names(dots)[names(dots) %in% unique(c(formalArgs(lavaan::lavaanify), formalArgs(OpenMx::mxModel)))]
@@ -312,6 +322,7 @@ mx_mixture.character <- function(model,
     })
     cl[["classes"]] <- classes
     cl[["model"]] <- model
+    cl[["data"]] <- data
     cl[[1L]] <- str2lang("tidySEM:::as_mx_mixture")
     out <- eval.parent(cl)
     cl[["model"]] <- out
@@ -328,6 +339,16 @@ mx_mixture.character <- function(model,
   }
 }
 
+#' @method mx_mixture MxModel
+#' @export
+mx_mixture.MxModel <- function(model,
+                            classes = 1L,
+                            data = NULL,
+                            run = TRUE,
+                            ...){
+  browser() # Develop this functionality
+}
+
 #' @method mx_mixture list
 #' @export
 mx_mixture.list <- function(model,
@@ -335,6 +356,7 @@ mx_mixture.list <- function(model,
                             data = NULL,
                             run = TRUE,
                             ...){
+  browser() # Check before CRAN
   cl <- match.call()
   dots <- list(...)
   if(length(classes) > 1){
@@ -346,7 +368,7 @@ mx_mixture.list <- function(model,
   if(all(sapply(model, inherits, "character"))){
     dots_asram <- names(dots)[names(dots) %in% unique(c(formalArgs(lavaan::lavaanify), formalArgs(OpenMx::mxModel)))]
     dots_asram <- dots[dots_asram]
-    out <- lapply(1:length(model), function(i){
+    model <- lapply(1:length(model), function(i){
       do.call(as_ram, c(
         list(
           x = model[[i]],
@@ -354,15 +376,19 @@ mx_mixture.list <- function(model,
         dots_asram))
     })
   } else {
-    if(!all(sapply(out, inherits, "MxModel"))){
+    if(!all(sapply(model, inherits, what = c("MxModel", "MxRAMModel")))){
       stop("Function mx_mixture.list() requires argument 'model' to be a list of lavaan syntaxes or MxModels.")
     }
     # Develop functionality for MxModels
-    stop("Function mx_mixture() cannot yet handle a list of MxModels.")
+    model <- lapply(1:length(model), function(i){
+      mxModel(name = paste0("class", i),
+              model[[i]])
+    })
   }
   if(run){
-    cl[["model"]] <- out
+    cl[["model"]] <- model
     cl[["classes"]] <- classes
+    cl[["data"]] <- data
     cl[[1L]] <- str2lang("tidySEM:::as_mx_mixture")
     cl[["model"]] <- eval.parent(cl)
     cl[[1L]] <- str2lang("tidySEM:::mixture_starts")
@@ -371,7 +397,7 @@ mx_mixture.list <- function(model,
     cl[[1L]] <- str2lang("tidySEM:::run_mx")
     return(eval.parent(cl))
   } else {
-    out
+    model
   }
 }
 
@@ -455,7 +481,7 @@ as_mx_mixture <- function(model,
 #' }
 #' @references Shireman, E., Steinley, D. & Brusco, M.J. Examining the effect of
 #' initialization strategies on the performance of Gaussian mixture modeling.
-#' Behav Res 49, 282–293 (2017). <doi:10.3758/s13428-015-0697-6>
+#' Behav Res 49, 282–293 (2017). \doi{10.3758/s13428-015-0697-6}
 #' @importFrom OpenMx mxModel mxRun mxTryHard mxAutoStart
 #' @importFrom methods hasArg
 #' @importFrom stats kmeans
@@ -466,9 +492,9 @@ mixture_starts <- function(model,
   stopifnot("mxModel must contain data to determine starting values." = !(is.null(model@data) | is.null(model@data$observed)))
   classes <- length(model@submodels)
   if(classes < 2){
-    strts <- try({mxAutoStart(model, type = "ULS")})
+    strts <- try({simple_starts(model, type = "ULS")})
     if(inherits(strts, "try-error")){
-      strts <- try({mxRun(model)})
+      strts <- try({mxTryHardWideSearch(model)})
     }
     if(inherits(strts, "try-error")){
       stop("Could not derive suitable starting values for the 1-class model.")
@@ -477,68 +503,103 @@ mixture_starts <- function(model,
     }
   }
   data <- model@data$observed
-  if(any(sapply(data, inherits, what = "factor"))) return(model)
   if(!hasArg(splits)){
-    splits <- try({kmeans(x = data, centers = classes)$cluster})
+    df_split <- data
+    isfac <- sapply(df_split, inherits, what = "factor")
+    if(any(isfac)){
+      df_split[which(isfac)] <- lapply(df_split[which(isfac)], as.integer)
+    }
+    splits <- try({kmeans(x = df_split, centers = classes)$cluster}, silent = TRUE)
     if(inherits(splits, "try-error")){
-      message("Could not initialize clusters using K-means.")
-      splits <- try({cutree(hclust(dist(data)), k = classes)})
+      message("Could not initialize clusters using K-means, switching to hierarchical clustering.")
+      splits <- try({cutree(hclust(dist(df_split)), k = classes)}, silent = TRUE)
       if(inherits(splits, "try-error")){
         stop("Could not initialize clusters using hierarchical clustering. Consider using a different clustering method, or imputing missing data.")
       }
     }
     #
-  } else {
-    stopifnot("Number of unique values in splits must be identical to the number of latent classes." = length(unique(splits)) == length(names(model@submodels)))
   }
+  stopifnot("Number of unique values in splits must be identical to the number of latent classes." = length(unique(splits)) == length(names(model@submodels)))
+
   tab_split <- table(splits)
-  if(any(tab_split) < 2){
-    small_cats <- which(tab_split < 2)
-    choose_from <- which(tab_split > 2 + length(small_cats))
+  small_cats <- tab_split < 2
+  if(any(small_cats)){
+    which_small <- which(small_cats)
+    atleast <- 2+sum(tab_split[small_cats])
+    choose_from <- which(tab_split > atleast)
     if(length(choose_from) == 0) stop("Some clusters were too small to determine sensible starting values in `mixture_starts()`. Either specify splits manually, or reduce the number of classes.")
-    splits[sample(which(splits %in% choose_from), length(small_cats))] <- small_cats
+    splits[sample(which(splits %in% choose_from), sum(tab_split[small_cats]))] <- splits[splits %in% names(small_cats)[small_cats]]
   }
 
   if(!classes == length(unique(splits))){
     stop("Argument 'splits' does not identify a number of groups equal to 'classes'.")
   }
-  if(!all(unique(splits) %in% 1:classes)){
-    splits <- as.integer(as.factor(splits))
-  }
+  # Order splits from largest number to smallest
+  tab_split <- sort(table(splits), decreasing = TRUE)
+  splits <- as.integer(ordered(splits, levels = names(tab_split)))
 
   strts <- lapply(1:classes, function(i){
     thissub <- names(model@submodels)[i]
+    data_split <- data[splits == i, , drop = FALSE]
+    if(any(isfac)){
+      tabfreq <- lapply(data_split[which(isfac)], table)
+      if(any(unlist(tabfreq) == 0)){
+        tabfreq <- lapply(tabfreq, function(t){t[t==0]})
+        tabfreq <- tabfreq[sapply(tabfreq, length) > 0]
+        for(thisfac in names(tabfreq)){
+          for(thislev in names(tabfreq[[thisfac]])){
+            addcases <- which(data[[thisfac]] == thislev)
+            if(length(addcases) == 1){
+              addcases <- data[addcases, , drop = FALSE]
+            } else {
+              addcases <- data[sample(x = addcases, size = 1), , drop = FALSE]
+            }
+            data_split <- rbind(data_split, addcases)
+          }
+        }
+      }
+    }
     mxModel(model[[thissub]],
-            mxData(data[splits == i, , drop = FALSE], type = "raw"),
+            mxData(data_split, type = "raw"),
             mxFitFunctionML())
   })
   strts <- do.call(mxModel, c(list(model = "mg_starts", mxFitFunctionMultigroup(names(model@submodels)), strts)))
-  strts <- try({
-    strts <- mxAutoStart(strts, type = "ULS")
-    mxRun(strts, silent = TRUE, suppressWarnings = TRUE)
-  })
-  if(inherits(strts, "try-error")){
-    strts <- try({
-      strts <- mxAutoStart(strts, type = "DWLS")
-      strts <<- mxTryHard(strts, extraTries = 100,
-                          silent = TRUE,
-                          verbose = FALSE,
-                          bestInitsOutput = FALSE)
+  strts_vals <- try(simple_starts(strts, type = "ULS"))
+  if(inherits(strts_vals, "try-error")){
+    strts_vals <- simple_starts(strts, type = "DWLS")
+  }
+  strts <- strts_vals
+  subnamz <- names(strts@submodels)
+  not_pd <- sapply(subnamz, function(n){ any(eigen(strts[[n]]$matrices$S$values)$values < 0)})
+  if(any(not_pd)){
+    for(n in names(not_pd)[not_pd]){
+      strts[[n]][["S"]]$values <- Matrix::nearPD(strts[[n]][["S"]]$values, keepDiag = TRUE, maxit = 10000)$mat
+    }
+  }
+  strts_vals <- try(mxRun(strts, silent = TRUE, suppressWarnings = TRUE), silent = TRUE)
+  if(inherits(strts_vals, "try-error")){
+    if(grepl("omxAssignFirstParameters", attr(strts_vals, "condition"), fixed = TRUE)){
+      strts <- omxAssignFirstParameters(strts)
+      strts_vals <- try(mxRun(strts, silent = TRUE, suppressWarnings = TRUE))
+    } else {
+      strts_vals <- try(mxTryHard(strts, extraTries = 100,
+                              silent = TRUE,
+                              verbose = FALSE,
+                              bestInitsOutput = FALSE))
+    }
+  }
 
-    })
-  }
-  if(inherits(strts, "try-error")){
-    strts <- try({mxRun(model)})
-  }
-  if(inherits(strts, "try-error")){
+  if(inherits(strts_vals, "try-error")){
     stop("Could not derive suitable starting values for the ", classes, "-class model.")
   }
+  strts <- strts_vals
   # Insert start values into mixture model
   for(i in names(model@submodels)){
     for(mtx in names(model[[i]]@matrices)){
       model[[i]][[mtx]]$values <- strts[[i]][[mtx]]$values
     }
   }
+  model@matrices$weights$values[] <- tab_split/tab_split[1]
   return(model)
 }
 
@@ -633,7 +694,7 @@ if(FALSE){
                                     data = NULL,
                                     run = TRUE,
                                     ...){
-    browser()
+    browser() # Not run
     data <- model
     vars_cont <- names(data)[sapply(data, inherits, what = "numeric")]
     vars_bin <- names(data)[sapply(data, function(x){all(na.omit(x) %in% c(0, 1))})]
@@ -660,7 +721,7 @@ if(FALSE){
     nam_prof <- names(mix_profiles@submodels)
     nam_lca <- names(mix_ord@submodels)
     if(!all(nam_prof == nam_lca)) stop("Could not merge continuous and categorical models.")
-    browser()
+    browser()  # Not run
     # Continuous
     for(n in nam_prof){
       for(m in names(mix_profiles[[n]]@matrices)){
@@ -688,7 +749,7 @@ if(FALSE){
       mix_all[[n]]$expectation$thresholds <- mix_ord[[n]]$expectation$thresholds
     }
 
-    browser()
+    browser()  # Not run
 
   }
 }

@@ -41,7 +41,7 @@ report <- function(x, digits = 2, equals = TRUE){
 #' @details Reference:
 #' Satorra, A., & Bentler, P. M. (2001). A scaled difference chi-square test
 #' statistic for moment structure analysis. Psychometrika, 66(4), 507-514.
-#' <doi:10.1007/BF02296192>
+#' \doi{10.1007/BF02296192}
 #' @author Caspar J. van Lissa
 #' @export
 #' @keywords internal
@@ -215,7 +215,7 @@ format_numeric <- function(x, digits = 2) {
 #   print(sort(theloadings))
 # }
 
-as.numeric.factor <- function(x){
+as_numeric_factor <- function(x){
   as.numeric(levels(x))[x]
 }
 

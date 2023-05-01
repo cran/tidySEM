@@ -1,14 +1,18 @@
 Package: tidySEM
 Type: Package
-Date: 2022-4-14
 Title: Tidy Structural Equation Modeling
-Version: 0.2.3
+Version: 0.2.4
 Authors@R: 
     c(person(given = c("Caspar", "J."),
              family = "van Lissa",
              role = c("aut", "cre"),
-             email = "c.j.vanlissa@uu.nl",
-             comment = c(ORCID = "0000-0002-0808-5024")))
+             email = "c.j.vanlissa@tilburguniversity.edu",
+             comment = c(ORCID = "0000-0002-0808-5024")),
+      person(given = c("Mauricio"),
+             family = "Garnier-Villarreal",
+             role = c("ctb"),
+             email = "mgv@pm.me",
+             comment = c(ORCID = "0000-0002-2951-6647")) )
 Description: A tidy workflow for generating, estimating, reporting,
     and plotting structural equation models using 'lavaan', 'OpenMx', or
     'Mplus'. Throughout this workflow, elements of syntax, results, and graphs
@@ -18,17 +22,20 @@ URL: https://cjvanlissa.github.io/tidySEM/
 BugReports: https://github.com/cjvanlissa/tidySEM/issues
 Depends: R (>= 4.0.0), stats, utils, OpenMx
 Imports: ggplot2, lavaan, blavaan, MplusAutomation, igraph, psych,
-        methods, gtable
+        methods, gtable, dbscan, RANN, Matrix, bain, car, future.apply,
+        progressr
 Suggests: testthat, knitr, rmarkdown, dplyr, stringr, covr, tidyLPA,
-        poLCA, umx, mclust
+        poLCA, umx, mclust, MASS, scales, yaml, formatR
 VignetteBuilder: knitr
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 LazyData: true
 NeedsCompilation: no
-Packaged: 2022-04-14 17:25:30 UTC; Lissa102
+Packaged: 2023-05-01 16:05:50 UTC; vanlissa
 Author: Caspar J. van Lissa [aut, cre]
-    (<https://orcid.org/0000-0002-0808-5024>)
-Maintainer: Caspar J. van Lissa <c.j.vanlissa@uu.nl>
+    (<https://orcid.org/0000-0002-0808-5024>),
+  Mauricio Garnier-Villarreal [ctb]
+    (<https://orcid.org/0000-0002-2951-6647>)
+Maintainer: Caspar J. van Lissa <c.j.vanlissa@tilburguniversity.edu>
 Repository: CRAN
-Date/Publication: 2022-04-14 17:50:02 UTC
+Date/Publication: 2023-05-01 20:00:06 UTC

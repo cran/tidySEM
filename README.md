@@ -8,8 +8,9 @@ status](https://www.r-pkg.org/badges/version/tidySEM)](https://cran.r-project.or
 [![CRAN RStudio mirror
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/tidySEM?color=blue)](https://r-pkg.org/pkg/tidySEM)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html#maturing)
-[![R-CMD-check](https://github.com/cjvanlissa/tidySEM/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/tidySEM/actions)
-[![codecov](https://codecov.io/gh/cjvanlissa/tidySEM/branch/master/graph/badge.svg?token=0GfxUZIC9r)](https://app.codecov.io/gh/cjvanlissa/tidySEM)
+[![R-CMD-check](https://github.com/cjvanlissa/tidySEM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/cjvanlissa/tidySEM/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/cjvanlissa/tidySEM/branch/master/graph/badge.svg)](https://app.codecov.io/gh/cjvanlissa/tidySEM?branch=master)
 [![Contributor
 Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html)
 <!--[![Code of Merit](https://img.shields.io/badge/Code%20%20of%20Merit-adopted-ff69b4.svg)](https://codeofmerit.org/CODE_OF_CONDUCT.md)-->
@@ -23,8 +24,7 @@ packages `lavaan` or `OpenMx`, or the commercial closed-source program
 `tidySEM` is to provide three specific functions:
 
 1.  Generate model syntax in a top-down, tidy way,
-    -   With particular attention to specifying mixture models in
-        `OpenMx`
+    - With particular attention to specifying mixture models in `OpenMx`
 2.  Tabulate model output in a publication-ready, uniform manner,
 3.  Make easily customizable graphs for SEM-models.
 
@@ -66,9 +66,9 @@ tracks of `tidySEM` functions:
     results](https://cjvanlissa.github.io/tidySEM/articles/Tabulating_results.html)
 3.  A [vignette about making
     graphs](https://cjvanlissa.github.io/tidySEM/articles/Plotting_graphs.html)
-    -   An additional vignette describes the [graphing
-        conventions](https://cjvanlissa.github.io/tidySEM/articles/sem_graph.html)
-        for structural equation models.
+    - An additional vignette describes the [graphing
+      conventions](https://cjvanlissa.github.io/tidySEM/articles/sem_graph.html)
+      for structural equation models.
 
 ## Citing tidySEM
 
@@ -80,14 +80,27 @@ You can cite the R-package with the following citation:
 
 ## Contributing and Contact Information
 
-If you have ideas, please get involved. I am currently looking for a
-major contributor on this project, and smaller contributions are also
-welcome. You can contribute by opening an issue on ‘GitHub’, or sending
-a pull request with proposed features.
+If you have ideas, please get involved. You can contribute by opening an
+issue on ‘GitHub’, or sending a pull request with proposed features (see
+further instructions below).
 
--   File a ‘GitHub’ issue [here](https://github.com/cjvanlissa/tidySEM)
--   Make a pull request
-    [here](https://github.com/cjvanlissa/tidySEM/pulls)
+- File a ‘GitHub’ issue [here](https://github.com/cjvanlissa/tidySEM)
+- Make a pull request
+  [here](https://github.com/cjvanlissa/tidySEM/pulls)
 
 By participating in this project, you agree to abide by the [Contributor
 Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html).
+
+### Pull requests
+
+- Please always contribute via pull request instead of committing to
+  master, so I can review the contribution.
+  - You can either fork the repository to your own account and then
+    submit a pull request, or make minor changes directly on this
+    repository, and choose to commit them to a different branch and send
+    a pull request when you save those changes
+- If you fix an issue, in your Commit message, please write “closes
+  \#issuenumber” so we can trace which commits fixed which issues
+- Please add a line to NEWS.md for each bug fix or feature contribution
+- Please increment the minor version number in DESCRIPTION, e.g.:
+  0.2.3.1 -\> 0.2.3.2

@@ -2,19 +2,17 @@
 #'
 #' Creates a profile plot (ribbon plot) according to best practices, focusing on
 #' the visualization of classification uncertainty by showing:
-#' \enumerate{
-#' \item Bars reflecting a confidence interval for the class centroids
-#' \item Boxes reflecting the standard deviations within each class; a box
-#' encompasses +/- 64\% of the observations in a normal distribution
-#' \item Raw data, whose transparency is weighted by the posterior class
+#' 1. Bars reflecting a confidence interval for the class centroids
+#' 2. Boxes reflecting the standard deviations within each class; a box
+#' encompasses +/- 64 percent of the observations in a normal distribution
+#' 3. Raw data, whose transparency is weighted by the posterior class
 #' probability, such that each observation is most clearly visible for the class
 #' it is most likely to be a member of.
-#' }
 #' @param x An object containing the results of a mixture model analysis.
 #' @param variables A character vectors with the names of the variables to be
 #' plotted (optional).
 #' @param ci Numeric. What confidence interval should the error bars span?
-#' Defaults to a 95\% confidence interval. Set to NULL to remove error bars.
+#' Defaults to a 95 percent confidence interval. Set to NULL to remove error bars.
 #' @param sd Logical. Whether to display a box encompassing +/- 1SD Defaults to
 #' TRUE.
 #' @param add_line Logical. Whether to display a line, connecting cluster
@@ -73,24 +71,24 @@ plot_profiles.default <- function(x, variables = NULL, ci = .95, sd = TRUE, add_
     if (bw) {
         classplot <-
             ggplot(NULL,
-                   aes_string(
-                       x = "Variable",
-                       y = "Value",
-                       group = "Class",
-                       linetype = "Class",
-                       shape = "Class"
+                   aes(
+                       x = .data[["Variable"]],
+                       y = .data[["Value"]],
+                       group = .data[["Class"]],
+                       linetype = .data[["Class"]],
+                       shape = .data[["Class"]]
                    ))
     } else {
         classplot <-
             ggplot(
                 NULL,
-                aes_string(
-                    x = "Variable",
-                    y = "Value",
-                    group = "Class",
-                    linetype = "Class",
-                    shape = "Class",
-                    colour = "Class"
+                aes(
+                    x = .data[["Variable"]],
+                    y = .data[["Value"]],
+                    group = .data[["Class"]],
+                    linetype = .data[["Class"]],
+                    shape = .data[["Class"]],
+                    colour = .data[["Class"]]
                 )
             ) + scale_colour_manual(values = get_palette(max(df_plot$Classes)))
     }
@@ -100,11 +98,11 @@ plot_profiles.default <- function(x, variables = NULL, ci = .95, sd = TRUE, add_
             geom_jitter(
                 data = df_raw,
                 width = .2,
-                aes_string(
-                    x = "Variable",
-                    y = "Value",
-                    shape = "Class",
-                    alpha = "Probability"
+                aes(
+                    x = .data[["Variable"]],
+                    y = .data[["Value"]],
+                    shape = .data[["Class"]],
+                    alpha = .data[["Probability"]]
                 )
             ) +
             scale_alpha_continuous(range = alpha_range, guide = "none")
@@ -125,8 +123,8 @@ plot_profiles.default <- function(x, variables = NULL, ci = .95, sd = TRUE, add_
 
         classplot <-
             classplot + geom_errorbar(data = df_plot,
-                                      aes_string(ymin = "error_min",
-                                                 ymax = "error_max"),
+                                      aes(ymin = .data[["error_min"]],
+                                                 ymax = .data[["error_max"]]),
                                       width = .4)
     }
     if(sd){
@@ -139,12 +137,12 @@ plot_profiles.default <- function(x, variables = NULL, ci = .95, sd = TRUE, add_
             classplot <-
                 classplot + geom_rect(
                     data = df_plot,
-                    aes_string(
-                        xmin = "sd_xmin",
-                        xmax = "sd_xmax",
-                        ymin = "sd_ymin",
-                        ymax = "sd_ymax",
-                        linetype = "Class"
+                    aes(
+                        xmin = .data[["sd_xmin"]],
+                        xmax = .data[["sd_xmax"]],
+                        ymin = .data[["sd_ymin"]],
+                        ymax = .data[["sd_ymax"]],
+                        linetype = .data[["Class"]]
                     ),
                     colour = "black",
                     fill=ggplot2::alpha("grey", 0),
@@ -154,12 +152,12 @@ plot_profiles.default <- function(x, variables = NULL, ci = .95, sd = TRUE, add_
             classplot <-
                 classplot + geom_rect(
                     data = df_plot,
-                    aes_string(
-                        xmin = "sd_xmin",
-                        xmax = "sd_xmax",
-                        ymin = "sd_ymin",
-                        ymax = "sd_ymax",
-                        colour = "Class"
+                    aes(
+                        xmin = .data[["sd_xmin"]],
+                        xmax = .data[["sd_xmax"]],
+                        ymin = .data[["sd_ymin"]],
+                        ymax = .data[["sd_ymax"]],
+                        colour = .data[["Class"]]
                     ),
                     fill=ggplot2::alpha("grey", 0),
                     inherit.aes=FALSE
@@ -181,7 +179,7 @@ plot_profiles.mixture_list <- function(x, variables = NULL, ci = .95, sd = TRUE,
     Args <- as.list(match.call()[-1])
     names(x) <- make.unique(names(x))
     df_plot <- bind_list(lapply(names(x), function(n){
-        out <- cbind(table_results(x[[n]], columns = NULL), Model = n)
+        out <- cbind(table_results(x[[n]], columns = NULL, format_numeric = FALSE), Model = n)
         out$Classes <- length(unique(na.omit(out$class)))
         out
     }))
@@ -202,10 +200,15 @@ plot_profiles.mixture_list <- function(x, variables = NULL, ci = .95, sd = TRUE,
     df_plot$Variable <- ordered(df_plot$Variable, levels = unique(df_plot$Variable))
     # Select only requested variables, or else, all variables
     if(is.null(variables)) {
-        variables <- unique(as.vector(sapply(unique(df_plot$Classes), function(c){
-            tab <- table(df_plot$Variable[df_plot$Classes == c], df_plot$op[df_plot$Classes == c])
-            rownames(tab)[all(apply(tab, 1, function(r){r == c}))]
-        })))
+      variables <- try({
+        vars <- x[[1]]$manifestVars
+        if(isTRUE(length(vars) == 0 | is.null(vars))){
+          vars <- x[[1]][[names(x[[1]]@submodels)[1]]]$manifestVars
+        }
+        if(is.null(vars)) stop()
+        vars
+      }, silent = TRUE)
+      if(inherits(variables, "try-error")) stop("Could not determine variables from object 'x'; specify variables argument by hand.")
     }
     df_plot <- df_plot[tolower(df_plot$Variable) %in% tolower(variables), ]
     df_plot$Variable <- droplevels(df_plot$Variable)
@@ -213,6 +216,8 @@ plot_profiles.mixture_list <- function(x, variables = NULL, ci = .95, sd = TRUE,
     df_plot$idvar <- paste0(df_plot$Model, df_plot$Classes, df_plot$Class, df_plot$Variable)
     # Drop useless columns
     df_plot <- df_plot[ , c("Variable", "Value", "se", "Class", "Classes", "Category", "Model", "idvar")]
+    # Drop useless rows
+    df_plot <- df_plot[df_plot$Category %in% c("Means", "Variances"), ]
     df_plot <- reshape(df_plot, idvar = "idvar", timevar = "Category", v.names = c("Value", "se"), direction = "wide")
 
     df_plot[["idvar"]] <- NULL
@@ -222,10 +227,12 @@ plot_profiles.mixture_list <- function(x, variables = NULL, ci = .95, sd = TRUE,
     if (rawdata) {
         df_raw <- .get_long_data(x)
         df_raw <- df_raw[, c("Model", variables, "Class", "Class_prob", "Probability", "id")]
-        df_raw$Class <- ordered(df_raw$Class_prob, labels =
-                                    ifelse(is.null(levels(df_plot$Class)),
-                                           unique(df_plot$Class),
-                                           levels(df_plot$Class)))
+        classlabs <- if(is.null(levels(df_plot$Class))){
+          unique(df_plot$Class)
+        } else {
+          levels(df_plot$Class)
+        }
+        df_raw$Class <- ordered(df_raw$Class_prob, labels = classlabs)
         variable_names <- paste("Value", names(df_raw)[match(variables, names(df_raw))], sep = "...")
         names(df_raw)[match(variables, names(df_raw))] <- variable_names
         df_raw <- reshape(
@@ -265,7 +272,7 @@ plot_profiles.MxModel <- function(x, variables = NULL, ci = .95, sd = TRUE, add_
 
 .get_long_data <- function (x, ...)
 {
-    if (inherits(x, "MxModel")) {
+    if (inherits(x, what = c("MxModel", "MxRAMModel"))) {
         x <- list(x)
     }
     out <- lapply(1:length(x), function(i) {
@@ -279,8 +286,8 @@ plot_profiles.MxModel <- function(x, variables = NULL, ci = .95, sd = TRUE, add_
             #probs <- data.frame(probs)
 
             prob_names <- colnames(probs$individual)
-            dt <- cbind(dt, Model = thename, Class = apply(probs$individual, 1, which.max), id = 1:nrow(dt))
-            out <- lapply(1:ncol(probs$individual), function(c){
+            dt <- cbind(dt, Model = thename, Class = probs$individual[, "predicted"], id = 1:nrow(dt))
+            out <- lapply(1:(ncol(probs$individual)-1), function(c){
                 cbind(dt,
                       Class_prob = c,
                       Probability = probs$individual[, c])

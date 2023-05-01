@@ -479,7 +479,6 @@ prepare_graph.default <- function(edges = NULL,
   }
 
   # Determine where best to connect nodes -----------------------------------
-
   connect_cols <- .determine_connections(df_nodes, df_edges, angle)
   # assign by groups to prevent arrows from ending up in the wrong place
   # Sort by group first, then by level
@@ -740,7 +739,7 @@ matrix_to_nodes <- function(nodes, shape){
   nodes_long
 }
 
-globalVariables(c("name"))
+globalVariables(c("name", "..count.."))
 
 #' @title Extract nodes from a SEM model object
 #' @description Attempts to extract nodes from a SEM model object, where nodes
@@ -944,7 +943,7 @@ get_nodes.tidy_results <- function(x, label = paste2(name, est_sig, sep = "\n"),
         nodes[["name"]]
       })
     } else {
-    nodes[["label"]] <- ""
+      nodes[["label"]] <- ""
     }
   }
 
@@ -1171,10 +1170,10 @@ get_edges.tidy_results <- function(x, label = "est_sig", ...){
 
 match.call.defaults <- function(...) {
   call <- evalq(match.call(expand.dots = FALSE), parent.frame(1))
-  formals <- evalq(formals(), parent.frame(1))
+  myfor <- evalq(formals(), parent.frame(1))
 
-  for(i in setdiff(names(formals), names(call)))
-    call[i] <- list( formals[[i]] )
+  for(i in setdiff(names(myfor), names(call)))
+    call[i] <- list( myfor[[i]] )
 
 
   match.call(sys.function(sys.parent()), call)
@@ -1254,7 +1253,7 @@ match.call.defaults <- function(...) {
     Args <- as.list(df_rect[which(names(df_rect) %in% Args)])
     Args <- c(list(
       data = df_rect,
-      mapping = aes_string(xmin = "node_xmin", xmax = "node_xmax", ymin = "node_ymin", ymax = "node_ymax")),
+      mapping = aes(xmin = .data[["node_xmin"]], xmax = .data[["node_xmax"]], ymin = .data[["node_ymin"]], ymax = .data[["node_ymax"]])),
       Args)
     p <- p + do.call(geom_rect, Args)
   }
@@ -1284,6 +1283,70 @@ match.call.defaults <- function(...) {
     return(bind_list(x_list))
   }
   # End recursion
+  if(!is.null(angle)){
+    .connect_using_angle(df_nodes = df_nodes, df_edges = df_edges, angle = angle)
+  } else {
+    .connect_nearest_neighbor(df_nodes = df_nodes, df_edges = df_edges, angle = angle)
+  }
+}
+
+#' @importFrom RANN nn2
+.connect_nearest_neighbor <- function(df_nodes, df_edges, angle){
+  is_variance <- df_edges$from == df_edges$to
+  out <- matrix(NA_character_, nrow = 2, ncol = nrow(df_edges))
+  if(any(!is_variance)){
+    connect_from <- apply(df_edges[!is_variance, ], 1, function(thisedge){
+      points1 <- matrix(unlist(df_nodes[df_nodes$name == thisedge["from"], c("node_xmin", "x", "node_xmax", "x", "y", "node_ymin", "y", "node_ymax")]), ncol = 2)
+      points2 <- matrix(unlist(df_nodes[df_nodes$name == thisedge["to"], c("node_xmin", "x", "node_xmax", "x", "y", "node_ymin", "y", "node_ymax")]), ncol = 2)
+
+      indx1 <- RANN::nn2(points1, points2, k = 1, searchtype = "standard")
+      indx2 <- RANN::nn2(points2, points1, k = 1, searchtype = "standard")
+      c(c("left", "bottom", "right", "top")[indx1$nn.idx[which.min(indx1$nn.dists)]],
+        c("left", "bottom", "right", "top")[indx2$nn.idx[which.min(indx2$nn.dists)]]
+      )
+    })
+    out[, !is_variance] <- connect_from
+  }
+  if(any(is_variance)){
+    graphmid <- c(median(df_nodes$x), median(df_nodes$y))
+
+    varvariables <- df_edges$from[which(is_variance)]
+    vars <- matrix(c(df_nodes$x[match(varvariables, df_nodes$name)], df_nodes$y[match(varvariables, df_nodes$name)]), ncol = 2)
+
+    tmp <- vars - matrix(rep(graphmid, each = nrow(vars)), ncol = 2)
+    angls <- (apply(tmp, 1, function(i){do.call(atan2, as.list(i))}) *180/pi) %% 360
+    # Create list of preferred positions for each node
+    position <- rep("top", length(varvariables))
+    position[angls > 46 & angls < 135] <- "right"
+    position[angls >= 135 & angls < 226] <- "bottom"
+    position[angls >= 226 & angls < 315] <- "left"
+
+    # Per node, check which positions are least busy and choose the preferred one
+    for(thisvariable in varvariables){
+      fromthisnode <- df_edges$from[!is_variance] == thisvariable
+      tothisnode <- df_edges$to[!is_variance] == thisvariable
+      if(any(fromthisnode | tothisnode)){
+
+        connections <- table(c(c("bottom", "left", "right", "top"), connect_from[1, which(fromthisnode)], connect_from[2, which(tothisnode)])) - 1
+        opposite <- c("top", "right", "left", "bottom")[which.max(connections)]
+        if(connections[opposite] > 0){
+          position[which(thisvariable == varvariables)] <- names(connections)[which.min(connections)]
+        } else {
+          position[which(thisvariable == varvariables)] <- opposite
+        }
+
+      }
+    }
+    out[, is_variance] <- matrix(rep(position, each = 2), nrow = 2)
+  }
+
+  cbind(t(out), df_edges$curvature)
+
+
+}
+
+
+.connect_using_angle <- function(df_nodes, df_edges, angle){
   connector_sides <-
     cbind(c("left", "right", "bottom", "top")[rep(1:4, each = 4)],
           c("left", "right", "bottom", "top")[rep(1:4, 4)])
@@ -1291,7 +1354,6 @@ match.call.defaults <- function(...) {
 
 
   # Connect nodes -----------------------------------------------------------
-
   curws <- df_edges$curvature
   # For columns
   same_column <- df_nodes$x[match(df_edges$from, df_nodes$name)] == df_nodes$x[match(df_edges$to, df_nodes$name)]
@@ -1428,6 +1490,20 @@ match.call.defaults <- function(...) {
           rep(rownum, npoints)),
         nrow = npoints, ncol = 3, dimnames = list(NULL, c("x", "y", "id"))
       )
+      # Check if the curve should be flipped
+      midpoint <- out[floor(npoints/2), 1:2]
+      # replace this with node df
+      df_tmp <- df[, c("text_x", "text_y")]
+      names(df_tmp) <- c('x', 'y')
+      # Find the reflection of the midpoint
+      midpoint_reflect <- .reflect_points(points = matrix(midpoint, nrow = 1),
+                                          start = unlist(this_row[c("edge_xmin", "edge_ymin")]),
+                                          end = unlist(this_row[c("edge_xmax", "edge_ymax")]))
+      if(.flip_curve(otherpoints = df_tmp, candidatepoints = list(midpoint, midpoint_reflect))){
+        out[, 1:2] <- .reflect_points(points = out[, 1:2],
+                                      start = unlist(this_row[c("edge_xmin", "edge_ymin")]),
+                                      end = unlist(this_row[c("edge_xmax", "edge_ymax")]))
+      }
       out
     }
   })))
@@ -1470,7 +1546,7 @@ match.call.defaults <- function(...) {
     aes_args <- df_path[!duplicated(df_path$id), which(names(df_path) %in% aes_args)]
     Args <- list(
       data = df_path[, c("x", "y", "id")],
-      mapping = aes_string(x = "x", y = "y", group = "id"),
+      mapping = aes(x = .data[["x"]], y = .data[["y"]], group = .data[["id"]]),
       arrow = quote(ggplot2::arrow(angle = 25, length = unit(.1, "inches"), ends = "last", type = "closed")))
 
     for(this_path in unique(df_path$id)){
@@ -1489,7 +1565,7 @@ match.call.defaults <- function(...) {
     Args <- as.list(df_path[which(names(df_path) %in% Args)])
     Args <- c(list(
       data = df_path,
-      mapping = aes_string(x = "x", y = "y", group = "id")),
+      mapping = aes(x = .data[["x"]], y = .data[["y"]], group = .data[["id"]])),
       Args)
     p <- p + do.call(geom_path, Args)
   }
@@ -1515,12 +1591,12 @@ match.call.defaults <- function(...) {
     Args <- as.list(df[which(names(df) %in% Args)])
     Args <- c(list(
       data = df,
-      mapping = aes_string(x = "x", y = "y", label = "label"),
+      mapping = aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
       label.size = NA
-      ),
-      Args)
+    ),
+    Args)
     if(use_geom_text){
-      Args$mapping <- aes_string(x = "x", y = "y", label = "label", customdata = "label")
+      Args$mapping <- aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]], customdata = .data[["label"]])
       Args[c("geom_text", "fill", "label.size")] <- NULL
       p <- p + do.call(geom_text, Args)
     } else {
@@ -1544,7 +1620,7 @@ reposition_variances <- function(df_edges){
       tb <- names(tb)[which.min(tb)]
       return(tb[sample.int(length(tb), 1)])
     }
-    }, vv = variance_vars, vloc = df_edges$connect_from[variances])
+  }, vv = variance_vars, vloc = df_edges$connect_from[variances])
   df_edges$connect_from[variances] <- df_edges$connect_to[variances] <- new_loc
   return(df_edges)
 }
@@ -1559,4 +1635,29 @@ bind_list <- function(L, ...){
   })
   Args <- c(L, list(...))
   do.call(rbind, Args)
+}
+
+#' @importFrom dbscan pointdensity
+.flip_curve <- function(otherpoints, candidatepoints, eps = floor(sqrt(nrow(otherpoints)))){
+  (sum(dbscan::pointdensity(rbind(otherpoints, candidatepoints[[1]]), eps = eps)) > sum(dbscan::pointdensity(rbind(otherpoints, candidatepoints[[2]]), eps = eps)))
+}
+
+.position_variance <- function(otherpoints, candidatepoints, eps = floor(sqrt(nrow(otherpoints)))){
+  which.min(apply(candidatepoints, 1, function(thispoint){
+    sum(dbscan::pointdensity(rbind(otherpoints, thispoint), eps = eps))
+  }))
+}
+
+.reflect_points <- function(points, start, end){
+  b <- (end[1] * start[2] - start[1] * end[2])/(end[1] - start[1])
+  m <- (end[2]-start[2])/(end[1]-start[1])
+  m3 <- m1 <- diag(3)
+  m1[2,3] <- b
+  m3[2,3] <- -1 * b
+  m2 <- matrix(c((1-m^2)/(1+m^2), 2*m/(1+m^2), 0,
+                 2*m/(1+m^2), (m^2-1)/(1+m^2), 0,
+                 0, 0, 1), nrow = 3, byrow = TRUE)
+  m4 <- rbind(t(points), 1)
+  out <- m1 %*% m2 %*% m3 %*% m4
+  t(out)[,1:2]
 }
