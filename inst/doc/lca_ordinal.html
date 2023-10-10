@@ -342,12 +342,15 @@ Indicators</h1>
 
 
 <p>This is an example of exploratory LCA with ordinal indicators using
-<code>tidySEM</code>. The present example uses synthetic data based on a
-study by Maene and colleagues. In a convenience sample of Flemish
-(Belgian) high-school students with a migration background, this study
-set out to identify distinct classes based on ordinal indicators of
-National, Regional, and Heritage identity. Sample size was not
-justified.</p>
+<code>tidySEM</code>, as explained in Van Lissa, C. J.,
+Garnier-Villarreal, M., &amp; Anadria, D. (2023). <em>Recommended
+Practices in Latent Class Analysis using the Open-Source R-Package
+tidySEM.</em> Structural Equation Modeling. <a href="https://doi.org/10.1080/10705511.2023.2250920" class="uri">https://doi.org/10.1080/10705511.2023.2250920</a>. The
+present example uses synthetic data based on a study by Maene and
+colleagues. In a convenience sample of Flemish (Belgian) high-school
+students with a migration background, this study set out to identify
+distinct classes based on ordinal indicators of National, Regional, and
+Heritage identity. Sample size was not justified.</p>
 <p>The approach to class enumeration was semi-theory driven: The
 researchers expected to find profiles that were distinct on all three
 types of identity (national, regional, and heritage) - but the exact
@@ -365,28 +368,28 @@ data documentation.</p>
 <p>To load the data, simply attach the <code>tidySEM</code> package. For
 convenience, we assign the indicator data to an object called
 <code>df</code>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> maene_identity[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Load required packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>df <span class="ot">&lt;-</span> maene_identity[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code></pre></div>
 </div>
 <div id="examining-the-data" class="section level2">
 <h2>Examining the Data</h2>
 <p>We use <code>tidySEM::descriptives()</code> to describe the data
 numerically. Because all items are categorical, we remove columns for
 continuous data to de-clutter the table:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> tidySEM<span class="sc">::</span><span class="fu">descriptives</span>(df)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> desc[, <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;type&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;missing&quot;</span>, <span class="st">&quot;unique&quot;</span>, <span class="st">&quot;mode&quot;</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;mode_value&quot;</span>, <span class="st">&quot;v&quot;</span>)]</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>desc</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>desc <span class="ot">&lt;-</span> tidySEM<span class="sc">::</span><span class="fu">descriptives</span>(df)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>desc <span class="ot">&lt;-</span> desc[, <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;type&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;missing&quot;</span>, <span class="st">&quot;unique&quot;</span>, <span class="st">&quot;mode&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="st">&quot;mode_value&quot;</span>, <span class="st">&quot;v&quot;</span>)]</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>desc</span></code></pre></div>
 <p>Additionally, we can plot the data. The <code>ggplot2</code> function
 <code>geom_bar()</code> is useful for ordinal data:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> df</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_plot) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Value.&quot;</span>, <span class="fu">names</span>(df_plot))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">varying =</span> <span class="fu">names</span>(df_plot), <span class="at">direction =</span> <span class="st">&quot;long&quot;</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_bar</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>time,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> df</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">names</span>(df_plot) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Value.&quot;</span>, <span class="fu">names</span>(df_plot))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">varying =</span> <span class="fu">names</span>(df_plot), <span class="at">direction =</span> <span class="st">&quot;long&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_bar</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>time,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>()</span></code></pre></div>
 <p>As we can see, the <code>descriptives()</code> table provides
 invaluable information about the measurement level of the indicators,
 which is used to specify the model correctly. If these data had not been
@@ -421,8 +424,8 @@ variables in <code>data</code> are included in the analysis, so relevant
 variables must be selected first.</p>
 <p>We here consider 1-6 class models, but note that this may be overfit,
 as some of the indicators have only 5 response categories.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_lca</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_lca</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>)</span></code></pre></div>
 </div>
 <div id="class-enumeration" class="section level2">
 <h2>Class Enumeration</h2>
@@ -435,9 +438,9 @@ of the family of functions based on <code>mxTryHard()</code>.</p>
 <p>Next, we create a model fit table using <code>table_fit()</code> and
 retain relevant columns. We also determine whether any models can be
 disqualified.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>, <span class="st">&quot;prob_min&quot;</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>, <span class="st">&quot;prob_min&quot;</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span></code></pre></div>
 <p>Note that both the global and local ratio of cases to parameters is
 low; for models of 3 or more classes, there are just a few observations
 per parameter in the smallest class (see <code>np_local</code>). This is
@@ -465,7 +468,7 @@ and national (Belgian) identity were not captured by the 2-class
 solution but were captured by the 3-class solution. Based on this
 theoretical consideration, the analysis proceeded with the 3-class
 solution.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>res_final <span class="ot">&lt;-</span> res[[<span class="dv">3</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>res_final <span class="ot">&lt;-</span> res[[<span class="dv">3</span>]]</span></code></pre></div>
 </div>
 </div>
 <div id="interpreting-the-final-class-solution" class="section level2">
@@ -481,12 +484,12 @@ error. We can produce a table of results using
 thresholds, indicating quantiles of a standardized normal distribution.
 These may be difficult to interpret. Therefore, we ask for the results
 in probability scale:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">table_prob</span>(res_final)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">reshape</span>(tab, <span class="at">direction =</span> <span class="st">&quot;wide&quot;</span>, <span class="at">v.names =</span> <span class="st">&quot;Probability&quot;</span>, <span class="at">timevar =</span> <span class="st">&quot;group&quot;</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">idvar =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Category&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">table_prob</span>(res_final)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">reshape</span>(tab, <span class="at">direction =</span> <span class="st">&quot;wide&quot;</span>, <span class="at">v.names =</span> <span class="st">&quot;Probability&quot;</span>, <span class="at">timevar =</span> <span class="st">&quot;group&quot;</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="at">idvar =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Category&quot;</span>))</span></code></pre></div>
 <p>The results can also be interpreted by plotting the response
 probabilities:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_prob</span>(res_final, <span class="at">bw =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">plot_prob</span>(res_final, <span class="at">bw =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Note that the first class (33%) has relatively high identification
 with the ethnic indicators and relatively low identification with
 Belgian and Flemish identity. The second class (16%) has moderate
@@ -507,7 +510,7 @@ students with other combinations of identifications (hypothesis 2).</p>
 auxiliary variable depression to the <code>data</code> argument,
 omitting the <code>model</code> argument. Below, we estimate an
 auxiliary model to compare depressive symptoms across classes:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>aux_dep <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">data =</span> maene_identity<span class="sc">$</span>depression)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>aux_dep <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">data =</span> maene_identity<span class="sc">$</span>depression)</span></code></pre></div>
 <p>To obtain an omnibus likelihood ratio test of the significance of
 depression differences across classes, as well as pairwise comparisons
 between classes, use <code>lr_test(aux_dep)</code>. The results indicate
@@ -518,11 +521,11 @@ there would not be a significant effect of perceived teacher
 discrimination on depressive symptoms. To test this hypothesis, we will
 compare the regression coefficient of discrimination on depressive
 symptoms across classes.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_aux <span class="ot">&lt;-</span> maene_identity[, <span class="fu">c</span>(<span class="st">&quot;vict_teacher&quot;</span>, <span class="st">&quot;depression&quot;</span>)]</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Dummy-code vict_teacher</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df_aux<span class="sc">$</span>vict_teacher <span class="ot">&lt;-</span> (<span class="fu">as.integer</span>(df_aux<span class="sc">$</span>vict_teacher) <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>aux_model <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">model =</span> <span class="st">&quot;depression ~ vict_teacher&quot;</span>,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_aux)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>df_aux <span class="ot">&lt;-</span> maene_identity[, <span class="fu">c</span>(<span class="st">&quot;vict_teacher&quot;</span>, <span class="st">&quot;depression&quot;</span>)]</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># Dummy-code vict_teacher</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>df_aux<span class="sc">$</span>vict_teacher <span class="ot">&lt;-</span> (<span class="fu">as.integer</span>(df_aux<span class="sc">$</span>vict_teacher) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>aux_model <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">model =</span> <span class="st">&quot;depression ~ vict_teacher&quot;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>    <span class="at">data =</span> df_aux)</span></code></pre></div>
 <p>To view the coefficients of this model, we can use either
 <code>coef(aux_model)</code> or
 <code>table_results(aux_model, columns = NULL)</code>. As evident from

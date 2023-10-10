@@ -341,9 +341,12 @@ Compass</h1>
 
 
 
-<p>This is an example of confirmatory LPA using <code>tidySEM</code>.
-The simulated data are based on work by Zegwaard and colleagues, who
-sought to establish a typology of caregivers who support a close other
+<p>This is an example of confirmatory LPA using <code>tidySEM</code>, as
+explained in Van Lissa, C. J., Garnier-Villarreal, M., &amp; Anadria, D.
+(2023). <em>Recommended Practices in Latent Class Analysis using the
+Open-Source R-Package tidySEM.</em> Structural Equation Modeling. <a href="https://doi.org/10.1080/10705511.2023.2250920" class="uri">https://doi.org/10.1080/10705511.2023.2250920</a>. The
+simulated data are based on work by Zegwaard and colleagues, who sought
+to establish a typology of caregivers who support a close other
 receiving outpatient psychological care. Qualitative research among
 experts resulted in a theory postulating the existence of four types of
 caregivers (translated from the original Dutch):</p>
@@ -377,22 +380,22 @@ console.</p>
 convenience, we assign the variables used for analysis to an object
 called <code>df</code>. We first only use the four scales:
 <code>c(&quot;burdened&quot;, &quot;trapped&quot;, &quot;negaffect&quot;, &quot;loneliness&quot;)</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;burdened&quot;</span>, <span class="st">&quot;trapped&quot;</span>, <span class="st">&quot;negaffect&quot;</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;loneliness&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Load required packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>df <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;burdened&quot;</span>, <span class="st">&quot;trapped&quot;</span>, <span class="st">&quot;negaffect&quot;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="st">&quot;loneliness&quot;</span>)]</span></code></pre></div>
 </div>
 <div id="descriptive-statistics" class="section level2">
 <h2>Descriptive statistics</h2>
 <p>We use <code>tidySEM::descriptives()</code> to describe the data
 numerically. Because all scales are continuous, we select only columns
 for continuous data to de-clutter the table:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> tidySEM<span class="sc">::</span><span class="fu">descriptives</span>(df)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> desc[, <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;missing&quot;</span>, <span class="st">&quot;unique&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;median&quot;</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;sd&quot;</span>, <span class="st">&quot;min&quot;</span>, <span class="st">&quot;max&quot;</span>, <span class="st">&quot;skew_2se&quot;</span>, <span class="st">&quot;kurt_2se&quot;</span>)]</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>desc</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>desc <span class="ot">&lt;-</span> tidySEM<span class="sc">::</span><span class="fu">descriptives</span>(df)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>desc <span class="ot">&lt;-</span> desc[, <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;missing&quot;</span>, <span class="st">&quot;unique&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;median&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="st">&quot;sd&quot;</span>, <span class="st">&quot;min&quot;</span>, <span class="st">&quot;max&quot;</span>, <span class="st">&quot;skew_2se&quot;</span>, <span class="st">&quot;kurt_2se&quot;</span>)]</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>desc</span></code></pre></div>
 <p>The table indicates two potential causes for concern: there is a
 small percentage of missingness, and all variables have relatively high
 kurtosis. Since there are some missing values, we can conduct an MCAR
@@ -405,12 +408,12 @@ FIML.</p>
 <code>geom_density()</code> is useful for continuous data. Visual
 inspection confirms the conclusions from the <code>descriptives()</code>
 table: the data are kurtotic (peaked).</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> df</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_plot) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Value.&quot;</span>, <span class="fu">names</span>(df_plot))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">varying =</span> <span class="fu">names</span>(df_plot), <span class="at">direction =</span> <span class="st">&quot;long&quot;</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">timevar =</span> <span class="st">&quot;Variable&quot;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_density</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable) <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> df</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">names</span>(df_plot) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Value.&quot;</span>, <span class="fu">names</span>(df_plot))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">varying =</span> <span class="fu">names</span>(df_plot), <span class="at">direction =</span> <span class="st">&quot;long&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">timevar =</span> <span class="st">&quot;Variable&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_density</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 </div>
 <div id="conducting-latent-profile-analysis" class="section level2">
 <h2>Conducting Latent Profile Analysis</h2>
@@ -426,8 +429,8 @@ strictly data-driven class enumeration procedure. We will set the
 maximum number of classes <span class="math inline">\(K\)</span> to one
 more than the theoretically expected number. We set a seed to ensure
 replicable results.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code></pre></div>
 <p>This analysis should produce some messages about cluster
 initialization. These relate to the selection of starting values, which
 relies on the K-means algorithm and is not robust to missing data. The
@@ -454,9 +457,9 @@ disqualify the 5-class model.</p>
 solutions, as the entropies and minimum classification probabilities are
 all low. However, in this confirmatory use case, we address this when
 interpreting the results.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)  <span class="co"># model fit table</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>, <span class="st">&quot;prob_min&quot;</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;prob_max&quot;</span>, <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;n_max&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)  <span class="co"># model fit table</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>, <span class="st">&quot;prob_min&quot;</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="st">&quot;prob_max&quot;</span>, <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;n_max&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span></code></pre></div>
 <div id="using-ics" class="section level3">
 <h3>Using ICs</h3>
 <p>the 4-class solution has the lowest BIC, which means it is preferred
@@ -472,7 +475,7 @@ a posterior model probability of nearly 100%.</p>
 <h3>Using LMR tests</h3>
 <p>If we conduct LMR tests, we find that the tests are significant for
 all pairwise model comparisons, except for the 5-class model:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lr_lmr</span>(fit)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">lr_lmr</span>(fit)</span></code></pre></div>
 </div>
 <div id="using-blrt-tests" class="section level3">
 <h3>Using BLRT tests</h3>
@@ -489,12 +492,12 @@ appropriate back-end for your system). To track the function’s progress,
 we use the <code>progressr</code> ecosystem, which allows users to
 choose how they want to be informed. The example below uses a progress
 bar:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(progressr)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession)  <span class="co"># Parallel processing for Windows</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">handlers</span>(<span class="st">&quot;progress&quot;</span>)  <span class="co"># Progress bar</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>res_blrt <span class="ot">&lt;-</span> <span class="fu">BLRT</span>(res, <span class="at">replications =</span> <span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">library</span>(progressr)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">plan</span>(multisession)  <span class="co"># Parallel processing for Windows</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">handlers</span>(<span class="st">&quot;progress&quot;</span>)  <span class="co"># Progress bar</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>res_blrt <span class="ot">&lt;-</span> <span class="fu">BLRT</span>(res, <span class="at">replications =</span> <span class="dv">20</span>)</span></code></pre></div>
 <p>In sum, across all class enumeration criteria, there is strong
 support for a 4-class solution.</p>
 </div>
@@ -509,9 +512,9 @@ argues that variance ought to be freely estimated across classes. We
 could compare our theoretical model against their competing model as
 follows. Note that we can put two models into a list to compare
 them.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>res_alt <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(df, <span class="at">classes =</span> <span class="dv">4</span>, <span class="at">variances =</span> <span class="st">&quot;varying&quot;</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>compare <span class="ot">&lt;-</span> <span class="fu">list</span>(res[[<span class="dv">4</span>]], res_alt)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table_fit</span>(compare)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>res_alt <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(df, <span class="at">classes =</span> <span class="dv">4</span>, <span class="at">variances =</span> <span class="st">&quot;varying&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>compare <span class="ot">&lt;-</span> <span class="fu">list</span>(res[[<span class="dv">4</span>]], res_alt)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">table_fit</span>(compare)</span></code></pre></div>
 <p>The alternative model incurs 12 additional parameters for the free
 variances. Yet, it has a higher BIC, which indicates that this
 additional complexity does not outweigh the increase in fit.</p>
@@ -520,7 +523,7 @@ additional complexity does not outweigh the increase in fit.</p>
 <h2>Interpreting the Final Class Solution</h2>
 <p>To interpret the final class solution, we first reorder the 4-class
 model by class size. This helps prevent label switching.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res_final <span class="ot">&lt;-</span> <span class="fu">mx_switch_labels</span>(res[[<span class="dv">4</span>]])</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>res_final <span class="ot">&lt;-</span> <span class="fu">mx_switch_labels</span>(res[[<span class="dv">4</span>]])</span></code></pre></div>
 <p>The 4-class model yielded classes of reasonable size; using
 <code>class_pro</code>the largest class comprised 33%, and the smallest
 comprised 16% of cases. However, the entropy was low, <span class="math inline">\(S = .75\)</span>, indicating poor class
@@ -528,14 +531,14 @@ separability. Furthermore, the posterior classification probability
 ranged from <span class="math inline">\([.81, .92]\)</span>, which means
 that at least some classes had a high classification error. We produce a
 table of the results below.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table_results</span>(res_final, <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">&quot;label&quot;</span>, <span class="st">&quot;est&quot;</span>, <span class="st">&quot;se&quot;</span>, <span class="st">&quot;confint&quot;</span>,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;class&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">table_results</span>(res_final, <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">&quot;label&quot;</span>, <span class="st">&quot;est&quot;</span>, <span class="st">&quot;se&quot;</span>, <span class="st">&quot;confint&quot;</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>    <span class="st">&quot;class&quot;</span>))</span></code></pre></div>
 <p>The results are best interpreted by examining a plot of the model and
 data, however. Relevant plot functions are
 <code>plot_bivariate()</code>, <code>plot_density()</code>, and
 <code>plot_profiles()</code>. However, we omit the density plots,
 because <code>plot_bivariate()</code> also includes them.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_bivariate</span>(res_final)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">plot_bivariate</span>(res_final)</span></code></pre></div>
 <p>On the diagonal of the bivariate plot are weighted density plots:
 normal approximations of the density function of observed data, weighed
 by class probability. On the off-diagonal are plots for each pair of
@@ -565,7 +568,7 @@ relatively low.</p>
 (29%), class 3 as the <em>entrapped</em> type (22%), and class 4 as the
 <em>lonely</em> type (16%). Note however that the observed classes do
 not match the hypothesized pattern of class parameters exactly.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_profiles</span>(res_final)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">plot_profiles</span>(res_final)</span></code></pre></div>
 </div>
 <div id="auxiliary-analyses" class="section level2">
 <h2>Auxiliary Analyses</h2>
@@ -581,7 +584,7 @@ function and simply supply the auxiliary variable to the
 <code>data</code> argument, omitting the <code>model</code> argument.
 Below, we estimate an auxiliary model to compare the sex of patients
 between classes:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>aux_sex <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">data =</span> zegwaard_carecompass<span class="sc">$</span>sexpatient)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>aux_sex <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">data =</span> zegwaard_carecompass<span class="sc">$</span>sexpatient)</span></code></pre></div>
 <p>To obtain an omnibus likelihood ratio test of the significance of
 these sex differences across classes, as well as pairwise comparisons
 between classes, use <code>lr_test(aux_sex)</code>. The results indicate
@@ -596,9 +599,9 @@ disproportionately cares for female patients.</p>
 <p>We can also compare a simple model between classes. Specifically, we
 will examine whether the distance predicts the frequency of visits
 differently across classes (treated as continuous).</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df_aux <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;freqvisit&quot;</span>, <span class="st">&quot;distance&quot;</span>)]</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df_aux<span class="sc">$</span>freqvisit <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(df_aux<span class="sc">$</span>freqvisit)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>aux_model <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">model =</span> <span class="st">&quot;freqvisit ~ distance&quot;</span>, <span class="at">data =</span> df_aux)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>df_aux <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;freqvisit&quot;</span>, <span class="st">&quot;distance&quot;</span>)]</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>df_aux<span class="sc">$</span>freqvisit <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(df_aux<span class="sc">$</span>freqvisit)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>aux_model <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">model =</span> <span class="st">&quot;freqvisit ~ distance&quot;</span>, <span class="at">data =</span> df_aux)</span></code></pre></div>
 <p>To obtain an omnibus likelihood ratio test of the difference in
 regression coefficients across classes and pairwise comparisons between
 classes, use <code>lr_test(aux_model, compare = &quot;A&quot;)</code>. The results
@@ -619,9 +622,9 @@ individual. We can assign their scale scores to a
 function via the <code>newdata</code> argument. The result includes the
 individual’s most likely class, as well as posterior probabilities for
 all classes.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">burdened =</span> <span class="dv">2</span>, <span class="at">trapped =</span> <span class="fl">0.5</span>, <span class="at">negaffect =</span> <span class="fl">1.5</span>,</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">loneliness =</span> <span class="dv">4</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(res_final, <span class="at">newdata =</span> df_new)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>df_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">burdened =</span> <span class="dv">2</span>, <span class="at">trapped =</span> <span class="fl">0.5</span>, <span class="at">negaffect =</span> <span class="fl">1.5</span>,</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>    <span class="at">loneliness =</span> <span class="dv">4</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="fu">predict</span>(res_final, <span class="at">newdata =</span> df_new)</span></code></pre></div>
 </div>
 
 

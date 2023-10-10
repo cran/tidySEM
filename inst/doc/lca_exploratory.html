@@ -343,7 +343,10 @@ Microplastics</h1>
 
 <p>This is an example of exploratory latent class analysis (LCA) with
 continuous indicators, otherwise known as latent profile analysis (LPA)
-or finite Gaussian mixture modeling, using <code>tidySEM</code>. The
+or finite Gaussian mixture modeling, using <code>tidySEM</code>. See Van
+Lissa, C. J., Garnier-Villarreal, M., &amp; Anadria, D. (2023).
+<em>Recommended Practices in Latent Class Analysis using the Open-Source
+R-Package tidySEM.</em> Structural Equation Modeling. <a href="https://doi.org/10.1080/10705511.2023.2250920" class="uri">https://doi.org/10.1080/10705511.2023.2250920</a>. The
 present example uses data collected by Alkema as part of a study on
 ocean microplastics. The purpose of this study was to provide a more
 nuanced model for the distribution of different sizes of ocean
@@ -363,13 +366,13 @@ called <code>df</code>. As explained in the paper, the classes are quite
 different for lines, films, and fragments. For this reason, we here only
 use data from fragments. The indicators are fragments’ length and width
 in millimeters. The sample size was not planned.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df_analyze <span class="ot">&lt;-</span> alkema_microplastics[alkema_microplastics<span class="sc">$</span>category <span class="sc">==</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Fragment&quot;</span>, ]</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df_analyze[, <span class="fu">c</span>(<span class="st">&quot;length&quot;</span>, <span class="st">&quot;width&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Load required packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>df_analyze <span class="ot">&lt;-</span> alkema_microplastics[alkema_microplastics<span class="sc">$</span>category <span class="sc">==</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="st">&quot;Fragment&quot;</span>, ]</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>df <span class="ot">&lt;-</span> df_analyze[, <span class="fu">c</span>(<span class="st">&quot;length&quot;</span>, <span class="st">&quot;width&quot;</span>)]</span></code></pre></div>
 </div>
 <div id="descriptive-statistics" class="section level2">
 <h2>Descriptive statistics</h2>
@@ -377,10 +380,10 @@ in millimeters. The sample size was not planned.</p>
 observed data. We use <code>tidySEM::descriptives()</code> to describe
 the data numerically. Because all items are continuous, we remove
 columns for categorical data to de-clutter the table:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> tidySEM<span class="sc">::</span><span class="fu">descriptives</span>(df)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> desc[, <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;type&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;unique&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;median&quot;</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;sd&quot;</span>, <span class="st">&quot;min&quot;</span>, <span class="st">&quot;max&quot;</span>, <span class="st">&quot;skew_2se&quot;</span>, <span class="st">&quot;kurt_2se&quot;</span>)]</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(desc, <span class="at">caption =</span> <span class="st">&quot;Descriptive statistics&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>desc <span class="ot">&lt;-</span> tidySEM<span class="sc">::</span><span class="fu">descriptives</span>(df)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>desc <span class="ot">&lt;-</span> desc[, <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;type&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;unique&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="st">&quot;median&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="st">&quot;sd&quot;</span>, <span class="st">&quot;min&quot;</span>, <span class="st">&quot;max&quot;</span>, <span class="st">&quot;skew_2se&quot;</span>, <span class="st">&quot;kurt_2se&quot;</span>)]</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(desc, <span class="at">caption =</span> <span class="st">&quot;Descriptive statistics&quot;</span>)</span></code></pre></div>
 <p>The data are correctly coded as <code>numeric</code> and the
 distributional characteristics match the intended measurement level. The
 variable scales are comparable (both in millimeters and no large
@@ -390,26 +393,26 @@ variables had missing values, we would report an MCAR test with
 for using FIML. Additionally, we can plot the data. The
 <code>ggplot2</code> function <code>geom_density()</code> is useful to
 visualize continuous data:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> df</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_plot) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Value.&quot;</span>, <span class="fu">names</span>(df_plot))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">varying =</span> <span class="fu">names</span>(df_plot), <span class="at">direction =</span> <span class="st">&quot;long&quot;</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">timevar =</span> <span class="st">&quot;Variable&quot;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_density</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable) <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> df</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">names</span>(df_plot) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Value.&quot;</span>, <span class="fu">names</span>(df_plot))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>df_plot <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">varying =</span> <span class="fu">names</span>(df_plot), <span class="at">direction =</span> <span class="st">&quot;long&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">timevar =</span> <span class="st">&quot;Variable&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_density</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 <p>Both the table above and the density plot indicate that the data are
 extremely right-skewed and kurtotic. With this in mind, it can be useful
 to transform and rescale the data. We will use a log transformation.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_plot<span class="sc">$</span>Value <span class="ot">&lt;-</span> <span class="fu">log</span>(df_plot<span class="sc">$</span>Value)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_density</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable) <span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>df_plot<span class="sc">$</span>Value <span class="ot">&lt;-</span> <span class="fu">log</span>(df_plot<span class="sc">$</span>Value)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">ggplot</span>(df_plot, <span class="fu">aes</span>(<span class="at">x =</span> Value)) <span class="sc">+</span> <span class="fu">geom_density</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 <p>The log transformation addresses the aforementioned concerns
 regarding skew and kurtosis. To confirm this, reshape the data to wide
 format and examine a scatterplot:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">direction =</span> <span class="st">&quot;wide&quot;</span>, <span class="at">v.names =</span> <span class="st">&quot;Value&quot;</span>)[,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df) <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">&quot;Value.&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="fu">names</span>(df), <span class="at">fixed =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> length, <span class="at">y =</span> width)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">reshape</span>(df_plot, <span class="at">direction =</span> <span class="st">&quot;wide&quot;</span>, <span class="at">v.names =</span> <span class="st">&quot;Value&quot;</span>)[,</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">names</span>(df) <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">&quot;Value.&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="fu">names</span>(df), <span class="at">fixed =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> length, <span class="at">y =</span> width)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 <!-- As evident from the scatterplot, there is a very strong linear tend in the data. -->
 <!-- This indicates that fragments tend to be coextensive (when length goes up, width goes up). -->
 <!-- We can analyze these data in their original dimensions (length and width). -->
@@ -437,10 +440,10 @@ the results to disk immediately, so as not to lose them. For this, we
 use the function <code>saveRDS()</code>. We can later use
 <code>res &lt;- readRDS(&quot;res_gmm.RData&quot;)</code> to load the analysis
 from the file.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">variances =</span> <span class="fu">c</span>(<span class="st">&quot;equal&quot;</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;varying&quot;</span>), <span class="at">covariances =</span> <span class="fu">c</span>(<span class="st">&quot;equal&quot;</span>, <span class="st">&quot;varying&quot;</span>), <span class="at">expand_grid =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(res, <span class="st">&quot;res_gmm.RData&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_profiles</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">variances =</span> <span class="fu">c</span>(<span class="st">&quot;equal&quot;</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="st">&quot;varying&quot;</span>), <span class="at">covariances =</span> <span class="fu">c</span>(<span class="st">&quot;equal&quot;</span>, <span class="st">&quot;varying&quot;</span>), <span class="at">expand_grid =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">saveRDS</span>(res, <span class="st">&quot;res_gmm.RData&quot;</span>)</span></code></pre></div>
 <!-- Note that one model (the most complex one) returns the following warning: -->
 <!-- > Warning: In model 'mix4' Optimizer returned a non-zero status code 6. The model does not satisfy the first-order optimality conditions to the required accuracy, and no improved point for the merit function could be found during the final linesearch (Mx status RED) -->
 <!-- This suggests a potential problem with with model convergence. -->
@@ -454,7 +457,7 @@ from the file.</p>
 <p>To compare the fit of the estimated models, we create a model fit
 table using <code>table_fit()</code>. We will use the BIC for class
 enumeration.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)</span></code></pre></div>
 <p>First, we determine whether any models can be disqualified. There
 were no indications of convergence problems during estimation, so this
 is not a reason to disqualify solutions. Next, we check for global and
@@ -462,11 +465,11 @@ local identifiability. The global ratio of observations per parameter is
 large, as the minimum <code>np_ratio</code> is 244. The smallest ratio
 of class size to class-specific parameters is 18 (see
 <code>np_local</code>), which is no cause for concern.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tbl <span class="ot">&lt;-</span> fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>,</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;prob_min&quot;</span>, <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(tbl) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;p&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Ent.&quot;</span>, <span class="st">&quot;p_min&quot;</span>, <span class="st">&quot;n_min&quot;</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tbl, <span class="at">caption =</span> <span class="st">&quot;Model fit table.&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>tbl <span class="ot">&lt;-</span> fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    <span class="st">&quot;prob_min&quot;</span>, <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">names</span>(tbl) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;p&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Ent.&quot;</span>, <span class="st">&quot;p_min&quot;</span>, <span class="st">&quot;n_min&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tbl, <span class="at">caption =</span> <span class="st">&quot;Model fit table.&quot;</span>)</span></code></pre></div>
 <p>However, note that we have a very large sample, and for many models,
 the smallest class comprises only a very small percentage of the total
 sample. Since the purpose of this analysis is to better represent the
@@ -488,13 +491,13 @@ likely come to a different decision depending on which criteria are
 used.</p>
 <p>As mentioned before, we drop models with &lt; 10% of cases in the
 smallest class:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> fit[<span class="sc">!</span>fit<span class="sc">$</span>n_min <span class="sc">&lt;</span> <span class="fl">0.1</span>, ]</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> fit[<span class="sc">!</span>fit<span class="sc">$</span>n_min <span class="sc">&lt;</span> <span class="fl">0.1</span>, ]</span></code></pre></div>
 <p>If our strategy is to optimize fit, we can examine the fit table
 above, or plot a scree plot for the BIC by calling
 <code>plot(fit)</code>. Note that, due to the large sample size, all ICs
 give identical conclusions.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">plot</span>(fit) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div>
 <p>Looking at the blocks of 1-4 class models for each model
 specification, it appears that the BIC keeps decreasing with the
 addition of more classes. Across the blocks, the BIC keeps decreasing
@@ -513,17 +516,17 @@ estimates <code>std_est</code>, because the latter allows us to
 interpret the correlations between length and width. Note that standard
 errors and p-values are relatively uninformative: With a sample size of
 5606, every parameter is significantly different from zero.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>res_bic <span class="ot">&lt;-</span> res[[<span class="st">&quot;free var, free cov 2&quot;</span>]]</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>cp <span class="ot">&lt;-</span> <span class="fu">class_prob</span>(res_bic)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">table_results</span>(res_bic, <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">&quot;label&quot;</span>, <span class="st">&quot;est&quot;</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;std_est&quot;</span>))</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>results</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>res_bic <span class="ot">&lt;-</span> res[[<span class="st">&quot;free var, free cov 2&quot;</span>]]</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>cp <span class="ot">&lt;-</span> <span class="fu">class_prob</span>(res_bic)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">table_results</span>(res_bic, <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">&quot;label&quot;</span>, <span class="st">&quot;est&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>    <span class="st">&quot;std_est&quot;</span>))</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>results</span></code></pre></div>
 <p>Interpreting the results is facilitated by examining a plot of the
 model and data. Relevant plot functions are
 <code>plot_bivariate()</code>, <code>plot_density()</code>, and
 <code>plot_profiles()</code>. However, we omit the density plots,
 because <code>plot_bivariate()</code> also includes them.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_bivariate</span>(res_bic)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">plot_bivariate</span>(res_bic)</span></code></pre></div>
 <p>On the diagonal of the bivariate plot are weighted density plots:
 normal approximations of the density function of observed data, weighed
 by class probability. On the off-diagonal are plots for each pair of
@@ -560,12 +563,12 @@ controlling for classification error. For example, we can test whether
 polymer type differs between the two classes. Because polymer type is a
 nominal variable, we must convert it to dummies and estimate a threshold
 for each dummy:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df_pt <span class="ot">&lt;-</span> <span class="fu">mx_dummies</span>(df_analyze<span class="sc">$</span>poly_type)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>aux_pt <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_bic, <span class="at">model =</span> <span class="st">&quot;poly_typeOther | t1</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">                                poly_typePE | t1</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="st">                                poly_typePP | t1&quot;</span>,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_pt)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>aux_pt <span class="ot">&lt;-</span> <span class="fu">mxTryHardOrdinal</span>(aux_pt)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>df_pt <span class="ot">&lt;-</span> <span class="fu">mx_dummies</span>(df_analyze<span class="sc">$</span>poly_type)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>aux_pt <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_bic, <span class="at">model =</span> <span class="st">&quot;poly_typeOther | t1</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="st">                                poly_typePE | t1</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="st">                                poly_typePP | t1&quot;</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>    <span class="at">data =</span> df_pt)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>aux_pt <span class="ot">&lt;-</span> <span class="fu">mxTryHardOrdinal</span>(aux_pt)</span></code></pre></div>
 <p>To obtain an omnibus likelihood ratio test of the significance of the
 differences in polymer type across classes, use
 <code>lr_test(aux_pt)</code>. The results indicate that there are
@@ -573,9 +576,9 @@ significant differences in polymer types across classes, <span class="math inlin
 results can be reported in probability scale using
 <code>table_prob(aux_pt)</code>. To test differences for specific
 polymer types, we can use Wald tests:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wald_test</span>(aux_pt, <span class="st">&quot;class1.Thresholds[1,1] = class2.Thresholds[1,1];</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">          class1.Thresholds[1,2] = class2.Thresholds[1,2];</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="st">          class1.Thresholds[1,3] = class2.Thresholds[1,3]&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">wald_test</span>(aux_pt, <span class="st">&quot;class1.Thresholds[1,1] = class2.Thresholds[1,1];</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="st">          class1.Thresholds[1,2] = class2.Thresholds[1,2];</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="st">          class1.Thresholds[1,3] = class2.Thresholds[1,3]&quot;</span>)</span></code></pre></div>
 <p>The results indicate that there is no significant difference in the
 prevalence of “Other” polymer types across classes. However, PE is
 significantly more prevalent in class 1, and PP is significantly more

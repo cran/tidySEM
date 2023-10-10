@@ -5,7 +5,7 @@ knitr::opts_chunk$set(
 )
 run_mplus <- FALSE
 
-## ----setup--------------------------------------------------------------------
+## ----setup, message=FALSE-----------------------------------------------------
 library(tidySEM)
 library(lavaan)
 library(MplusAutomation)
