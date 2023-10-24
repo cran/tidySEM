@@ -467,7 +467,7 @@ over all other solutions including a 1-class solution and a solution
 with more classes. Note that a scree plot for the BIC can be plotted by
 calling <code>plot(fit)</code>. Following the elbow criterion, a
 three-class solution would also be defensible. The function
-<code>ic_weights(tab_compare)</code> allows us to compute IC weights; it
+<code>ic_weights(fit)</code> allows us to compute IC weights; it
 indicates that, conditional on the set of models, the 4-class model has
 a posterior model probability of nearly 100%.</p>
 </div>
@@ -475,7 +475,7 @@ a posterior model probability of nearly 100%.</p>
 <h3>Using LMR tests</h3>
 <p>If we conduct LMR tests, we find that the tests are significant for
 all pairwise model comparisons, except for the 5-class model:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">lr_lmr</span>(fit)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">lr_lmr</span>(res)</span></code></pre></div>
 </div>
 <div id="using-blrt-tests" class="section level3">
 <h3>Using BLRT tests</h3>

@@ -88,6 +88,16 @@ tmp <- mutate(tmp, lhs = ifelse(lhs == "spe" & op == "=~", "tex", lhs))
 tmp <- filter(tmp, !(lhs == "spe" | rhs == "spe"))
 syntax(model) <- tmp
 
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+#  syntax(model) |>
+#    mutate(free = ifelse(rhs == "spe_1", 1, free),
+#    ustart = ifelse(rhs == "spe_1", NA, ustart)) -> syntax(model)
+
+## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+syntax(model) |>
+  mutate(free = ifelse(rhs == "spe_1", 1, free),
+  ustart = ifelse(rhs == "spe_1", NA, ustart)) -> syntax(model)
+
 ## -----------------------------------------------------------------------------
 estimate_lavaan(model)
 

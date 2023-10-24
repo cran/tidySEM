@@ -103,13 +103,16 @@ knitr::kable(desc, caption = "Descriptive statistics")
 #  knitr::kable(tbl, caption = "Model fit table")
 
 ## ----lmr_table, echo = TRUE, eval=FALSE---------------------------------------
-#  lr_lmr(fit)
+#  lr_lmr(res)
 
-## ----tablmr, echo = FALSE, eval = eval_results--------------------------------
-#  tbl <- lr_lmr(fit)
-#  tbl$Null <- c("", fit$Name[-nrow(fit)])
-#  tbl$Alt <- c(fit$Name)
-#  knitr::kable(tbl[, c("Null", "Alt", "lr", "lmr_lr", "df", "lmr_p")], caption = "LMR test table", digits = 2)
+## ----tablmr, echo = FALSE, eval = run_everything------------------------------
+#  res <- readRDS("res_lpa.RData")
+#  tbl <- lr_lmr(res)
+#  write.csv(tbl, "lpatablmr.csv", row.names = FALSE)
+
+## ----echo = FALSE, eval = TRUE------------------------------------------------
+tbl <- read.csv("lpatablmr.csv", stringsAsFactors = FALSE)
+knitr::kable(tbl, caption = "LMR test table", digits = 2)
 
 ## ----eval = FALSE, echo = TRUE------------------------------------------------
 #  library(future)
