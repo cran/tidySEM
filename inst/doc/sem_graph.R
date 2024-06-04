@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -14,7 +14,7 @@ include_code <- function(expr){
 }
 generate_pngs <- TRUE
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  graph_sem(layout = matrix("x")) + coord_fixed()
 
 ## ----echo = FALSE, out.width='20%'--------------------------------------------
@@ -22,7 +22,7 @@ p <- graph_sem(layout = matrix("x")) + coord_fixed()
 if(generate_pngs) ggsave("var_obs.png", p, device = "png", width= 1, height = .7)
 knitr::include_graphics("var_obs.png")
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  graph_sem(nodes = data.frame(name = "x", shape = "oval"), layout = matrix("x"), fix_coord = TRUE)
 
 ## ----echo = FALSE, out.width='20%'--------------------------------------------

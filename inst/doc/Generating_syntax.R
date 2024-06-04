@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -21,20 +21,20 @@ names(df)[grepl("^x", names(df))] <- c("vis_1", "vis_2", "vis_3", "tex_1", "tex_
 model <- tidy_sem(df)
 model
 
-## ---- eval = FALSE, echo = TRUE-----------------------------------------------
+## ----eval = FALSE, echo = TRUE------------------------------------------------
 #  model |>
 #    measurement() -> model
 #  model
 
-## ---- echo = FALSE, eval = TRUE-----------------------------------------------
+## ----echo = FALSE, eval = TRUE------------------------------------------------
 model <- measurement(model)
 model
 
-## ---- eval = FALSE, echo = TRUE-----------------------------------------------
+## ----eval = FALSE, echo = TRUE------------------------------------------------
 #  model |>
 #    estimate_lavaan()
 
-## ---- echo = FALSE, eval = TRUE-----------------------------------------------
+## ----echo = FALSE, eval = TRUE------------------------------------------------
 estimate_lavaan(model)
 
 ## ----include=FALSE------------------------------------------------------------
@@ -69,31 +69,31 @@ dictionary(model)
 ## -----------------------------------------------------------------------------
 syntax(model)
 
-## ---- eval = FALSE, echo = TRUE-----------------------------------------------
+## ----eval = FALSE, echo = TRUE------------------------------------------------
 #  dictionary(model) |>
 #    mutate(label = ifelse(label == "vis", "Visual", label))
 
-## ---- echo = FALSE, eval = TRUE-----------------------------------------------
+## ----echo = FALSE, eval = TRUE------------------------------------------------
 tmp <- dictionary(model)
 mutate(tmp, label = ifelse(label == "vis", "Visual", label))
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  syntax(model) |>
 #    mutate(lhs = ifelse(lhs == "spe" & op == "=~", "tex", lhs)) |>
 #    filter(!(lhs == "spe" | rhs == "spe")) -> syntax(model)
 
-## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+## ----eval = TRUE, echo = FALSE------------------------------------------------
 tmp <- syntax(model)
 tmp <- mutate(tmp, lhs = ifelse(lhs == "spe" & op == "=~", "tex", lhs))
 tmp <- filter(tmp, !(lhs == "spe" | rhs == "spe"))
 syntax(model) <- tmp
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  syntax(model) |>
 #    mutate(free = ifelse(rhs == "spe_1", 1, free),
 #    ustart = ifelse(rhs == "spe_1", NA, ustart)) -> syntax(model)
 
-## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+## ----eval = TRUE, echo = FALSE------------------------------------------------
 syntax(model) |>
   mutate(free = ifelse(rhs == "spe_1", 1, free),
   ustart = ifelse(rhs == "spe_1", NA, ustart)) -> syntax(model)
@@ -101,23 +101,23 @@ syntax(model) |>
 ## -----------------------------------------------------------------------------
 estimate_lavaan(model)
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  model |>
 #    add_paths("vis ~ tex") |>
 #    estimate_lavaan() |>
 #    summary(estimates = TRUE)
 
-## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+## ----eval = TRUE, echo = FALSE------------------------------------------------
 tmp <- add_paths(model, "vis ~ tex")
 tmp <- estimate_lavaan(tmp)
 summary(tmp, estimates = TRUE)
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  model |>
 #    add_paths("vis ~ tex", vis =~ spe_1) |>
 #    estimate_lavaan()
 
-## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+## ----eval = TRUE, echo = FALSE------------------------------------------------
 tmp <- add_paths(model, "vis ~ tex", vis =~ spe_1)
 estimate_lavaan(tmp)
 

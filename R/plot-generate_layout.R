@@ -136,12 +136,12 @@ get_layout.tidy_results <- function(x, ..., layout_algorithm = "layout_as_tree")
 
 #' @method get_layout tidy_edges
 #' @export
-#' @importFrom igraph graph.data.frame vertex.attributes
+#' @importFrom igraph graph_from_data_frame vertex.attributes
 #' layout_as_star layout_as_tree layout_in_circle layout_nicely
 #' layout_on_grid layout_randomly layout_with_dh layout_with_fr layout_with_gem
 #' layout_with_graphopt layout_with_kk layout_with_lgl layout_with_mds
 get_layout.tidy_edges <- function(x, ..., layout_algorithm = "layout_as_tree"){
-  g <- graph.data.frame(x, directed = TRUE)
+  g <- igraph::graph_from_data_frame(x, directed = TRUE)
   lo <- do.call(layout_algorithm, list(g))
   lo <- round(lo)
   if(any(duplicated(lo))){
@@ -278,14 +278,14 @@ get_layout.default <- function(x, ..., rows = NULL){
       dots <- list(...)
       cl <- match.call()
       cl["columns"] <- list(NULL)
-      cl[[1L]] <- quote(table_results)
+      cl[[1L]] <- str2lang("tidySEM::table_results")
       cl$x <- tryCatch(eval.parent(cl), error = function(e){
         stop("Could not create layout for object.")
       })
       if("columns" %in% names(dots)){
         cl["columns"] <- dots["columns"]
       }
-      cl[[1L]] <- quote(get_layout)
+      cl[[1L]] <- str2lang("tidySEM::get_layout")
       return(eval.parent(cl))
     }
   }

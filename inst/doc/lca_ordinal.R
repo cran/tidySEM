@@ -19,7 +19,7 @@ if(suppressWarnings(tryCatch({isTRUE(as.logical(readLines("pkgdown.txt")))}, err
 }
 run_everything = suppressWarnings(tryCatch({isTRUE(as.logical(readLines("run_everything.txt")))}, error = function(e){FALSE}))
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 # Load required packages
 library(tidySEM) 
 library(ggplot2)
@@ -44,7 +44,7 @@ df <- maene_identity[1:5]
 #  desc <- read.csv("lca_desc.csv", stringsAsFactors = FALSE)
 #  knitr::kable(desc, caption = "Descriptive statistics for ordinal items")
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  df_plot <- df
 #  names(df_plot) <- paste0("Value.", names(df_plot))
 #  df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long")
@@ -53,7 +53,7 @@ df <- maene_identity[1:5]
 #    facet_wrap(~time, scales = "free")+
 #    theme_bw()
 
-## ---- echo = FALSE, eval = run_everything-------------------------------------
+## ----echo = FALSE, eval = run_everything--------------------------------------
 #  df_plot <- df
 #  names(df_plot) <- paste0("Value.", names(df_plot))
 #  df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long")
@@ -63,7 +63,7 @@ df <- maene_identity[1:5]
 #    theme_bw()
 #  ggsave("lca_plot_desc.png", p, device = "png", width = 100, height = 100, units = "mm")
 
-## ---- echo = FALSE, eval=eval_results, fig.cap="Bar charts for ordinal indicators", out.width="80%"----
+## ----echo = FALSE, eval=eval_results, fig.cap="Bar charts for ordinal indicators", out.width="80%"----
 #  knitr::include_graphics("lca_plot_desc.png")
 
 ## ----fitlca, eval = run_everything, echo = FALSE------------------------------
@@ -101,7 +101,7 @@ df <- maene_identity[1:5]
 ## ----echo = FALSE, eval = run_everything--------------------------------------
 #  res_final <- res[[3]]
 
-## ---- echo = FALSE, eval = run_everything-------------------------------------
+## ----echo = FALSE, eval = run_everything--------------------------------------
 #  cp <- class_prob(res_final)
 #  out <- list(counts = cp$sum.posterior$proportion)
 
@@ -114,7 +114,7 @@ df <- maene_identity[1:5]
 #  tab <- reshape(tab, direction = "wide", v.names = "Probability", timevar = "group", idvar = c("Variable", "Category"))
 #  write.csv(tab, "lca_tab_prob.csv", row.names = FALSE)
 
-## ---- eval = eval_results, echo=FALSE-----------------------------------------
+## ----eval = eval_results, echo=FALSE------------------------------------------
 #  tab <- read.csv("lca_tab_prob.csv", stringsAsFactors = FALSE)
 #  knitr::kable(tab, caption = "Three-class model results in probability scale")
 

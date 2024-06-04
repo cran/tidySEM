@@ -20,7 +20,7 @@ if(suppressWarnings(tryCatch({isTRUE(as.logical(readLines("pkgdown.txt")))}, err
 }
 run_everything = suppressWarnings(tryCatch({isTRUE(as.logical(readLines("run_everything.txt")))}, error = function(e){FALSE}))
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 # Load required packages
 library(tidySEM) 
 library(ggplot2)
@@ -41,7 +41,7 @@ desc <- desc[, c("name", "n", "missing", "unique",
                  "skew_2se", "kurt_2se")]
 knitr::kable(desc, caption = "Descriptive statistics")
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  df_plot <- df
 #  names(df_plot) <- paste0("Value.", names(df_plot))
 #  df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long",
@@ -51,7 +51,7 @@ knitr::kable(desc, caption = "Descriptive statistics")
 #    facet_wrap(~Variable)+
 #    theme_bw()
 
-## ---- echo = FALSE, eval = run_everything-------------------------------------
+## ----echo = FALSE, eval = run_everything--------------------------------------
 #  # mcartest <- mice::mcar(df)
 #  df_plot <- df
 #  names(df_plot) <- paste0("Value.", names(df_plot))
@@ -141,7 +141,7 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 #  fit_compare <- table_fit(compare)
 #  write.csv(fit_compare, "lpa_fit_compare.csv", row.names = FALSE)
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  res_alt <- mx_profiles(df, classes = 4, variances = "varying")
 #  compare <- list(res[[4]], res_alt)
 #  table_fit(compare)
@@ -154,10 +154,10 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 #           "prob_min", "prob_max",
 #           "n_min", "n_max")], caption = "Comparing competing theoretical models")
 
-## ---- echo = TRUE, eval =FALSE------------------------------------------------
+## ----echo = TRUE, eval =FALSE-------------------------------------------------
 #  res_final <- mx_switch_labels(res[[4]])
 
-## ---- echo = FALSE, eval = run_everything-------------------------------------
+## ----echo = FALSE, eval = run_everything--------------------------------------
 #  res_final <- mx_switch_labels(res[[4]])
 #  cp <- class_prob(res_final)
 #  out <- list(counts = cp$sum.posterior$proportion)
@@ -169,7 +169,7 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 #  tab <- table_results(res_final, columns = c("label", "est", "se", "confint", "class"))
 #  write.csv(tab, "lpa_tab_res.csv", row.names = FALSE)
 
-## ---- eval = eval_results, echo=FALSE-----------------------------------------
+## ----eval = eval_results, echo=FALSE------------------------------------------
 #  tab <- read.csv("lpa_tab_res.csv", stringsAsFactors = FALSE)
 #  knitr::kable(tab, caption = "Four-class model results")
 

@@ -19,7 +19,7 @@ if(suppressWarnings(tryCatch({isTRUE(as.logical(readLines("pkgdown.txt")))}, err
 }
 run_everything = suppressWarnings(tryCatch({isTRUE(as.logical(readLines("run_everything.txt")))}, error = function(e){FALSE}))
 
-## ---- echo = TRUE, eval=TRUE--------------------------------------------------
+## ----echo = TRUE, eval=TRUE---------------------------------------------------
 # Load required packages
 library(tidySEM) 
 library(ggplot2)
@@ -34,7 +34,7 @@ desc <- desc[, c("name", "type", "n", "unique",
 "mean", "median", "sd", "min", "max", "skew_2se", "kurt_2se")]
 knitr::kable(desc, caption = "Descriptive statistics")
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  df_plot <- df
 #  names(df_plot) <- paste0("Value.", names(df_plot))
 #  df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long",
@@ -44,7 +44,7 @@ knitr::kable(desc, caption = "Descriptive statistics")
 #    facet_wrap(~Variable)+
 #    theme_bw()
 
-## ---- echo = FALSE, eval = run_everything-------------------------------------
+## ----echo = FALSE, eval = run_everything--------------------------------------
 #  df_plot <- df
 #  names(df_plot) <- paste0("Value.", names(df_plot))
 #  df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long",
@@ -62,14 +62,14 @@ knitr::kable(desc, caption = "Descriptive statistics")
 #                     timevar = "Variable")
 #  knitr::include_graphics("plot_gmm_desc.png")
 
-## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+## ----echo = TRUE, eval = FALSE------------------------------------------------
 #  df_plot$Value <- log(df_plot$Value)
 #  ggplot(df_plot, aes(x = Value)) +
 #    geom_density() +
 #    facet_wrap(~Variable)+
 #    theme_bw()
 
-## ---- echo = FALSE, eval = run_everything-------------------------------------
+## ----echo = FALSE, eval = run_everything--------------------------------------
 #  df_plot$Value <- log(df_plot$Value)
 #  p <- ggplot(df_plot, aes(x = Value)) +
 #    geom_density() +
@@ -80,14 +80,14 @@ knitr::kable(desc, caption = "Descriptive statistics")
 ## ----figdesclog, echo = FALSE, eval = eval_results----------------------------
 #  knitr::include_graphics("plot_gmm_desc_log.png")
 
-## ---- eval = FALSE, echo = TRUE-----------------------------------------------
+## ----eval = FALSE, echo = TRUE------------------------------------------------
 #  df <- reshape(df_plot, direction = "wide", v.names = "Value")[, -1]
 #  names(df) <- gsub("Value.", "", names(df), fixed = TRUE)
 #  ggplot(df, aes(x = length, y = width)) +
 #    geom_point(alpha = .1) +
 #    theme_bw()
 
-## ---- eval = run_everything, echo = FALSE-------------------------------------
+## ----eval = run_everything, echo = FALSE--------------------------------------
 #  df <- reshape(df_plot, direction = "wide", v.names = "Value")[, -1]
 #  names(df) <- gsub("Value.", "", names(df), fixed = TRUE)
 #  p <- ggplot(df, aes(x = length, y = width)) +

@@ -39,14 +39,14 @@ knitr::kable(desc, caption = "Item descriptives")
 #    geom_density() +
 #    facet_wrap(~time) + theme_bw()
 
-## ---- eval = run_everything, echo = FALSE-------------------------------------
+## ----eval = run_everything, echo = FALSE--------------------------------------
 #  df_plot <- reshape(df, direction = "long", varying = names(df))
 #  p = ggplot(df_plot, aes(x = scl)) +
 #    geom_density() +
 #    facet_wrap(~time) + theme_bw()
 #  ggsave("plot_dist.png", p, width = 150, height = 120, units = "mm")
 
-## ---- echo = FALSE, out.width="80%", eval = eval_results----------------------
+## ----echo = FALSE, out.width="80%", eval = eval_results-----------------------
 #  knitr::include_graphics("plot_dist.png")
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
@@ -79,7 +79,7 @@ knitr::kable(desc, caption = "Item descriptives")
 #  # Rescale SCL
 #  df_scores$scl <- scales::rescale(df_scores$scl, to = c(0, 1))
 
-## ---- eval = FALSE, echo = TRUE-----------------------------------------------
+## ----eval = FALSE, echo = TRUE------------------------------------------------
 #  # Make plot data
 #  df_plot <- do.call(rbind, lapply(c("scl", "log", "sqrt", "qrt", "boxcox"), function(n){
 #    data.frame(df_scores[c("time", "id")],
@@ -94,7 +94,7 @@ knitr::kable(desc, caption = "Item descriptives")
 #    xlab("scl (rescaled to 0-1)") +
 #    theme_bw()
 
-## ---- eval = run_everything, echo = FALSE-------------------------------------
+## ----eval = run_everything, echo = FALSE--------------------------------------
 #  df_plot <- reshape(df, direction = "long", varying = names(df))
 #  df_scores <- df_plot
 #  # Store original range of SCL
@@ -139,10 +139,10 @@ knitr::kable(desc, caption = "Item descriptives")
 #    theme_bw()
 #  ggsave("plot_trans.png", p, width = 150, height = 120, units = "mm")
 
-## ---- echo = FALSE, eval = eval_results, out.width="80%"----------------------
+## ----echo = FALSE, eval = eval_results, out.width="80%"-----------------------
 #  knitr::include_graphics("plot_trans.png")
 
-## ---- echo = TRUE, eval = run_everything--------------------------------------
+## ----echo = TRUE, eval = run_everything---------------------------------------
 #  dat <- df_scores[, c("id", "time", "boxcox")]
 #  dat <- reshape(dat, direction = "wide", v.names = "boxcox", timevar = "time", idvar = "id")
 #  names(dat) <- gsub("boxcox.", "scl", names(dat))
@@ -201,7 +201,7 @@ knitr::kable(desc, caption = "Item descriptives")
 #  fit <- table_fit(res_step)
 #  write.csv(fit, "lcga_fit.csv", row.names = FALSE)
 
-## ---- echo = FALSE, eval = FALSE----------------------------------------------
+## ----echo = FALSE, eval = FALSE-----------------------------------------------
 #  res_step <- readRDS("res_step.RData")
 
 ## ----eval = FALSE, echo = TRUE------------------------------------------------

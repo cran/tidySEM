@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -462,7 +462,7 @@ syntax, or ‘Mplus’ syntax, using the <code>as_lavaan</code>,
 using lavaan:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>()</span></code></pre></div>
-<pre><code>#&gt; lavaan 0.6.17.1902 ended normally after 35 iterations
+<pre><code>#&gt; lavaan 0.6.17 ended normally after 35 iterations
 #&gt; 
 #&gt;   Estimator                                         ML
 #&gt;   Optimization method                           NLMINB
@@ -475,8 +475,8 @@ using lavaan:</p>
 #&gt;   Test statistic                                85.306
 #&gt;   Degrees of freedom                                24
 #&gt;   P-value (Chi-square)                           0.000</code></pre>
-<p>The same model can be estimated in ‘Mplus’ through the R-package
-<code>MplusAutomation</code>. This requires ‘Mplus’ to be installed.</p>
+<p>The same model can be estimated with ‘OpenMx’ through the R-package
+<code>OpenMx</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">estimate_mx</span>()</span></code></pre></div>
 <p>The same model can be estimated in ‘Mplus’ through the R-package
@@ -590,7 +590,7 @@ them:</p>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="at">ustart =</span> <span class="fu">ifelse</span>(rhs <span class="sc">==</span> <span class="st">&quot;spe_1&quot;</span>, <span class="cn">NA</span>, ustart)) <span class="ot">-&gt;</span> <span class="fu">syntax</span>(model)</span></code></pre></div>
 <p>The modified model could then be run:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">estimate_lavaan</span>(model)</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt; lavaan 0.6.17.1902 ended normally after 28 iterations</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt; lavaan 0.6.17 ended normally after 28 iterations</span></span>
 <span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -615,7 +615,7 @@ path between them:</p>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="fu">add_paths</span>(<span class="st">&quot;vis ~ tex&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>() <span class="sc">|&gt;</span></span>
 <span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="fu">summary</span>(<span class="at">estimates =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>#&gt; lavaan 0.6.17.1902 ended normally after 25 iterations
+<pre><code>#&gt; lavaan 0.6.17 ended normally after 25 iterations
 #&gt; 
 #&gt;   Estimator                                         ML
 #&gt;   Optimization method                           NLMINB
@@ -688,7 +688,7 @@ following code:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="fu">add_paths</span>(<span class="st">&quot;vis ~ tex&quot;</span>, <span class="at">vis =</span><span class="sc">~</span> spe_1) <span class="sc">|&gt;</span></span>
 <span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="fu">estimate_lavaan</span>()</span></code></pre></div>
-<pre><code>#&gt; lavaan 0.6.17.1902 ended normally after 31 iterations
+<pre><code>#&gt; lavaan 0.6.17 ended normally after 31 iterations
 #&gt; 
 #&gt;   Estimator                                         ML
 #&gt;   Optimization method                           NLMINB
