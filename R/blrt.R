@@ -72,19 +72,19 @@ blrt_internal <-
       FUN = function(i) {
         pgs(sprintf(progmsg))
         tryCatch({
-          df_sim <- mxGenerateData(mod_simple)
+          df_sim <- OpenMx::mxGenerateData(mod_simple)
           mod_simple@data$observed <-
             df_sim
           mod_complex@data$observed <-
             df_sim
           mod_simple <-
-            mxRun(mod_simple,
+            OpenMx::mxRun(mod_simple,
                   silent = TRUE,
-                  suppressWarnings = TRUE)
+                  suppressWarnings = FALSE)
           mod_complex <-
-            mxRun(mod_complex,
+            OpenMx::mxRun(mod_complex,
                   silent = TRUE,
-                  suppressWarnings = TRUE)
+                  suppressWarnings = FALSE)
           c(
             mod_simple@output$Minus2LogLikelihood - mod_complex@output$Minus2LogLikelihood,
             mod_simple@output$status$code + mod_complex@output$status$code
@@ -96,10 +96,11 @@ blrt_internal <-
     )})
     bootres <- do.call(rbind, bootres)
     isvalid <- bootres[, 2] == 0
-    lrdist <- bootres[isvalid, 1]
+    # lrdist <- bootres[isvalid, 1]
+    lrdist <- bootres[, 1, drop = FALSE]
     out <- data.frame(
       lr = lrtest,
-      df = length(omxGetParameters(mod_complex)) - length(omxGetParameters(mod_simple)),
+      df = length(OpenMx::omxGetParameters(mod_complex)) - length(OpenMx::omxGetParameters(mod_simple)),
       blrt_p = sum(lrdist > lrtest) / length(lrdist),
       samples = sum(isvalid)
     )

@@ -27,7 +27,7 @@
 #'   \item A list of \code{mxModel} objects, specified by the user.
 #' }
 #'
-#' @return Returns an \code{\link[OpenMx]{mxModel}}.
+#' @return Returns an \code{\link[OpenMx:mxModel]{OpenMx::mxModel()}}.
 #' @export
 #' @keywords mixture models openmx
 #' @references Van Lissa, C. J., Garnier-Villarreal, M., & Anadria, D. (2023).
@@ -56,12 +56,15 @@
 #'                     classes = 2,
 #'                     data = df) -> res
 #' }
-#' @importFrom OpenMx mxPath mxModel mxRun mxTryHard
+# @importFrom OpenMx mxPath mxModel mxRun mxTryHard
 mx_mixture <- function(model,
                        classes = 1L,
                        data = NULL,
                        run = TRUE,
                        ...){
+  if(!isTRUE(requireNamespace("OpenMx", quietly = TRUE))) {
+    return(NULL)
+  }
   UseMethod("mx_mixture", model)
 }
 
@@ -88,7 +91,7 @@ mx_mixture <- function(model,
 #' the function calls \code{\link{mixture_starts}} and \code{\link{run_mx}}.
 #' @param expand_grid Logical, whether or not to estimate all possible combinations of the `variances` and `covariances` arguments. Defaults to `FALSE`.
 #' @param ... Additional arguments, passed to functions.
-#' @return Returns an \code{\link[OpenMx]{mxModel}}.
+#' @return Returns an \code{\link[OpenMx:mxModel]{OpenMx::mxModel()}}.
 #' @export
 #' @keywords mixture models openmx
 #' @references Van Lissa, C. J., Garnier-Villarreal, M., & Anadria, D. (2023).
@@ -102,7 +105,7 @@ mx_mixture <- function(model,
 #' mx_profiles(data = df,
 #'             classes = 2) -> res
 #' }
-#' @importFrom OpenMx imxReportProgress
+# @importFrom OpenMx imxReportProgress
 mx_profiles <- function(data = NULL,
                         classes = 1L,
                         variances = "equal",
@@ -110,6 +113,9 @@ mx_profiles <- function(data = NULL,
                         run = TRUE,
                         expand_grid = FALSE,
                         ...){
+  if(!isTRUE(requireNamespace("OpenMx", quietly = TRUE))) {
+    return(NULL)
+  }
   if(expand_grid){
     grd <- expand.grid(variances, covariances, stringsAsFactors = FALSE)
     variances <- grd[[1]]
@@ -151,7 +157,7 @@ mx_profiles <- function(data = NULL,
     names(out) <- lbs
   }
   if(inherits(out, what = c("MxModel", "MxRAMModel"))){
-    out <- mxModel(out, name = lbs)
+    out <- OpenMx::mxModel(out, name = lbs)
   }
   out
 }
@@ -160,7 +166,7 @@ mx_profiles <- function(data = NULL,
 #' Estimate growth mixture models using OpenMx
 #'
 #' This function is a wrapper around \code{\link{mx_mixture}}, adding the
-#' default arguments of \code{\link[lavaan]{growth}} to simplify the
+#' default arguments of \code{\link[lavaan:growth]{lavaan::growth()}} to simplify the
 #' specification of growth mixture models. This function is only
 #' useful if all the latent variables in the model are growth factors.
 #' @param model Syntax for the model; either a character string, or a list of
@@ -172,7 +178,7 @@ mx_profiles <- function(data = NULL,
 #' @param run Logical, whether or not to run the model. If \code{run = TRUE},
 #' the function calls \code{\link{mixture_starts}} and \code{\link{run_mx}}.
 #' @param ... Additional arguments, passed to functions.
-#' @return Returns an \code{\link[OpenMx]{mxModel}}.
+#' @return Returns an \code{\link[OpenMx:mxModel]{OpenMx::mxModel()}}.
 #' @export
 #' @keywords mixture models openmx
 #' @references Van Lissa, C. J., Garnier-Villarreal, M., & Anadria, D. (2023).
@@ -224,9 +230,9 @@ mx_growth_mixture <- function(model,
 #' @param classes A vector of integers, indicating which class solutions to
 #' generate. Defaults to 1L. E.g., \code{classes = 1:6},
 #' @param run Logical, whether or not to run the model. If \code{run = TRUE},
-#' the function calls \code{\link[OpenMx]{mxTryHardOrdinal}}.
+#' the function calls \code{\link[OpenMx:mxTryHardOrdinal]{OpenMx::mxTryHardOrdinal()}}.
 #' @param ... Additional arguments, passed to functions.
-#' @return Returns an \code{\link[OpenMx]{mxModel}}.
+#' @return Returns an \code{\link[OpenMx:mxModel]{OpenMx::mxModel()}}.
 #' @export
 #' @keywords mixture models openmx
 #' @references Van Lissa, C. J., Garnier-Villarreal, M., & Anadria, D. (2023).
@@ -267,18 +273,18 @@ mx_lca <- function(data = NULL,
     thresh <- mx_thresholds(data)
     dots_mxmod <- names(dots)[names(dots) %in% formalArgs(OpenMx::mxModel)]
     dots_mxmod <- dots[dots_mxmod]
-    c1 <- do.call(mxModel, c(
+    c1 <- do.call(OpenMx::mxModel, c(
       list(
         model = "class1",
         type = "RAM",
         manifestVars = names(data),
-        mxPath(from = "one", to = names(data), free = FALSE, values = 0),
-        mxPath(from = names(data), to = names(data), free = FALSE, values = 1, arrows = 2),
+        OpenMx::mxPath(from = "one", to = names(data), free = FALSE, values = 0),
+        OpenMx::mxPath(from = names(data), to = names(data), free = FALSE, values = 1, arrows = 2),
         thresh),
       dots_mxmod))
     c1$expectation$thresholds <- "Thresholds"
     model <- lapply(1:classes, function(i){
-      do.call(mxModel, list(
+      do.call(OpenMx::mxModel, list(
         model = c1,
         name = paste0("class", i)))
     })
@@ -397,7 +403,7 @@ mx_mixture.list <- function(model,
     }
     # Develop functionality for MxModels
     model <- lapply(1:length(model), function(i){
-      mxModel(name = paste0("class", i),
+      OpenMx::mxModel(name = paste0("class", i),
               model[[i]])
     })
   }
@@ -423,18 +429,18 @@ as_mx_mixture <- function(model,
                           ...){
   # Prepare mixture model
   if(classes > 1){
-    mix <- mxModel(
+    mix <- OpenMx::mxModel(
       model = paste0("mix", classes),
-      lapply(model, function(x){ mxModel(x, mxFitFunctionML(vector=TRUE, rowDiagnostics = TRUE)) }),
-      mxData(data, type = "raw"),
-      mxMatrix(values=1, nrow=1, ncol=classes, lbound = 1e-4, free=c(FALSE,rep(TRUE, classes-1)), name="weights"),
-      mxExpectationMixture(paste0("class", 1:classes), scale="sum"),
-      mxFitFunctionML())
+      lapply(model, function(x){ OpenMx::mxModel(x, OpenMx::mxFitFunctionML(vector=TRUE, rowDiagnostics = TRUE)) }),
+      OpenMx::mxData(data, type = "raw"),
+      OpenMx::mxMatrix(values=1, nrow=1, ncol=classes, lbound = 1e-4, free=c(FALSE,rep(TRUE, classes-1)), name="weights"),
+      OpenMx::mxExpectationMixture(paste0("class", 1:classes), scale="sum"),
+      OpenMx::mxFitFunctionML())
   } else {
-    mix <- mxModel(
+    mix <- OpenMx::mxModel(
       model[[1]],
-      mxData(data, type = "raw"),
-      mxFitFunctionML(rowDiagnostics = TRUE),
+      OpenMx::mxData(data, type = "raw"),
+      OpenMx::mxFitFunctionML(rowDiagnostics = TRUE),
       name = paste0("mix", classes))
   }
   attr(mix, "tidySEM") <- "mixture"
@@ -449,7 +455,7 @@ as_mx_mixture <- function(model,
 #' \code{mxModel}s.
 #' @param model A mixture model of class \code{mxModel}.
 #' @param splits Optional. A numeric vector of length equal to the number of
-#' rows in the \code{\link{mxData}} used in the \code{model} object. The data
+#' rows in the [OpenMx::mxData()] used in the \code{model} object. The data
 #' will be split by this vector. See Details for the default setting and
 #' possible alternatives.
 #' @param ... Additional arguments, passed to functions.
@@ -466,7 +472,7 @@ as_mx_mixture <- function(model,
 #' }
 #'
 #' If the argument \code{splits} is not provided, the function will call
-#' \code{\link[stats]{kmeans}}\code{(x = data, centers = classes)$cluster},
+#' \code{stats::kmeans(x = data, centers = classes)$cluster},
 #' where \code{data} is extracted from the \code{model} argument.
 #'
 #' Sensible ways to split the data include:
@@ -474,14 +480,14 @@ as_mx_mixture <- function(model,
 #'   \item Using Hierarchical clustering:
 #'    \code{cutree(hclust(dist(data)), k = classes))}
 #'   \item Using K-means clustering:
-#'   \code{\link[stats]{kmeans}}\code{(x = data, centers = classes)$cluster}
+#'   \code{stats::kmeans(x = data, centers = classes)$cluster}
 #'   \item Using agglomerative hierarchical clustering:
-#'   \code{hclass(}\code{\link[mclust]{hc}}\code{(data = data), G = classes)[, 1]}
+#'   \code{mclust::hclass(data = data), G = classes)[, 1]}
 #'   \item Using a random split:
-#'   \code{\link{sample.int}}\code{(n = classes,
+#'   \code{sample.int(n = classes,
 #'   size = nrow(data), replace = TRUE)}
 #' }
-#' @return Returns an \code{\link[OpenMx]{mxModel}} with starting values.
+#' @return Returns an [OpenMx::mxModel()] with starting values.
 #' @export
 #' @keywords mixture models openmx
 #' @examples
@@ -503,19 +509,22 @@ as_mx_mixture <- function(model,
 #' Recommended Practices in Latent Class Analysis using the Open-Source
 #' R-Package tidySEM. Structural Equation Modeling.
 #' \doi{10.1080/10705511.2023.2250920}
-#' @importFrom OpenMx mxModel mxRun mxTryHard mxAutoStart
+# @importFrom OpenMx mxModel mxRun mxTryHard mxAutoStart
 #' @importFrom methods hasArg
 #' @importFrom stats kmeans
 mixture_starts <- function(model,
                            splits,
                            ...){
+  if(!isTRUE(requireNamespace("OpenMx", quietly = TRUE))) {
+    return(NULL)
+  }
   stopifnot("mxModel is not a mixture model." = inherits(model@expectation, "MxExpectationMixture") | attr(model, "tidySEM") == "mixture")
   stopifnot("mxModel must contain data to determine starting values." = !(is.null(model@data) | is.null(model@data$observed)))
   classes <- length(model@submodels)
   if(classes < 2){
     strts <- try({simple_starts(model, type = "ULS")})
     if(inherits(strts, "try-error")){
-      strts <- try({mxTryHardWideSearch(model)})
+      strts <- try({OpenMx::mxTryHardWideSearch(model)})
     }
     if(inherits(strts, "try-error")){
       stop("Could not derive suitable starting values for the 1-class model.")
@@ -580,11 +589,11 @@ mixture_starts <- function(model,
         }
       }
     }
-    mxModel(model[[thissub]],
-            mxData(data_split, type = "raw"),
-            mxFitFunctionML())
+    OpenMx::mxModel(model[[thissub]],
+                    OpenMx::mxData(data_split, type = "raw"),
+                    OpenMx::mxFitFunctionML())
   })
-  strts <- do.call(mxModel, c(list(model = "mg_starts", mxFitFunctionMultigroup(names(model@submodels)), strts)))
+  strts <- do.call(OpenMx::mxModel, c(list(model = "mg_starts", OpenMx::mxFitFunctionMultigroup(names(model@submodels)), strts)))
   strts_vals <- try(simple_starts(strts, type = "ULS"))
   if(inherits(strts_vals, "try-error")){
     strts_vals <- simple_starts(strts, type = "DWLS")
@@ -597,13 +606,13 @@ mixture_starts <- function(model,
       strts[[n]][["S"]]$values <- Matrix::nearPD(strts[[n]][["S"]]$values, keepDiag = TRUE, maxit = 10000)$mat
     }
   }
-  strts_vals <- try(mxRun(strts, silent = TRUE, suppressWarnings = TRUE), silent = TRUE)
+  strts_vals <- try(OpenMx::mxRun(strts, silent = TRUE, suppressWarnings = TRUE), silent = TRUE)
   if(inherits(strts_vals, "try-error")){
     if(grepl("omxAssignFirstParameters", attr(strts_vals, "condition"), fixed = TRUE)){
-      strts <- omxAssignFirstParameters(strts)
-      strts_vals <- try(mxRun(strts, silent = TRUE, suppressWarnings = TRUE))
+      strts <- OpenMx::omxAssignFirstParameters(strts)
+      strts_vals <- try(OpenMx::mxRun(strts, silent = TRUE, suppressWarnings = TRUE))
     } else {
-      strts_vals <- try(mxTryHard(strts, extraTries = 100,
+      strts_vals <- try(OpenMx::mxTryHard(strts, extraTries = 100,
                               silent = TRUE,
                               verbose = FALSE,
                               bestInitsOutput = FALSE))
@@ -633,18 +642,18 @@ estimate_mx_mixture <- function(model,
   clusts <- hclust(dist(data[model[[1]]$manifestVars]))
   splits <- cutree(tree = clusts, k = classes)
   strts <- lapply(1:classes, function(i){
-    mxModel(model[[i]],
-            mxData(data[splits == i, , drop = FALSE], type = "raw"),
-            mxFitFunctionML())
+    OpenMx::mxModel(model[[i]],
+                    OpenMx::mxData(data[splits == i, , drop = FALSE], type = "raw"),
+                    OpenMx::mxFitFunctionML())
   })
-  strts <- do.call(mxModel, c(list(model = "mg_starts", mxFitFunctionMultigroup(paste0("class", 1:classes)), strts)))
-  strts <- mxAutoStart(strts, type = "ULS")
+  strts <- do.call(OpenMx::mxModel, c(list(model = "mg_starts", OpenMx::mxFitFunctionMultigroup(paste0("class", 1:classes)), strts)))
+  strts <- OpenMx::mxAutoStart(strts, type = "ULS")
   tryCatch({
-    strts <- mxRun(strts, silent = TRUE, suppressWarnings = TRUE)
+    strts <- OpenMx::mxRun(strts, silent = TRUE, suppressWarnings = TRUE)
   }, error = function(e){
     tryCatch({
-      strts <- mxAutoStart(strts, type = "DWLS")
-      strts <<- mxTryHard(strts, extraTries = 100,
+      strts <- OpenMx::mxAutoStart(strts, type = "DWLS")
+      strts <<- OpenMx::mxTryHard(strts, extraTries = 100,
                           silent = TRUE,
                           verbose = FALSE,
                           bestInitsOutput = FALSE)
@@ -666,18 +675,18 @@ estimate_mx_mixture <- function(model,
     if(!is.null(cls[["F"]])){
       cls$F$values <- strts[[paste0("class", strt)]]$F$values
     }
-    mxModel(cls, mxFitFunctionML(vector=TRUE, rowDiagnostics = TRUE))
+    OpenMx::mxModel(cls, OpenMx::mxFitFunctionML(vector=TRUE, rowDiagnostics = TRUE))
   }, cls = model, strt = 1:classes)
   # Prepare mixture model
-  mix <- mxModel(
+  mix <- OpenMx::mxModel(
     model = paste0("mix", classes),
     model,
-    mxData(data, type = "raw"),
-    mxMatrix(values=1, nrow=1, ncol=classes, free=c(FALSE,rep(TRUE, classes-1)), lbound = 1e-4, name="weights"),
-    mxExpectationMixture(paste0("class", 1:classes), scale="sum"),
-    mxFitFunctionML())
+    OpenMx::mxData(data, type = "raw"),
+    OpenMx::mxMatrix(values=1, nrow=1, ncol=classes, free=c(FALSE,rep(TRUE, classes-1)), lbound = 1e-4, name="weights"),
+    OpenMx::mxExpectationMixture(paste0("class", 1:classes), scale="sum"),
+    OpenMx::mxFitFunctionML())
   # Run analysis ------------------------------------------------------------
-  mix_fit <- mxTryHard(mix,
+  mix_fit <- OpenMx::mxTryHard(mix,
                        extraTries = 100,
                        intervals=TRUE,
                        silent = TRUE,

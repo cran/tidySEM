@@ -15,7 +15,7 @@ include_code <- function(expr){
 generate_pngs <- TRUE
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
-#  graph_sem(layout = matrix("x")) + coord_fixed()
+# graph_sem(layout = matrix("x")) + coord_fixed()
 
 ## ----echo = FALSE, out.width='20%'--------------------------------------------
 p <- graph_sem(layout = matrix("x")) + coord_fixed()
@@ -23,7 +23,7 @@ if(generate_pngs) ggsave("var_obs.png", p, device = "png", width= 1, height = .7
 knitr::include_graphics("var_obs.png")
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
-#  graph_sem(nodes = data.frame(name = "x", shape = "oval"), layout = matrix("x"), fix_coord = TRUE)
+# graph_sem(nodes = data.frame(name = "x", shape = "oval"), layout = matrix("x"), fix_coord = TRUE)
 
 ## ----echo = FALSE, out.width='20%'--------------------------------------------
 p <- graph_sem(nodes = data.frame(name = "x", shape = "oval"), layout = matrix("x"), fix_coord = TRUE)
@@ -53,10 +53,10 @@ if(generate_pngs){
 knitr::include_graphics("error.png")
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
-#  df <- iris[, 1:2]
-#  names(df) <- c("x", "y")
-#  sem("y ~ x", df) %>%
-#    graph_sem(spacing_x = 2.5, fix_coord = TRUE)
+# df <- iris[, 1:2]
+# names(df) <- c("x", "y")
+# sem("y ~ x", df) %>%
+#   graph_sem(spacing_x = 2.5, fix_coord = TRUE)
 
 ## ----echo = FALSE, out.width='50%'--------------------------------------------
 df <- iris[, 1:2]
@@ -67,13 +67,13 @@ if(generate_pngs) ggsave("mod_reg.png", p, device = "png", width= 4, height = 1)
 knitr::include_graphics("mod_reg.png")
 
 ## ----echo = TRUE, eval=FALSE--------------------------------------------------
-#  df <- iris[ , c(1,3:4)]
-#  names(df) <- paste0("y_", 1:3)
-#  
-#  tidy_sem(df) %>%
-#    measurement() %>%
-#    estimate_lavaan() %>%
-#    graph_sem()
+# df <- iris[ , c(1,3:4)]
+# names(df) <- paste0("y_", 1:3)
+# 
+# tidy_sem(df) %>%
+#   measurement() %>%
+#   estimate_lavaan() %>%
+#   graph_sem()
 
 ## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='50%'----------
 df <- iris[ , c(1,3:4)]
@@ -87,14 +87,14 @@ if(generate_pngs) ggsave("mod_meas.png", p, device = "png", width= 4, height = 4
 knitr::include_graphics("mod_meas.png")
 
 ## ----eval= FALSE--------------------------------------------------------------
-#  df <- iris[ , 1:4]
-#  names(df) <- c("y_1", "x", "y_2", "y_3")
-#  
-#  tidy_sem(df) %>%
-#    measurement() %>%
-#    add_paths(y ~ x, x ~~ x, x ~1) %>%
-#    estimate_lavaan() %>%
-#    graph_sem()
+# df <- iris[ , 1:4]
+# names(df) <- c("y_1", "x", "y_2", "y_3")
+# 
+# tidy_sem(df) %>%
+#   measurement() %>%
+#   add_paths(y ~ x, x ~~ x, x ~1) %>%
+#   estimate_lavaan() %>%
+#   graph_sem()
 
 ## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='70%'----------
 df <- iris[ , 1:4]
@@ -109,14 +109,14 @@ if(generate_pngs) ggsave("mod_sem1.png", p, device = "png", width= 6, height = 6
 knitr::include_graphics("mod_sem1.png")
 
 ## ----eval= FALSE--------------------------------------------------------------
-#  tidy_sem(df) %>%
-#    measurement() %>%
-#    add_paths(y ~ x, x ~~ x) %>%
-#    estimate_lavaan() %>%
-#    graph_sem(layout =
-#                get_layout("",     "x",    "",
-#                           "",     "y",    "",
-#                           "y_1", "y_2", "y_3", rows = 3))
+# tidy_sem(df) %>%
+#   measurement() %>%
+#   add_paths(y ~ x, x ~~ x) %>%
+#   estimate_lavaan() %>%
+#   graph_sem(layout =
+#               get_layout("",     "x",    "",
+#                          "",     "y",    "",
+#                          "y_1", "y_2", "y_3", rows = 3))
 
 ## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='70%'----------
 tidy_sem(df) %>%

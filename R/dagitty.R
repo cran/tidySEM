@@ -5,8 +5,12 @@ get_layout.dagitty <- function(x, ..., rows = NULL){
     lo <- dagitty::coordinates(x)
     if(!diff(sapply(lo, length)) == 0) stop("Could not extract layout from object of class 'dagitty'.")
     if(anyNA(lo$x) | anyNA(lo$y)){
-      edg <- get_edges(x)
-      out <- get_layout(edg)
+      lo_graph <- dagitty::coordinates(dagitty::graphLayout(x))
+      lo$x[is.na(lo$x)] <- lo_graph$x[is.na(lo$x)]
+      lo$y[is.na(lo$y)] <- lo_graph$y[is.na(lo$y)]
+      out <- data.frame(name = names(lo$x), do.call(cbind, lo))
+      rownames(out) <- NULL
+      class(out) <- c("tidy_layout", class(out))
     } else {
       out <- matrix(nrow = max(lo$y) + 1, ncol = max(lo$x) + 1)
       for(v in names(lo$x)){
@@ -20,20 +24,24 @@ get_layout.dagitty <- function(x, ..., rows = NULL){
   }
 }
 
-
 #' @method get_edges dagitty
 #' @export
 get_edges.dagitty <- function(x, label = "est", ...){
   if (requireNamespace("dagitty", quietly = TRUE)) {
     edg <- dagitty::edges(x)
-    cl <- match.call()
-    cl[[1]] <- str2lang("dagitty:::.edgeAttributes")
-    cl <- cl[c(1, which(names(cl) == "x"))]
-    cl[["a"]] <- "beta"
-    labs <- try(eval.parent(cl))
-    if(!inherits(labs, "try-error")){
-      if(!all(is.na(labs$a))){
-        edg$label <- labs$a
+    txt <- as.character(x)
+    if(grepl("[", txt, fixed = TRUE)){
+      atts <- strsplit(txt, split = "\n")[[1]]
+      atts <- atts[grepl("(<-|->|--)", atts)]
+      atts <- atts[grep("[", atts, fixed = TRUE)]
+      if(length(atts) > 0){
+        atts <- parse_dag_properties(atts)
+        # Merge
+        atts$v <- gsub("\\s.*$", "", atts$name)
+        atts$w <- gsub("^.+\\s", "", atts$name)
+        atts$e <- gsub("^.+?\\s(.+)\\s.+$", "\\1", atts$name)
+        edg <- merge(edg, atts, by = c("v", "w", "e"), all = TRUE)
+        edg[["name"]] <- NULL
       }
     }
     names(edg)[1:2] <- c("from", "to")
@@ -50,7 +58,10 @@ get_edges.dagitty <- function(x, label = "est", ...){
       edg$curvature <- NA
       edg$curvature[edg$e == "<->"] <- 60
     }
-    edg <- edg[, names(edg)[names(edg) %in% c("from", "to", "arrow", "curvature", "linewidth", "color")], drop = FALSE]
+    edg <- edg[, !names(edg) %in% c("x", "y"), drop = FALSE]
+    # if("label" %in% names(edg)){
+    #   if(any(is.na(edg$label))) edg$label[is.na(edg$label)] <- edg$name[is.na(edg$label)]
+    # }
     class(edg) <- c("tidy_edges", class(edg))
     return(edg)
   } else {
@@ -58,29 +69,68 @@ get_edges.dagitty <- function(x, label = "est", ...){
   }
 }
 
-
 #' @method get_nodes dagitty
 #' @export
 get_nodes.dagitty <- function(x, label = "est", ...){
   if (requireNamespace("dagitty", quietly = TRUE)) {
-    nods <- dagitty::coordinates(x)
-    nams <- labs <- names(nods$x)
-    if(!is.null(attr(x, "labels"))){
-      attrlab <- attr(x, "labels")
-      if(any(labs %in% names(attrlab))){
-        labs[labs %in% names(attrlab)] <- attrlab[labs[labs %in% names(attrlab)]]
+
+      nods <- names(dagitty::coordinates(x)$x)
+      nods <- data.frame(name = nods)
+      txt <- as.character(x)
+      if(grepl("[", txt, fixed = TRUE)){
+        atts <- strsplit(txt, split = "\n")[[1]]
+        atts <- atts[!grepl("(<-|->|--|\\{|\\})", atts)]
+        atts <- atts[grep("[", atts, fixed = TRUE)]
+        if(length(atts) > 0){
+          atts <- parse_dag_properties(atts)
+          if(!is.null(atts)){
+            nods <- merge(nods, atts, by = "name", all = TRUE)
+          }
+        }
       }
-    }
-    nods <- data.frame(
-      name = nams,
-      shape = "none",
-      label = labs
-    )
+      if("label" %in% names(nods)){
+        nods$label[is.na(nods$label)] <- nods$name[is.na(nods$label)]
+      }
+      nods$shape <- "none"
     class(nods) <- c("tidy_nodes", class(nods))
     return(nods)
   } else {
     message("Dependency 'dagitty' is not available.")
   }
+}
+
+#' @importFrom utils read.csv
+parse_dag_properties <- function(x){
+  if(length(x) > 1){
+    out <- lapply(x, function(thisx){
+      parse_dag_properties(thisx)
+    })
+    out <- bind_list(out)
+    out <- out[, !c(colSums(is.na(out)) == nrow(out)), drop = FALSE]
+    return(out)
+  }
+  nam <- trimws(gsub("\\[.*", "", x))
+  x <- gsub("^.+?\\[(.+?)\\].{0,}$", "\\1", x)
+  sects <- unname(unlist(utils::read.csv(text=x, header = FALSE)))
+  sects <- lapply(sects, function(i){
+    splt <- regmatches(i, regexpr("=", i), invert = TRUE)[[1]]
+    nm <- splt[1]
+    # Catch tags
+    if(nm %in% c("exposure", "outcome", "unobserved", "latent")){
+      out <- data.frame(TRUE)
+      names(out) <- nm
+      return(out)
+    }
+    if(nm == "pos"){
+      out <- as.data.frame(t(as.numeric(strsplit(splt[2], split = ",", fixed = TRUE)[[1]])))
+      names(out) <- c("x", "y")
+      return(out)
+    }
+    out <- data.frame(splt[-1])
+    names(out) <- nm
+    return(out)
+  })
+  data.frame(name = nam, do.call(cbind, sects))
 }
 
 #' @method prepare_graph dagitty
