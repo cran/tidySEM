@@ -96,9 +96,9 @@ pseudo_class_pool <- function(fits, df_complete = NULL, ...) {
 #' @export
 pseudo_class_pool.default <- function(fits, df_complete = NULL, ...) {
   if ( ! requireNamespace("mice", quietly = TRUE) ) {
-    stop("Cannot pool fit objects, because package 'mice' is not installed")
+    message("Cannot pool fit objects, because package 'mice' is not installed")
+    return(NULL)
   }
-
   summary(mice::pool(object = fits, dfcom = df_complete, ...))
 }
 
@@ -270,6 +270,7 @@ pseudo_class_analysis_cb <- function(dfs, func) {
 #' @returns A data.frame of class `class_draws`.
 #' @examples
 #' if(requireNamespace("OpenMx", quietly = TRUE)){
+#' library(OpenMx)
 #' dat <- iris[c(1:5, 50:55, 100:105),1:3]
 #' colnames(dat) <- letters[1:3]
 #' fit <- mx_profiles(data = dat, classes = 2)
@@ -327,6 +328,7 @@ append_class_draws <- function(x, data = NULL, m = 20) {
 #'
 #' @examples
 #' if(requireNamespace("OpenMx", quietly = TRUE)){
+#' library(OpenMx)
 #' set.seed(2)
 #' dat <- iris[c(1:5, 50:55, 100:105), 1:4]
 #' colnames(dat) <- c("SL", "SW", "PL", "PW")

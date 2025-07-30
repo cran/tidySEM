@@ -36,6 +36,7 @@ the LMR LRT can be evaluated using a Z-test. This function wraps
 }
 \examples{
 if(requireNamespace("OpenMx", quietly = TRUE)){
+library(OpenMx)
 df <- iris[c(1:5, 100:105), 1:3]
 names(df) <- letters[1:3]
 res <- mx_profiles(df, classes = 1:2)
@@ -44,7 +45,7 @@ lr_lmr(res)
 }
 \references{
 Lo Y, Mendell NR, Rubin DB. Testing the number of components in a
-normal mixture. Biometrika. 2001;88(3):767–778.
+normal mixture. Biometrika. 2001;88(3):767-778.
 \doi{10.1093/biomet/88.3.767}
 
 Vuong, Q. H. (1989). Likelihood ratio tests for model selection

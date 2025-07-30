@@ -45,12 +45,14 @@ table_results(fit_lav)
 table_fit(fit_lav)
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
+# library(OpenMx)
 # model |>
 #   estimate_mx() -> fit_mx
 # table_results(fit_mx)
 # table_fit(fit_mx)
 
 ## ----eval = requireNamespace("OpenMx", quietly = TRUE), echo = FALSE----------
+library(OpenMx)
 estimate_mx(model) -> fit_mx
 table_results(fit_mx)
 table_fit(fit_mx)

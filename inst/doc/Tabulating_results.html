@@ -428,12 +428,14 @@ it helps to rename the variables:</p>
 </div>
 <div id="output-from-openmx" class="section level2">
 <h2>Output from OpenMx</h2>
-<p>Now, we’ll reproduce the same analysis in ‘OpenMx’. First, we run the
+<p>Now, we’ll reproduce the same analysis in ‘OpenMx’. Note that this
+requires loading the <code>OpenMx</code> package. First, we run the
 model:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">estimate_mx</span>() <span class="ot">-&gt;</span> fit_mx</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">table_results</span>(fit_mx)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">table_fit</span>(fit_mx)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(OpenMx)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>model <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">estimate_mx</span>() <span class="ot">-&gt;</span> fit_mx</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">table_results</span>(fit_mx)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">table_fit</span>(fit_mx)</span></code></pre></div>
 <pre><code>#&gt; Running model with 30 parameters
 #&gt;                       label est_sig   se pval      confint
 #&gt; 1     Loadings.vis.BY.vis_1    1.00 &lt;NA&gt; &lt;NA&gt;         &lt;NA&gt;
