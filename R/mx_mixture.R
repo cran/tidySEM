@@ -270,7 +270,9 @@ mx_lca <- function(data = NULL,
     return(out)
   } else {
     # One class model
-    thresh <- mx_thresholds(data)
+    thresh <- mx_threshold(vars = names(data), nThresh = sapply(data, function(x){length(levels(x))})-1L, free = TRUE, values = mx_data_quantiles(data))
+
+
     dots_mxmod <- names(dots)[names(dots) %in% formalArgs(OpenMx::mxModel)]
     dots_mxmod <- dots[dots_mxmod]
     c1 <- do.call(OpenMx::mxModel, c(
@@ -334,6 +336,10 @@ mx_mixture.character <- function(model,
   } else {
     dots_asram <- names(dots)[names(dots) %in% unique(c(formalArgs(lavaan::lavaanify), formalArgs(OpenMx::mxModel)))]
     dots_asram <- dots[dots_asram]
+    if(any(sapply(data, inherits, what = "ordered"))){
+      dots_asram[["threshold_method"]] <- "mixture"
+      dots_asram[["threshold_data"]] <- data[, which(sapply(data, inherits, what = "ordered")), drop = FALSE]
+    }
     model <- lsub(model, 1:classes)
     model <- lapply(1:length(model), function(i){
       do.call(as_ram, c(
@@ -347,9 +353,13 @@ mx_mixture.character <- function(model,
     cl[["data"]] <- data
     cl[[1L]] <- str2lang("tidySEM:::as_mx_mixture")
     out <- eval.parent(cl)
-    cl[["model"]] <- out
-    cl[[1L]] <- str2lang("tidySEM:::mixture_starts")
-    out <- eval.parent(cl)
+    # Check for hidden argument run_mixture_starts with TRUE as default:
+    run_mixture_starts <- tryCatch({!isFALSE(dots[["run_mixture_starts"]])}, error = function(e){TRUE})
+    if(run_mixture_starts){
+      cl[["model"]] <- out
+      cl[[1L]] <- str2lang("tidySEM:::mixture_starts")
+      out <- eval.parent(cl)
+    }
     if(run){
       cl[["x"]] <- out
       cl[["model"]] <- NULL

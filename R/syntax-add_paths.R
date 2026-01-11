@@ -120,6 +120,9 @@ add_paths.default <- function(model, ...){ #, strict_check = TRUE
     x
   })
   # Parse dots
+  modlstr <- paste0(unlist(dots), collapse = ";")
+  modlstr <- gsub("(=|~|~\\*|<)\\s{0,}", "\\1", modlstr)
+  modlstr <- gsub("\\s{0,}(~|1|\\*~)", "\\1", modlstr)
   tab <- lavParseModelString(paste0(unlist(dots), collapse = ";"), as.data.frame. = TRUE)
   # Convert to lavaan
   tab <- do.call(tidysem_lavaanify, c(list(model = tab), Args_lav))
@@ -180,7 +183,7 @@ tidysem_lavaanify <- function(..., data = NULL){
   cl[[1L]] <- str2lang("lavaan::lavaanify")
   x <- eval.parent(cl)
   if(!is.null(data)){
-    obs <- vnames(x, type = "ov")
+    obs <- lavaan::lavNames(x, type = "ov")
     ord <- sapply(data[obs], inherits, "ordered")
     cats <- sapply(data[obs], inherits, "factor") & !ord
     if(any(ord)){

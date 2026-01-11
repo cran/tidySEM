@@ -383,9 +383,10 @@ called <code>df</code>. We first only use the four scales:
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Load required packages</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Load data</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>df <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;burdened&quot;</span>, <span class="st">&quot;trapped&quot;</span>, <span class="st">&quot;negaffect&quot;</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="st">&quot;loneliness&quot;</span>)]</span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(OpenMx)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>df <span class="ot">&lt;-</span> zegwaard_carecompass[, <span class="fu">c</span>(<span class="st">&quot;burdened&quot;</span>, <span class="st">&quot;trapped&quot;</span>, <span class="st">&quot;negaffect&quot;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>    <span class="st">&quot;loneliness&quot;</span>)]</span></code></pre></div>
 </div>
 <div id="descriptive-statistics" class="section level2">
 <h2>Descriptive statistics</h2>
@@ -497,7 +498,7 @@ bar:</p>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">plan</span>(multisession)  <span class="co"># Parallel processing for Windows</span></span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">handlers</span>(<span class="st">&quot;progress&quot;</span>)  <span class="co"># Progress bar</span></span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>res_blrt <span class="ot">&lt;-</span> <span class="fu">BLRT</span>(res, <span class="at">replications =</span> <span class="dv">20</span>)</span></code></pre></div>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>res_blrt <span class="ot">&lt;-</span> <span class="fu">BLRT</span>(res, <span class="at">replications =</span> <span class="dv">100</span>)</span></code></pre></div>
 <p>In sum, across all class enumeration criteria, there is strong
 support for a 4-class solution.</p>
 </div>
@@ -607,7 +608,8 @@ regression coefficients across classes and pairwise comparisons between
 classes, use <code>lr_test(aux_model, compare = &quot;A&quot;)</code>. The results
 indicate that there are no significant sex differences across classes,
 <span class="math inline">\(\Delta LL(3) = 0.98, p = .81\)</span>. The
-results can be reported using <code>table_results(aux_model)</code>.</p>
+results can be reported using <code>table_results(aux_model)</code>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">table_results</span>(aux_model)</span></code></pre></div>
 </div>
 </div>
 <div id="predicting-class-membership" class="section level2">
@@ -618,13 +620,14 @@ tailored support to those who take care of their clients. In
 <code>tidySEM</code>, it is possible to predict class membership for new
 data. Imagine that we administer the care compass questionnaire to a new
 individual. We can assign their scale scores to a
-<code>data.frame</code>, and supply it to the <code>predict()</code>
-function via the <code>newdata</code> argument. The result includes the
-individual’s most likely class, as well as posterior probabilities for
-all classes.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>df_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">burdened =</span> <span class="dv">2</span>, <span class="at">trapped =</span> <span class="fl">0.5</span>, <span class="at">negaffect =</span> <span class="fl">1.5</span>,</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>    <span class="at">loneliness =</span> <span class="dv">4</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="fu">predict</span>(res_final, <span class="at">newdata =</span> df_new)</span></code></pre></div>
+<code>data.frame</code>, and supply it to the
+<code>predict_class()</code> function (in previous versions, we
+overloaded the <code>predict()</code> function) via the
+<code>newdata</code> argument. The result includes the individual’s most
+likely class, as well as posterior probabilities for all classes.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>df_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">burdened =</span> <span class="dv">2</span>, <span class="at">trapped =</span> <span class="fl">0.5</span>, <span class="at">negaffect =</span> <span class="fl">1.5</span>,</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>    <span class="at">loneliness =</span> <span class="dv">4</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="fu">predict_class</span>(res_final, <span class="at">newdata =</span> df_new)</span></code></pre></div>
 </div>
 
 

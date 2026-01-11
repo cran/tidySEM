@@ -19,6 +19,7 @@ if(suppressWarnings(tryCatch({isTRUE(as.logical(readLines("pkgdown.txt")))}, err
 }
 run_everything = suppressWarnings(tryCatch({isTRUE(as.logical(readLines("run_everything.txt")))}, error = function(e){FALSE}))
 
+
 ## ----echo = TRUE, eval=TRUE---------------------------------------------------
 # Load required packages
 library(tidySEM) 
@@ -104,6 +105,7 @@ knitr::kable(desc, caption = "Descriptive statistics")
 # names(df) <- c("pc1", "pc2")
 
 ## ----fitlca, eval = FALSE, echo = TRUE----------------------------------------
+# library(OpenMx)
 # set.seed(123)
 # res <- mx_profiles(data = df,
 #                    classes = 1:3,
@@ -113,23 +115,24 @@ knitr::kable(desc, caption = "Descriptive statistics")
 # saveRDS(res, "res_gmm.RData")
 
 ## ----eval = run_everything, echo = FALSE--------------------------------------
+# library(OpenMx)
 # set.seed(123)
 # res <- mx_profiles(data = df,
 #                    classes = 1:3,
 #                    variances = c("equal", "varying"),
 #                    covariances = c("equal", "varying"),
 #                    expand_grid = TRUE)
-# saveRDS(res, "res_gmm.RData")
+
+## ----echo = TRUE, eval=FALSE--------------------------------------------------
+# fit <- table_fit(res)
+
+## ----echo = FALSE, eval=run_everything----------------------------------------
 # fit <- table_fit(res)
 # write.csv(fit, "gmm_tabfit.csv", row.names = FALSE)
-# #"Warning: In model 'mix4' Optimizer returned a non-zero status code 6. The model does not satisfy the first-order optimality conditions to the required accuracy, and no improved point for the merit function could be found during the final linesearch (Mx status RED)"
 
-## ----eval = eval_results, echo = FALSE----------------------------------------
-# fit <- read.csv("gmm_tabfit.csv", stringsAsFactors = FALSE)
-# class(fit) <- c("tidy_fit", "data.frame")
-
-## ----echo = TRUE, eval=F------------------------------------------------------
-# fit <- table_fit(res)
+## ----eval = TRUE, echo = FALSE------------------------------------------------
+fit <- read.csv("gmm_tabfit.csv", stringsAsFactors = FALSE)
+class(fit) <- c("tidy_fit", "data.frame")
 
 ## ----tabfit, echo = TRUE, eval = eval_results---------------------------------
 # tbl <- fit[ , c("Name", "LL", "Parameters",
@@ -189,18 +192,28 @@ knitr::kable(desc, caption = "Descriptive statistics")
 # aux_pt <- BCH(res_bic, model = "poly_typeOther | t1
 #                                 poly_typePE | t1
 #                                 poly_typePP | t1", data = df_pt)
-# aux_pt <- mxTryHardOrdinal(aux_pt)
 
 ## ----echo = FALSE, eval=run_everything----------------------------------------
 # df_pt <- mx_dummies(df_analyze$poly_type)
 # aux_pt <- BCH(res_bic, model = "poly_typeOther | t1
 #                                   poly_typePE | t1
 #                                   poly_typePP | t1", data = df_pt)
-# aux_pt <- mxTryHardOrdinal(aux_pt)
-# saveRDS(aux_pt, "gmm_aux_pt.RData")
 
-## ----echo = FALSE, eval=FALSE-------------------------------------------------
-# aux_pt <- readRDS("gmm_aux_pt.RData")
+## ----eval = FALSE, echo = TRUE------------------------------------------------
+# lr_test(aux_pt)
+
+## ----eval = run_everything, echo = FALSE, results='hide'----------------------
+# tmp <- lr_test(aux_pt)
+# lapply(names(tmp), function(n){
+#   write.csv(tmp[[n]], paste0("lca_exp_", n, ".csv"), row.names = F)
+# })
+
+## ----eval = TRUE, echo = FALSE------------------------------------------------
+ns <-c("overall","pairwise")
+tmp <- lapply(ns, function(n){read.csv(paste0("lca_exp_", n, ".csv"), stringsAsFactors = F)})
+names(tmp) <- ns
+class(tmp) <- c("lr_test", "list"   )
+tmp
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # wald_test(aux_pt, "class1.Thresholds[1,1] = class2.Thresholds[1,1];

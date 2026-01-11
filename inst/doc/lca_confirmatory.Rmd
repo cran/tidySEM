@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include = FALSE}
 library(yaml)
 library(scales)
-
+run_openmx <- requireNamespace("OpenMx", quietly = TRUE)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -63,10 +63,11 @@ To load the data, simply attach the `tidySEM` package.
 For convenience, we assign the variables used for analysis to an object called `df`.
 We first only use the four scales: `c("burdened", "trapped", "negaffect", "loneliness")`.
 
-```{r, echo = TRUE, eval=TRUE}
+```{r, echo = TRUE, eval=run_openmx}
 # Load required packages
 library(tidySEM) 
 library(ggplot2)
+library(OpenMx)
 # Load data
 df <- zegwaard_carecompass[, c("burdened", "trapped", "negaffect", "loneliness")]
 ```
@@ -84,7 +85,7 @@ desc <- desc[, c("name", "n", "missing", "unique",
                  "skew_2se", "kurt_2se")]
 desc
 ```
-```{r tabdesc, echo = FALSE, eval=TRUE}
+```{r tabdesc, echo = FALSE, eval=run_openmx}
 desc <- tidySEM::descriptives(df)
 desc <- desc[, c("name", "n", "missing", "unique",
                  "mean", "median", "sd", "min", "max",
@@ -150,7 +151,6 @@ We set a seed to ensure replicable results.
 set.seed(123) # setting seed 
 res <- mx_profiles(data = df,
                    classes = 1:5)
-saveRDS(res, "res_lpa.RData")
 fit <- table_fit(res)
 write.csv(fit, "lpatabfit.csv", row.names = FALSE)
 ```
@@ -229,13 +229,10 @@ If we conduct LMR tests, we find that the tests are significant for all pairwise
 ```{r lmr_table, echo = TRUE, eval=FALSE}
 lr_lmr(res)
 ```
-
 ```{r tablmr, echo = FALSE, eval = run_everything}
-res <- readRDS("res_lpa.RData")
 tbl <- lr_lmr(res)
 write.csv(tbl, "lpatablmr.csv", row.names = FALSE)
 ```
-
 ```{r echo = FALSE, eval = TRUE}
 tbl <- read.csv("lpatablmr.csv", stringsAsFactors = FALSE)
 knitr::kable(tbl, caption = "LMR test table", digits = 2)
@@ -262,7 +259,7 @@ library(progressr)
 plan(multisession) # Parallel processing for Windows
 handlers("progress") # Progress bar
 set.seed(1)
-res_blrt <- BLRT(res, replications = 20)
+res_blrt <- BLRT(res, replications = 100)
 ```
 ```{r eval = run_everything, echo = FALSE}
 library(future)
@@ -270,7 +267,7 @@ library(progressr)
 plan(multisession) # Parallel processing for Windows
 handlers("progress") # Progress bar
 set.seed(1)
-res_blrt <- BLRT(res, replications = 20)
+res_blrt <- BLRT(res, replications = 100)
 write.csv(res_blrt, "appendixbresblrt.csv", row.names = FALSE)
 ```
 ```{r eval = eval_results, echo = FALSE}
@@ -361,6 +358,7 @@ ggsave("lpa_bivariate.png", p, device = "png", width = 210, height = 100, units 
 ```{r echo = FALSE, eval = eval_results, fig.cap="Bivariate profile plot", out.width="80%"}
 knitr::include_graphics("lpa_bivariate.png")
 ```
+
 On the diagonal of the bivariate plot are weighted density plots:
 normal approximations of the density function of observed data,
 weighed by class probability.
@@ -399,8 +397,8 @@ p1 <- plot_profiles(res_final, ci = NULL, sd= FALSE, add_line = TRUE, rawdata = 
 p1 <- p1 + theme(legend.position = c(.85, .2))
 p2 <- plot_profiles(res_final)
 p2 <- p2 + theme(legend.position = "none")
-p <- ggpubr::ggarrange(p1, p2)
-ggsave("lpa_profiles.png", p, device = "png", width = 210, height = 100, units = "mm", scale = 1)
+# p <- ggpubr::ggarrange(p1, p2)
+# ggsave("lpa_profiles.png", p, device = "png", width = 210, height = 100, units = "mm", scale = 1)
 ```
 ```{r echo = FALSE, eval = eval_results, fig.cap="Bivariate profile plot", out.width="80%"}
 knitr::include_graphics("lpa_profiles.png")
@@ -425,10 +423,6 @@ aux_sex <- BCH(res_final, data = zegwaard_carecompass$sexpatient)
 ```
 ```{r echo = FALSE, eval=run_everything}
 aux_sex <- BCH(res_final, data = zegwaard_carecompass$sexpatient)
-saveRDS(aux_sex, "lpa_aux_sex.RData")
-```
-```{r echo = FALSE, eval=FALSE}
-aux_sex <- readRDS("lpa_aux_sex.RData")
 ```
 
 To obtain an omnibus likelihood ratio test of the significance of these sex differences across classes,
@@ -455,17 +449,28 @@ df_aux <- zegwaard_carecompass[, c("freqvisit", "distance")]
 df_aux$freqvisit <- as.numeric(df_aux$freqvisit)
 aux_model <- BCH(res_final, model = "freqvisit ~ distance",
                data = df_aux)
-saveRDS(aux_model, "lpa_aux_model.RData")
-```
-```{r echo = FALSE, eval=FALSE}
-aux_model <- readRDS("lpa_aux_model.RData")
 ```
 
 To obtain an omnibus likelihood ratio test of the difference in regression coefficients across classes
 and pairwise comparisons between classes,
 use `lr_test(aux_model, compare = "A")`.
 The results indicate that there are no significant sex differences across classes, $\Delta LL(3) = 0.98, p = .81$.
-The results can be reported using `table_results(aux_model)`.
+The results can be reported using `table_results(aux_model)`:
+
+```{r eval = FALSE, echo=TRUE}
+table_results(aux_model)
+```
+```{r eval = run_everything, echo=FALSE}
+tmp <- table_results(aux_model)
+write.csv(tmp, "lca_conf_res.csv", row.names = FALSE)
+class(tmp) <- c("tidy_results", "data.frame")
+```
+```{r eval = TRUE, echo=FALSE}
+tmp <- read.csv("lca_conf_res.csv", stringsAsFactors = FALSE)
+class(tmp) <- c("tidy_results", "data.frame")
+tmp
+```
+
 
 ## Predicting class membership
 
@@ -474,22 +479,16 @@ so that mental healthcare professionals can provide tailored support to those wh
 In `tidySEM`, it is possible to predict class membership for new data.
 Imagine that we administer the care compass questionnaire to a new individual.
 We can assign their scale scores to a `data.frame`,
-and supply it to the `predict()` function via the `newdata` argument.
+and supply it to the `predict_class()` function (in previous versions, we overloaded the `predict()` function) via the `newdata` argument.
 The result includes the individual's most likely class,
 as well as posterior probabilities for all classes.
 
-```{r echo = TRUE, eval = FALSE}
+```{r echo = TRUE, eval = run_everything}
 df_new <- data.frame(
   burdened = 2,
   trapped = 0.5,
   negaffect = 1.5,
   loneliness = 4
 )
-predict(res_final, newdata = df_new)
+predict_class(res_final, newdata = df_new)
 ```
-```{r echo = FALSE, eval = TRUE}
-structure(c(0.000808074819286418, 1.35412723878036e-15, 0.999191879285034, 
-4.58956785816116e-08, 3), dim = c(1L, 5L), dimnames = list(NULL, 
-    c("class1", "class2", "class3", "class4", "predicted")))
-```
-

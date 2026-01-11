@@ -20,8 +20,8 @@ lsub <- function(x, replacement = NULL, pattern = "{C}", fixed = TRUE, ...){
 }
 
 
-#' @importFrom utils getFromNamespace
-vnames <- getFromNamespace("vnames", "lavaan")
+# @importFrom utils getFromNamespace
+#vnames <- getFromNamespace("vnames", "lavaan")
 
 
 #' @title Convert lavaan syntax to RAM specification
@@ -117,7 +117,6 @@ as_ram.data.frame <- function(x, groups = NULL, data = NULL, ...){
   if(!all(c("lhs", "rhs", "op", "free", "ustart") %in% names(x))){
     stop("Not a valid lavaan parameter table.")
   }
-  dots <- list(...)
   groupnames <- groups
   usedata <- !is.null(data)
   if(length(groups) == 1 & usedata){
@@ -150,6 +149,16 @@ as_ram.data.frame <- function(x, groups = NULL, data = NULL, ...){
     }
   }
   dots <- list(...)
+  if("threshold_method" %in% names(dots)){
+    threshold_method <- dots[["threshold_method"]]
+    dots[["threshold_method"]] <- NULL
+  } else {
+    threshold_method <- "mx_threshold"
+  }
+  if("threshold_data" %in% names(dots)){
+    threshold_data <- dots[["threshold_data"]]
+    dots[["threshold_data"]] <- NULL
+  }
   lavtab <- x
   # Parse categorical variables
   cats <- which(lavtab$op %in% c("|", "~*~"))
@@ -158,21 +167,45 @@ as_ram.data.frame <- function(x, groups = NULL, data = NULL, ...){
     cattab <- lavtab[cats, , drop = FALSE]
     cattab$label[cattab$label == ""] <- NA
     lavtab <- lavtab[-cats, ]
-    catlist <- lapply(unique(cattab$lhs), function(v){
-      vthres <- cattab[cattab$lhs == v & cattab$op == "|", ]
-      tvalues <- tryCatch(update_thresholds(vthres$ustart), error = function(e){
-        stop("Could not complete thresholds for variable '", v, "'; either specify all thresholds by hand, or remove constraints.")
-      })
-      vthres <- vthres[order(vthres$rhs), ]
-      Args <- list(
-        vars = v,
-        nThresh = nrow(vthres),
-        free = !(vthres$free == 0),
-        values = tvalues,
-        labels = vthres$label
-      )
-      do.call(OpenMx::mxThreshold, Args)
-    })
+    #if(threshold_method == "mx_threshold"){
+      threshtab <- cattab[cattab$op == "|", , drop = FALSE]
+      catvars <- unique(threshtab$lhs)
+      num_thresholds <- sapply(catvars, function(v){length(unique(threshtab$rhs[threshtab$lhs == v]))})
+      maxthresh <- max(num_thresholds)
+      if(any(!is.na(threshtab$ustart)) & !all(!is.na(threshtab$ustart))){
+        message("User starts for categorical variable thresholds were ignored; either specify ALL thresholds by hand, or remove constraints. You can apply constraints to the `mxModel` object returned by `as_ram()`.")
+      }
+      if(all(!is.na(threshtab$ustart))){
+        tvalues <- unlist(lapply(catvars, function(v){
+          tmp <- threshtab[threshtab$lhs == v, ]
+          tmp$ustart[order(tmp$rhs)]
+          }))
+
+      } else {
+        if(usedata){
+          tvalues <- mx_data_quantiles(data[, catvars, drop = FALSE])
+        } else {
+          tvalues <- OpenMx::mxNormalQuantiles(nBreaks = num_thresholds)
+        }
+      }
+      free <- matrix(FALSE, nrow = maxthresh, ncol = length(catvars))
+      for(v in seq_along(catvars)){
+        free[1:num_thresholds[v], v] <- TRUE
+      }
+      catlist <- mx_threshold(vars = catvars, nThresh = num_thresholds, free = free, values = tvalues, labels = threshtab$label)
+
+    # } else {
+    #   thresh <- mx_thresholds(threshold_data)
+    #   catlist <- thresh
+    #     #list(
+    #     #OpenMx::mxPath(from = "one", to = names(data), free = FALSE, values = 0),
+    #     #OpenMx::mxPath(from = names(data), to = names(data), free = FALSE, values = 1, arrows = 2),
+    #
+    #   #)
+    #   # do this: c1$expectation$thresholds <- "Thresholds"
+    # }
+
+
   }
   # Parse defined parameters
   defined <- NULL
@@ -183,7 +216,7 @@ as_ram.data.frame <- function(x, groups = NULL, data = NULL, ...){
 
   }
   # Identify observed and latent
-  vnames <- vnames(partable = lavtab, type = "all")
+  vnames <- lavaan::lavNames(object = lavtab, type = "all")
 
   if(!is.null(vnames[["lv"]])){
     latent <- unlist(vnames[["lv"]])
@@ -243,6 +276,11 @@ as_ram.data.frame <- function(x, groups = NULL, data = NULL, ...){
   }
   out <- do.call(OpenMx::mxModel, c(mxmodel_args,
                      path_list))
+  if(!is.null(catlist)){
+    if(!threshold_method == "mxThreshold"){
+      out$expectation$thresholds <- "Thresholds"
+    }
+  }
   # Add data if available
   if(usedata){
     cl <- match.call()

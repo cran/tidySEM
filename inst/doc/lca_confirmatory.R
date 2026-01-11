@@ -1,7 +1,7 @@
 ## ----setup, include = FALSE---------------------------------------------------
 library(yaml)
 library(scales)
-
+run_openmx <- requireNamespace("OpenMx", quietly = TRUE)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -20,10 +20,11 @@ if(suppressWarnings(tryCatch({isTRUE(as.logical(readLines("pkgdown.txt")))}, err
 }
 run_everything = suppressWarnings(tryCatch({isTRUE(as.logical(readLines("run_everything.txt")))}, error = function(e){FALSE}))
 
-## ----echo = TRUE, eval=TRUE---------------------------------------------------
+## ----echo = TRUE, eval=run_openmx---------------------------------------------
 # Load required packages
 library(tidySEM) 
 library(ggplot2)
+library(OpenMx)
 # Load data
 df <- zegwaard_carecompass[, c("burdened", "trapped", "negaffect", "loneliness")]
 
@@ -34,7 +35,7 @@ df <- zegwaard_carecompass[, c("burdened", "trapped", "negaffect", "loneliness")
 #                  "skew_2se", "kurt_2se")]
 # desc
 
-## ----tabdesc, echo = FALSE, eval=TRUE-----------------------------------------
+## ----tabdesc, echo = FALSE, eval=run_openmx-----------------------------------
 desc <- tidySEM::descriptives(df)
 desc <- desc[, c("name", "n", "missing", "unique",
                  "mean", "median", "sd", "min", "max",
@@ -70,7 +71,6 @@ knitr::kable(desc, caption = "Descriptive statistics")
 # set.seed(123) # setting seed
 # res <- mx_profiles(data = df,
 #                    classes = 1:5)
-# saveRDS(res, "res_lpa.RData")
 # fit <- table_fit(res)
 # write.csv(fit, "lpatabfit.csv", row.names = FALSE)
 
@@ -106,7 +106,6 @@ knitr::kable(desc, caption = "Descriptive statistics")
 # lr_lmr(res)
 
 ## ----tablmr, echo = FALSE, eval = run_everything------------------------------
-# res <- readRDS("res_lpa.RData")
 # tbl <- lr_lmr(res)
 # write.csv(tbl, "lpatablmr.csv", row.names = FALSE)
 
@@ -120,7 +119,7 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 # plan(multisession) # Parallel processing for Windows
 # handlers("progress") # Progress bar
 # set.seed(1)
-# res_blrt <- BLRT(res, replications = 20)
+# res_blrt <- BLRT(res, replications = 100)
 
 ## ----eval = run_everything, echo = FALSE--------------------------------------
 # library(future)
@@ -128,7 +127,7 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 # plan(multisession) # Parallel processing for Windows
 # handlers("progress") # Progress bar
 # set.seed(1)
-# res_blrt <- BLRT(res, replications = 20)
+# res_blrt <- BLRT(res, replications = 100)
 # write.csv(res_blrt, "appendixbresblrt.csv", row.names = FALSE)
 
 ## ----eval = eval_results, echo = FALSE----------------------------------------
@@ -193,8 +192,8 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 # p1 <- p1 + theme(legend.position = c(.85, .2))
 # p2 <- plot_profiles(res_final)
 # p2 <- p2 + theme(legend.position = "none")
-# p <- ggpubr::ggarrange(p1, p2)
-# ggsave("lpa_profiles.png", p, device = "png", width = 210, height = 100, units = "mm", scale = 1)
+# # p <- ggpubr::ggarrange(p1, p2)
+# # ggsave("lpa_profiles.png", p, device = "png", width = 210, height = 100, units = "mm", scale = 1)
 
 ## ----echo = FALSE, eval = eval_results, fig.cap="Bivariate profile plot", out.width="80%"----
 # knitr::include_graphics("lpa_profiles.png")
@@ -204,10 +203,6 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 
 ## ----echo = FALSE, eval=run_everything----------------------------------------
 # aux_sex <- BCH(res_final, data = zegwaard_carecompass$sexpatient)
-# saveRDS(aux_sex, "lpa_aux_sex.RData")
-
-## ----echo = FALSE, eval=FALSE-------------------------------------------------
-# aux_sex <- readRDS("lpa_aux_sex.RData")
 
 ## ----echo = TRUE, eval=FALSE--------------------------------------------------
 # df_aux <- zegwaard_carecompass[, c("freqvisit", "distance")]
@@ -220,22 +215,26 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 # df_aux$freqvisit <- as.numeric(df_aux$freqvisit)
 # aux_model <- BCH(res_final, model = "freqvisit ~ distance",
 #                data = df_aux)
-# saveRDS(aux_model, "lpa_aux_model.RData")
 
-## ----echo = FALSE, eval=FALSE-------------------------------------------------
-# aux_model <- readRDS("lpa_aux_model.RData")
+## ----eval = FALSE, echo=TRUE--------------------------------------------------
+# table_results(aux_model)
 
-## ----echo = TRUE, eval = FALSE------------------------------------------------
+## ----eval = run_everything, echo=FALSE----------------------------------------
+# tmp <- table_results(aux_model)
+# write.csv(tmp, "lca_conf_res.csv", row.names = FALSE)
+# class(tmp) <- c("tidy_results", "data.frame")
+
+## ----eval = TRUE, echo=FALSE--------------------------------------------------
+tmp <- read.csv("lca_conf_res.csv", stringsAsFactors = FALSE)
+class(tmp) <- c("tidy_results", "data.frame")
+tmp
+
+## ----echo = TRUE, eval = run_everything---------------------------------------
 # df_new <- data.frame(
 #   burdened = 2,
 #   trapped = 0.5,
 #   negaffect = 1.5,
 #   loneliness = 4
 # )
-# predict(res_final, newdata = df_new)
-
-## ----echo = FALSE, eval = TRUE------------------------------------------------
-structure(c(0.000808074819286418, 1.35412723878036e-15, 0.999191879285034, 
-4.58956785816116e-08, 3), dim = c(1L, 5L), dimnames = list(NULL, 
-    c("class1", "class2", "class3", "class4", "predicted")))
+# predict_class(res_final, newdata = df_new)
 

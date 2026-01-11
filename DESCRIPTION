@@ -1,7 +1,7 @@
 Package: tidySEM
 Type: Package
 Title: Tidy Structural Equation Modeling
-Version: 0.2.9
+Version: 0.2.10
 Authors@R: 
     c(person(given = c("Caspar", "J."),
              family = "van Lissa",
@@ -28,18 +28,19 @@ License: GPL (>= 3)
 URL: https://cjvanlissa.github.io/tidySEM/
 BugReports: https://github.com/cjvanlissa/tidySEM/issues
 Depends: R (>= 4.0.0), stats, utils
-Imports: ggplot2 (>= 3.4.2), lavaan, MplusAutomation, igraph (>=
-        2.0.0), psych, methods, gtable, dbscan, RANN, Matrix, car,
-        future.apply, progressr, nonnest2 (>= 0.5.6)
+Imports: ggplot2 (>= 3.5.0), lavaan (>= 0.6-21), MplusAutomation,
+        igraph (>= 2.0.0), psych, methods, gtable, dbscan, RANN,
+        Matrix, car, future.apply, progressr, progress, nonnest2 (>=
+        0.5.6)
 Suggests: testthat, knitr, dplyr, stringr, covr, tidyLPA, poLCA, umx,
         mclust, MASS, scales, yaml, formatR, dagitty, mice, ggraph,
-        OpenMx, rmarkdown, blavaan, bain
+        OpenMx (>= 2.21.13), rmarkdown, blavaan, bain, future
 VignetteBuilder: knitr
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 LazyData: true
 NeedsCompilation: no
-Packaged: 2025-07-30 17:33:07 UTC; vanlissa
+Packaged: 2026-01-10 15:37:38 UTC; Studio
 Author: Caspar J. van Lissa [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-0808-5024>),
   Mauricio Garnier-Villarreal [ctb] (ORCID:
@@ -47,4 +48,4 @@ Author: Caspar J. van Lissa [aut, cre] (ORCID:
   Frank C Gootjes [ctb] (ORCID: <https://orcid.org/0000-0002-0639-1001>)
 Maintainer: Caspar J. van Lissa <c.j.vanlissa@tilburguniversity.edu>
 Repository: CRAN
-Date/Publication: 2025-07-30 18:20:02 UTC
+Date/Publication: 2026-01-11 06:10:10 UTC
