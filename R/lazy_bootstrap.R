@@ -1,49 +1,4 @@
-# df = iris[1:4]
-# names(df) <- letters[1:4]
-# res_mx <- mx_profiles(data = df, classes = 1:4)
-#
-# srmr <- function(x, y){
-#   select_these <- lower.tri(x)
-#   sqrt(mean((y[select_these] - x[select_these])^2))
-# }
-#
-# vc_sim = cov(sims)
-# vc_obs = cov(thisres$data)
-# for(j in 1:ncol(vc_obs)){
-#   for(k in 1:(j-1)){
-#     print(((vc_sim[j,k]/sqrt(vc_sim[j,j]*vc_sim[k,k]))-(vc_obs[j,k]/sqrt(vc_obs[j,j]*vc_obs[k,k])))^2)
-#   }
-# }
-#
-# srmr.MxModel <- function(null, alt, statistics = "all"){
-#   if(!inherits(y, what = "MxModel")) stop("Both 'x' and 'y' arguments must be of the same type.")
-#
-# }
-#
-#
-# srmr.data.frame <- function(null, alt, statistics = "all"){
-#   cor_null <- cor(null)
-#   cor_alt <- cor(alt)
-#   select_these <- lower.tri(cor_null)
-#   sd_null <- apply(null, 2, sd)
-#   sd_alt <- apply(alt, 2, sd)
-#   vec <- vector(mode = "numeric")
-#   if(any(c("cov", "all") %in% statistics)){
-#     vec <- append(vec, (cor_alt[select_these] - cor_null[select_these]))
-#   }
-#   if(any(c("var", "all") %in% statistics)){
-#     vec <- append(vec, (sd_alt^2 - sd_null^2)/sd_alt^2)
-#   }
-#   if(any(c("means", "all") %in% statistics)){
-#     vec <- append(vec, (colMeans(alt)/sd_alt - colMeans(null)/sd_null))
-#   }
-#   sqrt(mean(vec)^2)
-# }
-#
-# mr <- function(x){
-#   sqrt(mean(x[lower.tri(x)]^2))
-# }
-
+#globalVariables("y")
 #' @title Predictive Model Comparison
 #' @description Compare (non-nested) models estimated on the same data using
 #' model-simulated data.
@@ -52,102 +7,155 @@
 #' @param ci Confidence interval coverage, Default: `0.95`.
 #' @param ... Additional arguments.
 #' @return A `data.frame`.
-#' @rdname pmc_srmr
+#' @rdname pmc
+#' @param FUN Function used to compare the real data (referred to as `x`) to the
+#' model-implied data (referred to as `y`). Defaults to `NULL`, which uses
+#' [tidySEM::chi_sq()] for models with all ordinal variables, and
+#' [tidySEM::srmr()] otherwise, treating all variables as continuous.
 #' @export
-pmc_srmr <- function(x, ..., reps = 20, ci = .95){
-  UseMethod("pmc_srmr", x)
+pmc <- function(x, ..., reps = 20, ci = .95, FUN = NULL){
+  UseMethod("pmc", x)
 }
 
-#' @importFrom stats quantile
-#' @method pmc_srmr mixture_list
+#' @rdname pmc
 #' @export
-pmc_srmr.mixture_list <- function(x, ..., reps = 100, ci = .95){
-  nams <- do.call(c, lapply(x, function(i) i@name))
-  dat_obs <- x[[1]]$data$observed
-  not_num <- !sapply(dat_obs, inherits, what = "numeric")
-  if(any(not_num)){
-    dat_obs[which(not_num)] <- lapply(dat_obs[which(not_num)], as.numeric)
+pmc_srmr <- function(x, ..., reps = 20, ci = .95){
+  .Deprecated("pmc")
+  cl <- match.call()
+  cl[[1]] <- quote(pmc)
+  eval.parent(cl)
+}
+
+#' @title Calculate Standardized Root Mean Residual
+#' @description Given two datasets, computes the correlation matrix for both,
+#' and then calculates the standardized root mean residual difference between
+#' these two correlation matrices.
+#' @param x An object for which a method of [stats::cor()] exists
+#' (e.g, `data.frame`).
+#' @param y An object for which a method of [stats::cor()] exists
+#' (e.g, `data.frame`).
+#' @return `numeric`
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  srmr(iris[1:2], iris[3:4])
+#' }
+#' }
+#' @rdname srmr
+#' @export
+srmr <- function(x, y){
+  cor_null <- cor(x)
+  cor_alt <- cor(y)
+  select_these <- lower.tri(cor_null)
+  dif <- cor_alt[select_these] - cor_null[select_these]
+  sqrt(mean(dif)^2)
+}
+
+#' @title Calculate Chi Square Statistic
+#' @description Given two datasets with ordinal variables,
+#' computes the chi squared statistic. To obtain the lambda statistic as used in
+#' [tidySEM::pmc()], subtract the degrees of freedom.
+#' @param x An object for which a method exists
+#' (e.g, `data.frame`).
+#' @param y An object for which a method exists
+#' (e.g, `data.frame`).
+#' @return `numeric`
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  chi_sq(iris[1:2], iris[3:4])
+#' }
+#' }
+#' @rdname chi_sq
+#' @export
+chi_sq <- function(x, y){
+  tab_obs  <- table(x)
+  tab_sim <- table(y)
+  term <- tab_obs*log(tab_obs/tab_sim)
+  term[is.infinite(term) | is.nan(term) | is.na(term)] <- 0
+  2*sum(term)
+}
+
+
+
+#' @method pmc mixture_list
+#' @importFrom stats quantile
+#' @export
+pmc.mixture_list <- function(x, ..., reps = 100, ci = .95, FUN = NULL){
+  FUN <- try(match.fun(FUN), silent = TRUE)
+  which_stat <- "custom function"
+  exp_text <- c('assign("y", OpenMx::mxGenerateData(x[[i]]), envir = eval_env)',
+                'as.numeric(eval(body(FUN), envir = eval_env))')
+  nams <- c("comparison", "null", "alt", "null_stat", "alt_stat", "lb_dif",
+            "ub_dif", "sig")
+  if(inherits(FUN, what = "try-error")){
+    if(all(sapply(x[[1]]$data$observed, inherits, what = "ordered"))){
+      tab_obs  <- table(x[[1]]$data$observed)
+      num_obs <- nrow(x[[1]]$data$observed)
+      which_stat <- "chi squared"
+      exp_text <- c("tab_sim <- table(OpenMx::mxGenerateData(x[[i]]))",
+                    "term <- tab_obs*log(tab_obs/tab_sim)",
+                    "term[is.infinite(term) | is.nan(term) | is.na(term)] <- 0",
+                    "(2*sum(term))-(num_obs - length(coef(x[[i]])))")
+    } else {
+      which_stat <- "SRMR"
+      dat_obs <- x[[1]]$data$observed
+      not_num <- !sapply(dat_obs, inherits, what = "numeric")
+      if(any(not_num)){
+        dat_obs[which(not_num)] <- lapply(dat_obs[which(not_num)], as.numeric)
+      }
+      cor_obs <- cor(dat_obs)
+      select_these <- lower.tri(cor_obs)
+      cor_obs_sel <- cor_obs[select_these]
+      exp_text <- c("sims <- OpenMx::mxGenerateData(x[[i]])",
+                    "if(any(not_num)){",
+                    "  sims[which(not_num)] <- lapply(sims[which(not_num)], as.numeric)",
+                    "}",
+                    "cor_sim <- cor(sims)",
+                    "sqrt(mean((cor_sim[select_these] - cor_obs_sel)^2))")
+    }
   }
-  cor_obs <- cor(dat_obs)
-  select_these <- lower.tri(cor_obs)
-  cor_obs_sel <- cor_obs[select_these]
-
-  if(requireNamespace("progressr", quietly = TRUE) & requireNamespace("progress", quietly = TRUE)){
-    progressr::with_progress({
-      pgs <- progressr::progressor(steps = reps*length(x))
-      rep_stat <- do.call(cbind, lapply(seq_along(x), function(i){
-
-        progmsg <- x[[i]]@name
-        simres <- do.call(c, future.apply::future_replicate(
+  nams <- do.call(c, lapply(x, function(i) i@name))
+  eval_env <- new.env()
+  assign("x", x[[1]]$data$observed, envir = eval_env)
+  THE_EXP <- parse(text = exp_text)
+  rep_stat <- do.call(cbind, lapply(seq_along(x), function(i){
+      if(requireNamespace("future.apply", quietly = TRUE)){
+        do.call(c, future.apply::future_replicate(
           n = reps,
           future.seed = TRUE,
           simplify = FALSE,
-          expr = {
-            pgs(sprintf(progmsg))
-            sims <- OpenMx::mxGenerateData(x[[i]])
-            if(any(not_num)){
-              sims[which(not_num)] <- lapply(sims[which(not_num)], as.numeric)
-            }
-            cor_sim <- cor(sims)
-            sqrt(mean((cor_sim[select_these] - cor_obs_sel)^2))
-          }
+          expr = eval(THE_EXP)
         ))
-
-        }))
-      })
-
-  } else {
-    rep_stat <- simplify2array(lapply(x, function(thisres) {
-      replicate(reps, {
-        sims <- OpenMx::mxGenerateData(thisres)
-        if(any(not_num)){
-          sims[which(not_num)] <- lapply(sims[which(not_num)], as.numeric)
-        }
-        cor_sim <- cor(sims)
-        sqrt(mean((cor_sim[select_these] - cor_obs_sel)^2))
-      })}))
-
-  }
-
-  srsm_meds <- apply(rep_stat, 2, median)
-  names(srsm_meds) <- nams
-
+      } else {
+        replicate(reps, eval(THE_EXP))
+      }
+  }))
+  # Get summary statistics and prepare output
+  meds <- apply(rep_stat, 2, median)
+  names(meds) <- nams
   cis <- list(
     dif_seq = rep_stat[, 2:dim(rep_stat)[2]] - rep_stat[, 1:(dim(rep_stat)-1L)[2]],
     dif_one = rep_stat[, 2:dim(rep_stat)[2]] - rep_stat[, rep(1, (dim(rep_stat)[2]-1L))]
   )
   cis <- do.call(rbind, lapply(cis, function(i){matrix(as.vector(apply(i, 2, stats::quantile, probs = c(((1-ci)/2), 1-((1-ci)/2)))), ncol = 2, byrow = TRUE)}))
-  colnames(cis) <- paste0("srmr_", c("lb", "ub"))
-  # colMeans(rep_stat)
+  colnames(cis) <- c("lb", "ub")
   out <- data.frame(
     null = c(nams[1:(length(nams)-1L)], rep(nams[1], (length(nams)-1L))),
-               alt = rep(nams[2:length(nams)], 2))
+    alt = rep(nams[2:length(nams)], 2))
   out <- data.frame(comparison = rep(c("dif_seq", "dif_one"), each = nrow(out)/2),
                     out)
-  out$null_srsm <- srsm_meds[out$null]
-  out$alt_srsm <- srsm_meds[out$alt]
+  out$null_stat <- meds[out$null]
+  out$alt_stat <- meds[out$alt]
   out <- data.frame(out, cis, sig = c("", "*")[(apply(sign(cis), 1, sum) == -2)+1L])
+  class(out) <- c("pmc_df", class(out))
+  attr(out, "stat") <- which_stat
   return(out)
 }
 
-#' #' @importFrom nonnest2 llcont
-#' ic_confint <- function(x, y, conf.level = .95){
-#'   ll1 <- nonnest2::llcont(x)
-#'   ll2 <- nonnest2::llcont(y)
-#'   n <- x$data$numObs
-#'   omega.hat.2 <- (n - 1)/n * var(ll1 - ll2, na.rm = TRUE)
-#'   bic1 <- AIC(object1, k = log(n))
-#'   aic1 <- AIC(object1)
-#'   bic2 <- AIC(object2, k = log(n))
-#'   aic2 <- AIC(object2)
-#'   bicdiff <- bic1 - bic2
-#'   aicdiff <- aic1 - aic2
-#'   alpha <- 1 - conf.level
-#'   BICci <- bicdiff + qnorm(c(alpha/2, (1 - alpha/2))) * sqrt(n *
-#'                                                                4 * omega.hat.2)
-#'   AICci <- aicdiff + qnorm(c(alpha/2, (1 - alpha/2))) * sqrt(n *
-#'                                                                4 * omega.hat.2)
-#'   out <- c(bic1, bic2, BICci, aic1, aic2, AICci)
-#'   names(out) <- c(paste0("BIC", 1:2), paste0("dBIC_", c("lb", "ub")), paste0("AIC", 1:2), paste0("dAIC_", c("lb", "ub")))
-#'   return(out)
-#' }
+#' @method print pmc_df
+#' @export
+print.pmc_df <- function(x, ...){
+  cat("PMC model comparison using ", attr(x, "stat"), ":\n\n", sep = "")
+  print.data.frame(x, row.names = FALSE, ...)
+}

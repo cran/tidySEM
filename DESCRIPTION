@@ -1,7 +1,7 @@
 Package: tidySEM
 Type: Package
 Title: Tidy Structural Equation Modeling
-Version: 0.2.10
+Version: 0.2.11
 Authors@R: 
     c(person(given = c("Caspar", "J."),
              family = "van Lissa",
@@ -37,10 +37,10 @@ Suggests: testthat, knitr, dplyr, stringr, covr, tidyLPA, poLCA, umx,
         OpenMx (>= 2.21.13), rmarkdown, blavaan, bain, future
 VignetteBuilder: knitr
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 LazyData: true
+Config/roxygen2/version: 8.0.0
 NeedsCompilation: no
-Packaged: 2026-01-10 15:37:38 UTC; Studio
+Packaged: 2026-08-20 06:56:42 UTC; Studio
 Author: Caspar J. van Lissa [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-0808-5024>),
   Mauricio Garnier-Villarreal [ctb] (ORCID:
@@ -48,4 +48,4 @@ Author: Caspar J. van Lissa [aut, cre] (ORCID:
   Frank C Gootjes [ctb] (ORCID: <https://orcid.org/0000-0002-0639-1001>)
 Maintainer: Caspar J. van Lissa <c.j.vanlissa@tilburguniversity.edu>
 Repository: CRAN
-Date/Publication: 2026-01-11 06:10:10 UTC
+Date/Publication: 2026-08-20 13:50:02 UTC

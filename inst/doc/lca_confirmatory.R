@@ -8,7 +8,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   results = "hide",
-  tidy.opts = list(width.cutoff = 60), tidy = TRUE
+  tidy.opts = list(width.cutoff = 60), tidy = requireNamespace("formatR", quietly = TRUE)
 )
 options(scipen = 1, digits = 2)
 eval_results <- FALSE
@@ -121,7 +121,7 @@ knitr::kable(tbl, caption = "LMR test table", digits = 2)
 # set.seed(1)
 # res_blrt <- BLRT(res, replications = 100)
 
-## ----eval = run_everything, echo = FALSE--------------------------------------
+## ----eval = FALSE, echo = FALSE-----------------------------------------------
 # library(future)
 # library(progressr)
 # plan(multisession) # Parallel processing for Windows

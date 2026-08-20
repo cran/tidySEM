@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Ordinal Indicators in OpenMx Models</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Ordinal Indicators in OpenMx Models</h1>
+
+
+
+<p>In models with ordinal indicators, the response proportions per level
+of the ordinal factors is often modeled as a “threshold”: a value of the
+standard normal distribution where the probability mass in the left tail
+corresponds to the response proportion of that level of the ordinal
+factor.</p>
+<p>An alternative way to parametrize ordinal responses is to model
+response proportions per level of the ordinal factors in terms of
+threshold differences, which are strictly positive. This benefits model
+convergence, especially when for example estimating an LCA model. The
+thresholds are then computed by summing successive deviances.</p>
+<p>The choice of parameterization does not change the substantive
+meaning of the thresholds, but it does change the model parameters.
+Consequently, it also changes how hypotheses must be written for a Wald
+test.</p>
+<p>This vignette walks through two possible specifications using
+<code>as_ram()</code>:</p>
+<ol style="list-style-type: decimal">
+<li>the default threshold parameterization, in which thresholds can be
+addressed directly through <code>model.Thresholds</code>; and</li>
+<li><code>threshold_method = &quot;mx_deviances&quot;</code>, in which thresholds
+are constructed from deviation parameters stored in
+<code>model.mat_dev</code>.</li>
+</ol>
+<p>The examples use the same simulated data and the same threshold model
+under both parameterizations. The main objective is to show how to
+translate a substantive hypothesis about an ordinal threshold into the
+parameter expression expected by <code>wald_test()</code>.</p>
+<div id="simulate-ordinal-data" class="section level2">
+<h2>Simulate ordinal data</h2>
+<p>We begin by simulating a small data set with three ordinal
+variables.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(OpenMx)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">rbind</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">300</span>, <span class="at">mean =</span> <span class="dv">2</span>), <span class="at">ncol =</span> <span class="dv">3</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">600</span>), <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>))</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>df<span class="sc">$</span>X1 <span class="ot">&lt;-</span> <span class="fu">ordered</span>(<span class="fu">cut</span>(df<span class="sc">$</span>X1, <span class="dv">2</span>, <span class="at">labels =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>df<span class="sc">$</span>X2 <span class="ot">&lt;-</span> <span class="fu">ordered</span>(<span class="fu">cut</span>(df<span class="sc">$</span>X2, <span class="dv">2</span>, <span class="at">labels =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>df<span class="sc">$</span>X3 <span class="ot">&lt;-</span> <span class="fu">ordered</span>(<span class="fu">cut</span>(df<span class="sc">$</span>X3, <span class="dv">3</span>, <span class="at">labels =</span> <span class="cn">FALSE</span>))</span></code></pre></div>
+<p><code>set.seed(1)</code> makes the simulation reproducible. The first
+block contributes 100 rows for three variables with mean 2, whereas the
+second contributes 200 rows with mean 0. After <code>rbind()</code>, the
+data set therefore contains 300 observations on three columns, named
+<code>X1</code>, <code>X2</code>, and <code>X3</code> by
+<code>data.frame()</code>. The first two variables are converted to
+ordered factors with two categories; <code>X3</code> is converted to an
+ordered factor with three categories. A two-category ordinal variable
+requires one threshold to separate those whose score is in category 1
+from those in category 2. A three-category ordinal variable requires two
+thresholds. The model therefore contains four thresholds in total: one
+for <code>X1</code>, one for <code>X2</code>, and two for
+<code>X3</code>.</p>
+</div>
+<div id="threshold-syntax-in-as_ram" class="section level2">
+<h2>Threshold syntax in <code>as_ram()</code></h2>
+<p>The threshold model is specified with the <code>|</code>
+operator.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">as_ram</span>(<span class="st">&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="st">X1 | t1</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="st">X2 | t1</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="st">X3 | t1</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="st">X3 | t2&quot;</span>, <span class="at">data =</span> df)</span></code></pre></div>
+<p>Each line has the form <code>variable | threshold_label</code>, where
+threshold labels are always <code>t[number of the threshold]</code>. The
+model asks for the first threshold (<code>t1</code>) of <code>X1</code>
+and <code>X2</code>, and both the first (<code>t1</code>) and second
+(<code>t2</code>) thresholds of <code>X3</code>.</p>
+<p>The labels <code>t1</code> and <code>t2</code> identify threshold
+positions within a variable. They do <strong>not</strong> imply that
+thresholds carrying the same label are constrained to be equal across
+variables. For example, the first threshold of <code>X1</code> and the
+first threshold of <code>X2</code> are distinct model parameters unless
+an equality constraint is imposed explicitly, as in:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>mod_constrain <span class="ot">&lt;-</span> <span class="fu">as_ram</span>(<span class="st">&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="st">X1 | c*t1</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="st">X2 | c*t1</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="st">X3 | t1</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="st">X3 | t2&quot;</span>, <span class="at">data =</span> df)</span></code></pre></div>
+<p>With the default threshold method, the parameters are thresholds,
+which you can verify by running <code>coef(mod)</code>.</p>
+</div>
+<div id="fit-the-default-threshold-parameterization" class="section level2">
+<h2>Fit the default threshold parameterization</h2>
+<p>The model is estimated with <code>run_mx()</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">run_mx</span>(mod)</span></code></pre></div>
+<p><code>run_mx()</code> fits the OpenMx model created by
+<code>as_ram()</code> and returns the fitted model object. A tidy
+summary can be obtained with:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">table_results</span>(res)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;                   label  est_sig   se pval        confint</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; 1          Variances.X1     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; 2          Variances.X2     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 3          Variances.X3     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 4 model.Thresholds[1,1]     0.06 0.07 0.42  [-0.08, 0.20]</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 5 model.Thresholds[1,2]     0.11 0.07 0.13  [-0.03, 0.25]</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 6 model.Thresholds[1,3] -0.52*** 0.08 0.00 [-0.67, -0.38]</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 7 model.Thresholds[2,3]  1.01*** 0.09 0.00   [0.84, 1.18]</span></span></code></pre></div>
+<p>For ordinal indicators, the output includes the estimated threshold
+parameters along with their standard errors and other model results.
+This table is usually the most convenient place to inspect the estimates
+substantively.</p>
+<p>For Wald tests, however, it is important to know how those estimates
+are represented internally. Under the default specification, hypotheses
+can refer directly to entries of <code>model.Thresholds</code>.</p>
+<div id="testing-the-first-threshold-of-x1" class="section level3">
+<h3>Testing the first threshold of X1</h3>
+<p>The first Wald test is:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">wald_test</span>(res, <span class="st">&quot;model.Thresholds[1,1] = 0&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; Wald tests for linear hypotheses:</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;                 Hypothesis df chisq    p</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;  model.Thresholds[1,1] = 0  1  0.65 0.42</span></span></code></pre></div>
+<p>Here, the first matrix index refers to the threshold position and the
+second to the observed variable. Thus,
+<code>model.Thresholds[1,1]</code> is the first threshold of the first
+ordinal indicator, <code>X1</code>.</p>
+<p><code>wald_test()</code> evaluates the stated equality using the
+fitted estimate and its estimated sampling covariance. A small p-value
+indicates that the threshold differs significantly from zero according
+to the Wald approximation.</p>
+</div>
+<div id="testing-the-second-threshold-of-x3" class="section level3">
+<h3>Testing the second threshold of X3</h3>
+<p>The second test is:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">wald_test</span>(res, <span class="st">&quot;model.Thresholds[2,3] = 1&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; Wald tests for linear hypotheses:</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt;                 Hypothesis df  chisq    p</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;  model.Thresholds[2,3] = 1  1 0.0089 0.92</span></span></code></pre></div>
+<p><code>X3</code> is the third observed variable, and its second
+threshold occupies row 2, column 3 of the threshold matrix. This direct
+indexing is the main convenience of the default parameterization: a
+hypothesis about a threshold can be written as a hypothesis about the
+corresponding entry of <code>model.Thresholds</code>.</p>
+</div>
+</div>
+<div id="using-threshold_method-mx_deviances" class="section level2">
+<h2>Using <code>threshold_method = &quot;mx_deviances&quot;</code></h2>
+<p>The same substantive model can be constructed with a different
+threshold parameterization:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">as_ram</span>(<span class="st">&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="st">X1 | t1</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="st">X2 | t1</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="st">X3 | t1</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="st">X3 | t2&quot;</span>, <span class="at">data =</span> df, <span class="at">threshold_method =</span> <span class="st">&quot;mx_deviances&quot;</span>)</span></code></pre></div>
+<p>The observed variables and requested thresholds are unchanged. What
+changes is the way the thresholds are parameterized inside OpenMx.
+Verify that these are now defined as deviances by running
+<code>coef(mod2)</code>.</p>
+<p>With <code>threshold_method = &quot;mx_deviances&quot;</code>, the model uses a
+matrix of deviation parameters, <code>model.mat_dev</code>. Thresholds
+are then constructed by cumulatively summing these deviations. This
+cumulative representation is useful for encoding the ordered structure
+of thresholds. It also means that the second and later thresholds are
+generally <strong>functions of multiple model parameters</strong>,
+rather than single free parameters.</p>
+<p>Fit and summarize this model in the same way:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">run_mx</span>(mod2)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">table_results</span>(res2)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt;             label  est_sig   se pval        confint</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; 1 Thresholds[1,1]     0.06 0.07 0.42  [-0.08, 0.20]</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 2 Thresholds[1,2]     0.11 0.07 0.13  [-0.03, 0.25]</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 3 Thresholds[1,3] -0.52*** 0.08 0.00 [-0.67, -0.38]</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 4 Thresholds[2,3]  1.01*** 0.09 0.00   [0.84, 1.18]</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; 5    Variances.X1     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; 6    Variances.X2     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 7    Variances.X3     1.00 &lt;NA&gt; &lt;NA&gt;           &lt;NA&gt;</span></span></code></pre></div>
+<p>The substantive threshold estimates reported by
+<code>table_results()</code> are already reconstructed from the
+deviances, and can be interpreted in the same way as before. The
+difference becomes important when referring to the free parameters
+directly.</p>
+<p>For a variable with only one threshold, the first deviation is equal
+to the threshold. For a variable with multiple thresholds, later
+thresholds must be reconstructed by adding the relevant deviations.</p>
+<div id="testing-the-first-threshold-of-x1-1" class="section level3">
+<h3>Testing the first threshold of X1</h3>
+<p>Because the first threshold is equal to the first deviation, the
+corresponding test for deviances is:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">wald_test</span>(res2, <span class="st">&quot;model.mat_dev[1,1] = 0&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; Wald tests for linear hypotheses:</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt;              Hypothesis df chisq    p</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;  model.mat_dev[1,1] = 0  1  0.65 0.42</span></span></code></pre></div>
+<p>Verify that the test result is identical to:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">wald_test</span>(res, <span class="st">&quot;model.Thresholds[1,1] = 0&quot;</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; Wald tests for linear hypotheses:</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt;                 Hypothesis df chisq    p</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt;  model.Thresholds[1,1] = 0  1  0.65 0.42</span></span></code></pre></div>
+</div>
+<div id="testing-the-second-threshold-of-x3-1" class="section level3">
+<h3>Testing the second threshold of X3</h3>
+<p>The difference between the parameterizations is clearest for the
+second threshold of <code>X3</code>. It must be written as a constraint
+on the <strong>sum</strong> of the first two deviations:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">wald_test</span>(res2, <span class="st">&quot;model.mat_dev[1,3]+model.mat_dev[2,3] = 1&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; Wald tests for linear hypotheses:</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;                                 Hypothesis df  chisq    p</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;  model.mat_dev[1,3]+model.mat_dev[2,3] = 1  1 0.0089 0.92</span></span></code></pre></div>
+<p>This is the deviation-parameter counterpart of:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">wald_test</span>(res, <span class="st">&quot;model.Thresholds[2,3] = 1&quot;</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; Wald tests for linear hypotheses:</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt;                 Hypothesis df  chisq    p</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt;  model.Thresholds[2,3] = 1  1 0.0089 0.92</span></span></code></pre></div>
+<p>Do not make the mistake of testing only
+<code>model.mat_dev[2,3] = 1</code>. That would test whether the
+<em>second deviation</em> equals 1, not whether the <em>second
+threshold</em> equals 1. Those are different hypotheses because the
+second threshold is cumulative.</p>
+</div>
+</div>
+<div id="why-the-two-wald-tests-should-agree" class="section level2">
+<h2>Why the two Wald tests should agree</h2>
+<p>The default and deviation specifications are alternative
+parameterizations of the same thresholds. When both models represent the
+same statistical model and converge to the same solution, a Wald test
+formulated for the same substantive threshold should lead to equivalent
+conclusions, apart from small numerical differences.</p>
+<p>The expressions passed to <code>wald_test()</code> differ because a
+Wald test operates on the parameterization of the fitted model.
+Reparameterizing a threshold as a sum of deviations therefore requires
+re-expressing the null hypothesis in terms of that sum.</p>
+<p>This distinction is especially important for second and later
+thresholds. In the direct specification, the target threshold is a
+single entry of <code>model.Thresholds</code>; in the deviation
+specification, the same target is a linear combination of entries in
+<code>model.mat_dev</code>.</p>
+</div>
+<div id="reparametrizing-the-model" class="section level2">
+<h2>Reparametrizing the Model</h2>
+<p>While strictly positive deviances may aid in achieving model
+convergence, once convergence has been reached, it is possible to
+reparametrize the model to use thresholds instead. At present, this is
+supported by the utility function
+<code>deviances_to_thresholds()</code>, which takes in a model with
+deviances and returns a model with thresholds. The model is
+automatically re-run.</p>
+<p>Use this functionality as follows:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">coef</span>(res2)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; model.mat_dev[1,1] model.mat_dev[1,2] model.mat_dev[1,3] model.mat_dev[2,3] </span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt;              0.059              0.109             -0.524              1.533</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>res2_thresholds <span class="ot">&lt;-</span> <span class="fu">deviances_to_thresholds</span>(res2)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="fu">coef</span>(res2_thresholds)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; model.Thresholds[1,1] model.Thresholds[1,2] model.Thresholds[1,3] </span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt;                 0.059                 0.109                -0.524 </span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; model.Thresholds[2,3] </span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;                 1.008</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="fu">wald_test</span>(res2_thresholds, <span class="st">&quot;model.Thresholds[1,1] = 0&quot;</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; Wald tests for linear hypotheses:</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt;                 Hypothesis df chisq    p</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt;  model.Thresholds[1,1] = 0  1  0.65 0.42</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

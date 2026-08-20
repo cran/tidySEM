@@ -7,7 +7,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   results = "hide",
-  tidy.opts = list(width.cutoff = 60), tidy = TRUE
+  tidy.opts = list(width.cutoff = 60), tidy = requireNamespace("formatR", quietly = TRUE)
 )
 options(scipen = 1, digits = 2)
 eval_results <- FALSE
@@ -133,6 +133,7 @@ df <- maene_identity[1:5]
 
 ## ----echo = FALSE, eval=run_everything----------------------------------------
 # aux_dep <- BCH(res_final, data = maene_identity$depression)
+# saveRDS(aux_dep, "lca_aux_dep.RData")
 
 ## ----echo = FALSE, eval=FALSE-------------------------------------------------
 # aux_dep <- readRDS("lca_aux_dep.RData")

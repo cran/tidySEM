@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -343,7 +344,8 @@ models</h1>
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(MplusAutomation)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(MplusAutomation)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;MplusAutomation&#39; was built under R version 4.6.1</span></span></code></pre></div>
 <p><code>tidySEM</code> tabulates the results of different types of
 models in the same uniform way. This facilitates parsing the output into
 Tables and Figures for publication. The function to tabulate output is
@@ -421,10 +423,10 @@ it helps to rename the variables:</p>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 1            0.9      0.00066           0.05                  0.84</span></span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;   rmsea.notclose.h0   rmr rmr_nomean srmr srmr_bentler srmr_bentler_nomean</span></span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 1              0.08 0.075      0.082 0.06         0.06               0.065</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;    crmr crmr_nomean srmr_mplus srmr_mplus_nomean cn_05 cn_01 gfi agfi pgfi mfi</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 1 0.065       0.073       0.06             0.065   129   153   1 0.99 0.44 0.9</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   ecvi</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 1 0.48</span></span></code></pre></div>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;    crmr crmr_nomean srmr_mplus srmr_mplus_nomean  gfi gfi.ci.lower gfi.ci.upper</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 1 0.065       0.073       0.06             0.065 0.96         0.94         0.98</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   gfi.ci.level cn_05 cn_01 gfi_lisrel agfi_lisrel pgfi mfi ecvi</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 1          0.9   129   153          1        0.99 0.44 0.9 0.48</span></span></code></pre></div>
 </div>
 <div id="output-from-openmx" class="section level2">
 <h2>Output from OpenMx</h2>
@@ -436,7 +438,8 @@ model:</p>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">estimate_mx</span>() <span class="ot">-&gt;</span> fit_mx</span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">table_results</span>(fit_mx)</span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">table_fit</span>(fit_mx)</span></code></pre></div>
-<pre><code>#&gt;                       label est_sig   se pval      confint
+<pre><code>#&gt; Warning: package &#39;OpenMx&#39; was built under R version 4.6.1
+#&gt;                       label est_sig   se pval      confint
 #&gt; 1     Loadings.vis.BY.vis_1    1.00 &lt;NA&gt; &lt;NA&gt;         &lt;NA&gt;
 #&gt; 2     Loadings.vis.BY.vis_2 0.55*** 0.11 0.00 [0.34, 0.77]
 #&gt; 3     Loadings.vis.BY.vis_3 0.73*** 0.12 0.00 [0.50, 0.96]

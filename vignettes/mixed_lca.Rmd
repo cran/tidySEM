@@ -169,7 +169,7 @@ set.seed(1)
 res_blrt <- BLRT(res_1_3, replications = 100)
 res_blrt
 ```
-```{r eval = run_everything, echo = FALSE, warning=FALSE}
+```{r eval = FALSE, echo = FALSE, warning=FALSE}
 library(future)
 library(progressr)
 plan(multisession) # Parallel processing for Windows
@@ -195,17 +195,17 @@ A third option is to use a predictive model comparison, a method conceptually si
 
 ```{r eval = run_everything, echo = FALSE}
 set.seed(1)
-res_pmc_srmr <- pmc_srmr(res_1_3)
-write.csv(res_pmc_srmr, "mixed_lca_res_pmc_srmr.csv", row.names = F)
+res_pmc <- pmc(res_1_3)
+write.csv(res_pmc, "mixed_lca_res_pmc.csv", row.names = F)
 ```
 ```{r echo = TRUE, eval = FALSE}
 set.seed(1)
-res_pmc_srmr <- pmc_srmr(res_1_3)
-res_pmc_srmr
+res_pmc <- pmc(res_1_3)
+res_pmc
 ```
 ```{r echo = FALSE}
-res_pmc_srmr <- read.csv("mixed_lca_res_pmc_srmr.csv", stringsAsFactors = F)
-res_pmc_srmr
+res_pmc <- read.csv("mixed_lca_res_pmc.csv", stringsAsFactors = F)
+res_pmc
 ```
 
 This test, too, confirms that the 2-class solution is significantly better than the 1-class solution - but the 3-class solution offers no further significant improvement.

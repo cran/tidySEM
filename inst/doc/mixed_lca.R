@@ -78,7 +78,7 @@ tab
 # res_blrt <- BLRT(res_1_3, replications = 100)
 # res_blrt
 
-## ----eval = run_everything, echo = FALSE, warning=FALSE-----------------------
+## ----eval = FALSE, echo = FALSE, warning=FALSE--------------------------------
 # library(future)
 # library(progressr)
 # plan(multisession) # Parallel processing for Windows
@@ -95,17 +95,17 @@ res_blrt
 
 ## ----eval = run_everything, echo = FALSE--------------------------------------
 # set.seed(1)
-# res_pmc_srmr <- pmc_srmr(res_1_3)
-# write.csv(res_pmc_srmr, "mixed_lca_res_pmc_srmr.csv", row.names = F)
+# res_pmc <- pmc(res_1_3)
+# write.csv(res_pmc, "mixed_lca_res_pmc.csv", row.names = F)
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # set.seed(1)
-# res_pmc_srmr <- pmc_srmr(res_1_3)
-# res_pmc_srmr
+# res_pmc <- pmc(res_1_3)
+# res_pmc
 
 ## ----echo = FALSE-------------------------------------------------------------
-res_pmc_srmr <- read.csv("mixed_lca_res_pmc_srmr.csv", stringsAsFactors = F)
-res_pmc_srmr
+res_pmc <- read.csv("mixed_lca_res_pmc.csv", stringsAsFactors = F)
+res_pmc
 
 ## ----eval = run_everything, echo = FALSE--------------------------------------
 # tmp <- class_prob(res_1_3[[2]], c("sum.posterior", "sum.mostlikely"))

@@ -7,7 +7,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   results = "hide",
-  tidy.opts = list(width.cutoff = 60), tidy = TRUE
+  tidy.opts = list(width.cutoff = 60), tidy = requireNamespace("formatR", quietly = TRUE)
 )
 options(scipen = 1, digits = 2)
 eval_results <- FALSE
@@ -18,9 +18,15 @@ if(suppressWarnings(tryCatch({isTRUE(as.logical(readLines("pkgdown.txt")))}, err
 )
 }
 run_everything = suppressWarnings(tryCatch({isTRUE(as.logical(readLines("run_everything.txt")))}, error = function(e){FALSE}))
+if(!requireNamespace("OpenMx", quietly = TRUE)){
+  knitr::opts_chunk$set(eval = FALSE)
+  run_everything = FALSE
+  eval_results = FALSE
+}
 
-## ----echo = TRUE, eval = TRUE-------------------------------------------------
+## ----echo = TRUE--------------------------------------------------------------
 library(tidySEM)
+library(OpenMx)
 library(ggplot2)
 library(MASS)
 
@@ -167,7 +173,17 @@ knitr::kable(desc, caption = "Item descriptives")
 #   s ~~ 0*s
 #   i ~~ 0*s
 #   i ~~ 0*step
-#   s ~~ 0*step", classes = 1:5,
+#   s ~~ 0*step
+#   scl1~0*1
+#   scl2~0*1
+#   scl3~0*1
+#   scl4~0*1
+#   scl5~0*1
+#   scl6~0*1
+#   i~NA*1
+#   s~NA*1
+#   step~NA*1
+#   ", classes = 1:5,
 #   data = dat)
 # # Additional iterations because of
 # # convergence problems for model 1:
@@ -192,7 +208,16 @@ knitr::kable(desc, caption = "Item descriptives")
 # s ~~ 0*s
 # i ~~ 0*s
 # i ~~ 0*step
-# s ~~ 0*step", classes = 1:5,
+# s ~~ 0*step
+# scl1~0*1
+#   scl2~0*1
+#   scl3~0*1
+#   scl4~0*1
+#   scl5~0*1
+#   scl6~0*1
+#   i~NA*1
+#   s~NA*1
+#   step~NA*1", classes = 1:5,
 #   data = dat)
 # # Additional iterations because of
 # # convergence problems for model 1:

@@ -4,7 +4,14 @@
 \alias{skew_kurtosis}
 \title{Calculate skew and kurtosis}
 \usage{
-skew_kurtosis(x, verbose = FALSE, se = FALSE, ...)
+skew_kurtosis(
+  x,
+  verbose = FALSE,
+  se = FALSE,
+  pearson = FALSE,
+  corrected = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{An object for which a method exists.}
@@ -12,12 +19,18 @@ skew_kurtosis(x, verbose = FALSE, se = FALSE, ...)
 \item{verbose}{Logical. Whether or not to print messages to the console,
 Default: FALSE}
 
-\item{se}{Whether or not to return the standard errors, Default: FALSE}
+\item{se}{Logical. Whether or not to return the standard errors, Default: FALSE}
+
+\item{pearson}{Logical. Whether or not to return the Pearson's kurtosis alongside excess kurtosis, Default: FALSE}
+
+\item{corrected}{Logical. Whether or not to correct for bias in skew and kurtosis (Joanes & Gill, 1998). Corrects both the estimates and their standard errors. Default: TRUE}
 
 \item{...}{Additional arguments to pass to and from functions.}
 }
 \value{
-A \code{matrix} of skew and kurtosis statistics for \code{x}.
+A \code{matrix} of skew and kurtosis statistics for \code{x}. The
+columns labeled \verb{_2se} contain the test statistic divided by two times its
+standard error.
 }
 \description{
 Calculate skew and kurtosis, standard errors for both, and the
@@ -27,4 +40,7 @@ large sample sizes, significant skew/kurtosis is common.
 }
 \examples{
 skew_kurtosis(datasets::anscombe)
+}
+\references{
+Joanes, D. N. & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. \emph{Journal Of The Royal Statistical Society: Series D (The Statistician)}, \emph{47}(1), 183–189. \doi{10.1111/1467-9884.00122}
 }
