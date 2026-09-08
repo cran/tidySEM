@@ -139,7 +139,10 @@ get_layout.tidy_results <- function(x, ..., layout_algorithm = "fr_grid"){
     lo <- fr_layout_integer_compact(nodes = nds, edges = as.matrix(df))
   } else {
     g <- igraph::graph_from_data_frame(x[, c("lhs", "rhs")], directed = TRUE)
-    lo <- do.call(layout_algorithm, list(g))
+    lo <- do.call(
+      getExportedValue("igraph", layout_algorithm),
+      list(graph = g)
+    )
     rownames(lo) <- igraph::vertex.attributes(g)$name
   }
   lo <- snap_layout_to_grid(lo)
@@ -148,12 +151,12 @@ get_layout.tidy_results <- function(x, ..., layout_algorithm = "fr_grid"){
 
 #' @method get_layout tidy_edges
 #' @export
-#' @importFrom igraph graph_from_data_frame vertex.attributes
-#' @importFrom igraph layout_as_star layout_as_tree layout_in_circle
-#' @importFrom igraph layout_nicely layout_on_grid layout_randomly
-#' @importFrom igraph layout_with_dh layout_with_fr layout_with_gem
-#' @importFrom igraph layout_with_graphopt layout_with_kk layout_with_lgl
-#' @importFrom igraph layout_with_mds
+# @importFrom igraph graph_from_data_frame vertex.attributes
+# @importFrom igraph layout_as_star layout_as_tree layout_in_circle
+# @importFrom igraph layout_nicely layout_on_grid layout_randomly
+# @importFrom igraph layout_with_dh layout_with_fr layout_with_gem
+# @importFrom igraph layout_with_graphopt layout_with_kk layout_with_lgl
+# @importFrom igraph layout_with_mds
 get_layout.tidy_edges <- function(x, ..., layout_algorithm = "fr_grid"){
   if(!isTRUE(requireNamespace("igraph", quietly = TRUE))) {
     message('Run `install.packages("igraph")` before using functions that require it.')

@@ -47,8 +47,10 @@ get_layout(fit)
 # })
 
 ## ----message=FALSE, warning = FALSE-------------------------------------------
-get_layout(fit, layout_algorithm = "layout_in_circle")
-get_layout(fit, layout_algorithm = "layout_on_grid")
+if(requireNamespace("igraph", quietly = TRUE)){
+  get_layout(fit, layout_algorithm = "layout_in_circle")
+  get_layout(fit, layout_algorithm = "layout_on_grid")
+}
 
 ## -----------------------------------------------------------------------------
 get_layout("c", NA,  "d",
