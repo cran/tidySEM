@@ -1,8 +1,6 @@
 skip_if_not_local <- function() {
-
-  if (Sys.info()[["user"]] %in% c("Lissa102", "vanlissa")) {
-    return(invisible(TRUE))
-  }
-
-  testthat::skip("Not run by package maintainer")
+  testthat::skip_if_not(isTRUE(as.logical(toupper(Sys.getenv("TIDYSEM_TEST_LOCAL", "false")))))
+  testthat::skip_on_cran()
+  testthat::skip_on_ci()
+  testthat::skip_on_bioc()
 }

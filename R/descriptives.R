@@ -122,7 +122,7 @@ descriptives.integer <- descriptives.numeric
 descriptives.default <- function(x, ...) {
   if(is.factor(x)) x <- droplevels(x)
   if(!is.vector(x)) x <- tryCatch(as.vector(x), error = function(e){NA})
-  tb <- tryCatch(table(x, useNA = "always"), error = function(e){NA})
+  tb <- tryCatch(table(x, useNA = "no"), error = function(e){NA})
   data.frame(
     n = tryCatch({sum(!is.na(x))}, error = function(e){NA}),
     missing = sum(is.na(x))/length(x),
@@ -169,7 +169,7 @@ var_cat <- function(x) {
 #' skew_kurtosis(datasets::anscombe)
 #' @rdname skew_kurtosis
 #' @references
-#' Joanes, D. N. & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. \emph{Journal Of The Royal Statistical Society: Series D (The Statistician)}, \emph{47}(1), 183–189. \doi{10.1111/1467-9884.00122}
+#' Joanes, D. N. & Gill, C. A. (1998). Comparing measures of sample skewness and kurtosis. \emph{Journal Of The Royal Statistical Society: Series D (The Statistician)}, \emph{47}(1), 183-189. \doi{10.1111/1467-9884.00122}
 #' @export
 skew_kurtosis <- function(x, verbose = FALSE, se = FALSE, pearson = FALSE, corrected = TRUE, ...) {
   UseMethod("skew_kurtosis", x)

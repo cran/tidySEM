@@ -343,19 +343,21 @@ Indicators</h1>
 
 
 <p>This is an example of exploratory LCA with ordinal indicators using
-<code>tidySEM</code>, as explained in Van Lissa, C. J.,
+<code>tidySEM</code>, as explained in <a href="https://doi.org/10.1080/10705511.2023.2250920">Van Lissa, C. J.,
 Garnier-Villarreal, M., &amp; Anadria, D. (2023). <em>Recommended
 Practices in Latent Class Analysis using the Open-Source R-Package
-tidySEM.</em> Structural Equation Modeling. <a href="https://doi.org/10.1080/10705511.2023.2250920" class="uri">https://doi.org/10.1080/10705511.2023.2250920</a>. The
-present example uses synthetic data based on a study by Maene and
-colleagues. In a convenience sample of Flemish (Belgian) high-school
-students with a migration background, this study set out to identify
-distinct classes based on ordinal indicators of National, Regional, and
-Heritage identity. Sample size was not justified.</p>
-<p>The approach to class enumeration was semi-theory driven: The
-researchers expected to find profiles that were distinct on all three
-types of identity (national, regional, and heritage) - but the exact
-number of classes was not pre-specified (hypothesis 1).</p>
+tidySEM.</em> Structural Equation Modeling</a>.</p>
+<p>The present example uses synthetic data based on a study by <a href="https://doi.org/10.1007/s10964-022-01665-7">Maene, D’hondt, Van
+Lissa, Thijs, &amp; Stevens (2022)</a>. In a convenience sample of
+Flemish (Belgian) high-school students with a migration background, this
+study set out to identify distinct classes based on ordinal indicators
+of National, Regional, and Heritage identity. Sample size was not
+justified.</p>
+<p>In the original study, the approach to class enumeration was
+semi-theory driven: The researchers expected to find profiles that were
+distinct on all three types of identity (national, regional, and
+heritage) - but the exact number of classes was not pre-specified
+(hypothesis 1).</p>
 <p>Hypothesis 2 stated that adolescents who are nationally integrated
 would have lower depressive feelings than students from students with
 other combinations of identifications (hypothesis 2). Hypothesis 3 was
@@ -368,12 +370,33 @@ data documentation.</p>
 <h2>Loading the Data</h2>
 <p>To load the data, simply attach the <code>tidySEM</code> package. For
 convenience, we assign the indicator data to an object called
-<code>df</code>:</p>
+<code>df</code>. As the analyses take a long time to run, this tutorial
+reduces the data to three identity indicators and collapses their
+ordered response categories into three levels. This is a teaching
+simplification, do not do this for substantive analyses: collapsing
+categories discards information and changes the estimated latent
+classes.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Load required packages</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidySEM)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Load data</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>df <span class="ot">&lt;-</span> maene_identity[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Load data Keep one indicator for each identity domain and</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># collapse adjacent categories.  This deliberately smaller</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># example makes ordinal mixture estimation faster.</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>ordinal3 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    z <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(x)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    observed <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(z[<span class="sc">!</span><span class="fu">is.na</span>(z)]))</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(observed) <span class="sc">&lt;</span> <span class="dv">3</span><span class="dt">L</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;Indicator has fewer than three observed categories&quot;</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>    <span class="co"># Collapse ordered response categories into three</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>    <span class="co"># approximately equal ranges.</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    groups <span class="ot">&lt;-</span> <span class="fu">cut</span>(<span class="fu">seq_along</span>(observed), <span class="at">breaks =</span> <span class="dv">3</span><span class="dt">L</span>, <span class="at">labels =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>    <span class="fu">ordered</span>(groups[<span class="fu">match</span>(z, observed)], <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>}</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>df <span class="ot">&lt;-</span> maene_identity[<span class="fu">c</span>(<span class="st">&quot;Ethnic_1&quot;</span>, <span class="st">&quot;Belgian&quot;</span>, <span class="st">&quot;Flemish&quot;</span>)]</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>df[] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df, ordinal3)</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co"># Auxiliary variables must correspond to the same rows as</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co"># the indicators.</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>aux_data <span class="ot">&lt;-</span> maene_identity</span></code></pre></div>
 </div>
 <div id="examining-the-data" class="section level2">
 <h2>Examining the Data</h2>
@@ -395,16 +418,12 @@ continuous data to de-clutter the table:</p>
 invaluable information about the measurement level of the indicators,
 which is used to specify the model correctly. If these data had not been
 coded as ordinal factors, these descriptive statistics would have
-revealed that each variable has only 5-10 unique values. The proportion
-of missing values is reported in the <code>&quot;missing&quot;</code> column. If
-any variables had missing values, we would report an MCAR test with
-<code>mice::mcar()</code> and explain that missing data are accounted
-for using FIML. In our example, we see that there are no missing values,
-hence we proceed with our analysis. Note that the ethic identification
-variables are very right-skewed and some response categories have
-near-zero frequencies; this can cause problems in model specification
-and convergence. One potential solution would be to merge small adjacent
-categories. We will not do this here, however.</p>
+revealed that each variable has only a few distinct values. The
+proportion of missing values is reported in the <code>&quot;missing&quot;</code>
+column. If any variables had missing values, we would report an MCAR
+test with <code>mice::mcar()</code> and explain that missing data are
+accounted for using FIML. In our example, we inspect missingness before
+proceeding with our analysis.</p>
 </div>
 <div id="conducting-latent-class-analysis" class="section level2">
 <h2>Conducting Latent Class Analysis</h2>
@@ -423,64 +442,57 @@ latent growth analysis and growth mixture models. All of these functions
 have arguments <code>data</code> and number of <code>classes</code>. All
 variables in <code>data</code> are included in the analysis, so relevant
 variables must be selected first.</p>
-<p>We here consider 1-6 class models, but note that this may be overfit,
-as some of the indicators have only 5 response categories.</p>
+<p>We consider one- through three-class models. Limiting the number of
+classes and categories makes this tutorial faster to reproduce. A
+substantive analysis should investigate a broader range of plausible
+models and use the original measurement scale where feasible.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_lca</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>)</span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mx_lca</span>(<span class="at">data =</span> df, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div>
 </div>
 <div id="class-enumeration" class="section level2">
 <h2>Class Enumeration</h2>
 <p>In class enumeration, we want to compare a sequence of LCA models
-fitted to the data. First, note that all models converged without
-issues. If this had not been the case, it is possible to aid convergence
-using <code>mxTryHardOrdinal()</code>, which expands the search for
-optimal parameter values for models with ordinal indicators. It is part
-of the family of functions based on <code>mxTryHard()</code>.</p>
+fitted to the data. Convergence must be checked for each fitted model.
+If a model with ordinal indicators does not converge, it is possible to
+aid convergence using <code>mxTryHardOrdinal()</code>, which expands the
+search for optimal parameter values for models with ordinal indicators.
+It is part of the family of functions based on
+<code>mxTryHard()</code>.</p>
 <p>Next, we create a model fit table using <code>table_fit()</code> and
 retain relevant columns. We also determine whether any models can be
 disqualified.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">table_fit</span>(res)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fit[, <span class="fu">c</span>(<span class="st">&quot;Name&quot;</span>, <span class="st">&quot;LL&quot;</span>, <span class="st">&quot;n&quot;</span>, <span class="st">&quot;Parameters&quot;</span>, <span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;Entropy&quot;</span>, <span class="st">&quot;prob_min&quot;</span>,</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="st">&quot;n_min&quot;</span>, <span class="st">&quot;np_ratio&quot;</span>, <span class="st">&quot;np_local&quot;</span>)]</span></code></pre></div>
-<p>Note that both the global and local ratio of cases to parameters is
-low; for models of 3 or more classes, there are just a few observations
-per parameter in the smallest class (see <code>np_local</code>). This is
-a good reason to disqualify those classes. We will eliminate classes 4-6
-on those criteria, but in real data applications, the 3-class solution
-might also be disqualified.</p>
-<p>In terms of classification diagnostics, note that the entropy and the
-minimum classification probabilities are high for all models. This
-indicates that all classes are distinct.</p>
+<p>Inspect the ratio of cases to parameters (<code>np_ratio</code> and
+<code>np_local</code>) alongside classification diagnostics such as
+entropy and minimum classification probability. Models with small
+classes or unstable estimates require particular caution.</p>
 </div>
 <div id="class-enumeration-1" class="section level2">
 <h2>Class Enumeration</h2>
 <div id="using-bic" class="section level3">
 <h3>Using BIC</h3>
-<p>Based on the BIC, we would prefer the 2-class model. This decision is
-also validated by a scree plot of the BIC, obtained by running
-<code>plot(fit)</code>.</p>
+<p>Compare the BIC values in the model-fit table. Lower BIC values
+indicate a preferred balance of fit and complexity. The fitted model
+ranking may differ from that obtained with the full, uncollapsed
+dataset.</p>
 </div>
 <div id="theoretical-considerations" class="section level3">
 <h3>Theoretical considerations</h3>
-<p>Despite the BIC indicating that the 2-class model is best, upon
-examining the 2-class and 3-class solution, it was noted that
-theoretically crucial distinctions between ethnic, regional (Flemish),
-and national (Belgian) identity were not captured by the 2-class
-solution but were captured by the 3-class solution. Based on this
-theoretical consideration, the analysis proceeded with the 3-class
-solution.</p>
+<p>For illustration, we examine the three-class solution. In a
+substantive analysis, class selection should consider theoretical
+interpretability, convergence, and class sizes alongside information
+criteria.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>res_final <span class="ot">&lt;-</span> res[[<span class="dv">3</span>]]</span></code></pre></div>
 </div>
 </div>
 <div id="interpreting-the-final-class-solution" class="section level2">
 <h2>Interpreting the Final Class Solution</h2>
-<p>The 3-class model yielded classes of reasonable size; the largest
-class comprised 33%, and the smallest comprised 16% of cases. The
-entropy was high, <span class="math inline">\(S = .93\)</span>,
-indicating good class separability. Furthermore, the posterior
-classification probability ranged from <span class="math inline">\([.94,
-.99]\)</span>, which means that all classes had low classification
-error. We can produce a table of results using
+<p>Assess class sizes, entropy, and classification probabilities for the
+fitted three-class solution. The results below are based on the
+simplified dataset and should not be compared numerically with the
+original full-data example. We can produce a table of results using
 <code>table_results(res_final)</code>. However, the results are
 thresholds, indicating quantiles of a standardized normal distribution.
 These may be difficult to interpret. Therefore, we ask for the results
@@ -491,15 +503,10 @@ in probability scale:</p>
 <p>The results can also be interpreted by plotting the response
 probabilities:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">plot_prob</span>(res_final, <span class="at">bw =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p>Note that the first class (33%) has relatively high identification
-with the ethnic indicators and relatively low identification with
-Belgian and Flemish identity. The second class (16%) has moderate
-identification with Belgian and Flemish identity, and relatively low
-identification with ethnic identity. Finally, the third class (50%) has
-high identification with all identities.</p>
-<p>Based on the probability plot, we can label class 1 as <em>ethic
-identifiers</em>, class 2 as <em>low identifiers</em>, and class 3 as
-<em>high identifiers</em>.</p>
+<p>Use the response-probability plot to compare the identity patterns
+across classes. Class labels should be chosen based on the newly
+estimated probabilities rather than carried over from the original
+analysis.</p>
 </div>
 <div id="auxiliary-analyses" class="section level2">
 <h2>Auxiliary Analyses</h2>
@@ -511,33 +518,43 @@ students with other combinations of identifications (hypothesis 2).</p>
 auxiliary variable depression to the <code>data</code> argument,
 omitting the <code>model</code> argument. Below, we estimate an
 auxiliary model to compare depressive symptoms across classes:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>aux_dep <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">data =</span> maene_identity<span class="sc">$</span>depression)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>aux_dep <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">data =</span> aux_data<span class="sc">$</span>depression)</span></code></pre></div>
 <p>To obtain an omnibus likelihood ratio test of the significance of
 depression differences across classes, as well as pairwise comparisons
-between classes, use <code>lr_test(aux_dep)</code>. The results indicate
-that there are no significant differences in depression across classes,
-<span class="math inline">\(\Delta LL(5) = 4.32, p = .50\)</span>.</p>
+between classes, use <code>lr_test(aux_dep)</code>. Interpret the
+omnibus and pairwise tests using the results from the simplified
+example; numerical conclusions from the original analysis do not
+necessarily carry over.</p>
 <p>Hypothesis 3 was that, for assimilated and separated adolescents,
 there would not be a significant effect of perceived teacher
 discrimination on depressive symptoms. To test this hypothesis, we will
 compare the regression coefficient of discrimination on depressive
 symptoms across classes.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>df_aux <span class="ot">&lt;-</span> maene_identity[, <span class="fu">c</span>(<span class="st">&quot;vict_teacher&quot;</span>, <span class="st">&quot;depression&quot;</span>)]</span>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>df_aux <span class="ot">&lt;-</span> aux_data[, <span class="fu">c</span>(<span class="st">&quot;vict_teacher&quot;</span>, <span class="st">&quot;depression&quot;</span>)]</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># Dummy-code vict_teacher</span></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>df_aux<span class="sc">$</span>vict_teacher <span class="ot">&lt;-</span> (<span class="fu">as.integer</span>(df_aux<span class="sc">$</span>vict_teacher) <span class="sc">-</span> <span class="dv">1</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>aux_model <span class="ot">&lt;-</span> <span class="fu">BCH</span>(res_final, <span class="at">model =</span> <span class="st">&quot;depression ~ vict_teacher&quot;</span>,</span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>    <span class="at">data =</span> df_aux)</span></code></pre></div>
 <p>To view the coefficients of this model, we can use either
 <code>coef(aux_model)</code> or
-<code>table_results(aux_model, columns = NULL)</code>. As evident from
-the results table, the coefficients labeled <code>class1.A[1,2]</code>
-are the regression coefficients.</p>
-<p>There are two ways to test the difference in regression coefficients
-across classes: using <code>lr_test(aux_model, compare = &quot;A&quot;)</code>, to
-compare the ‘A matrix’ (regression coefficients) across classes, or
-<code>wald_test(aux_model, &quot;class1.A[1,2]=class2.A[1,2]&amp;class1.A[1,2]=class3.A[1,2]&quot;)</code>.
-The results indicate that there are no significant differences in the
-regression coefficients across classes, <span class="math inline">\(\chi^2 (2) = 1.16, p = .56\)</span>.</p>
+<code>table_results(aux_model, columns = NULL)</code>. The regression
+coefficients are represented by paths in the class-specific
+<code>A</code> matrices.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">table_results</span>(aux_model, <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">&quot;label&quot;</span>, <span class="st">&quot;est_sig&quot;</span>, <span class="st">&quot;se&quot;</span>,</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>    <span class="st">&quot;pval&quot;</span>, <span class="st">&quot;confint&quot;</span>, <span class="st">&quot;group&quot;</span>, <span class="st">&quot;matrix&quot;</span>))</span></code></pre></div>
+<p>There are two ways to test whether the regression coefficients differ
+across classes.</p>
+<p>First, we can use a likelihood-ratio test to compare the regression
+coefficients in the class-specific <code>A</code> matrices:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">lr_test</span>(aux_model, <span class="at">compare =</span> <span class="st">&quot;A&quot;</span>)</span></code></pre></div>
+<p>Alternatively, we can use a Wald test to evaluate the equality
+constraints directly:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">wald_test</span>(aux_model, <span class="st">&quot;aux1.A[1,2]=aux2.A[1,2]&amp;aux1.A[1,2]=aux3.A[1,2]&quot;</span>)</span></code></pre></div>
+<p>Both tests evaluate the null hypothesis that the regression
+coefficient of perceived teacher discrimination on depressive symptoms
+is equal across the three latent classes. Interpret the results based on
+the newly fitted auxiliary model; the original test statistics do not
+apply to this reduced example.</p>
 </div>
 
 

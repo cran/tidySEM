@@ -10,22 +10,16 @@
 #' @return Returns an \code{\link[OpenMx]{mxModel}} with free parameters updated
 #' to their final values.
 #' @examples
+#' if(requireNamespace("OpenMx", quietly = TRUE)){
 #' df <- iris[1:3]
 #' names(df) <- paste0("X_", 1:3)
 #' run_mx(measurement(tidy_sem(df), meanstructure = TRUE))
+#' }
 #' @rdname run_mx
 #' @export
-# @importFrom OpenMx mxAutoStart mxData mxExpectationMixture mxPath
-# @importFrom OpenMx mxFitFunctionML mxMatrix mxModel mxRun mxTryHard
-# @importFrom OpenMx omxAssignFirstParameters mxCompare mxFitFunctionMultigroup
-# @importFrom lavaan mplus2lavaan.modelSyntax
-# @importFrom stats cutree dist hclust
-# @importFrom OpenMx omxDefaultComputePlan mxComputeSimAnnealing
 run_mx <- function(x, ...){
-  s <- search()
-  if(!any(grepl("OpenMx", s, fixed = TRUE))){
-    message("Please run `library(OpenMx) before running any OpenMx models.`")
-    return(NULL)
+  if (!requireNamespace("OpenMx", quietly = TRUE)) {
+    stop("Package 'OpenMx' is required.")
   }
   UseMethod("run_mx", x)
 }
@@ -63,15 +57,17 @@ run_mx.MxModel <- function(x, ...){
   if(!"silent" %in% names(dots)) run_args$silent <- TRUE
 
   # Check if confidence intervals are required
+  do_intervals <- FALSE
   if(length(x@intervals) > 0){
     run_args[["intervals"]] <- TRUE
   }
+  if("intervals" %in% names(dots)) run_args[["intervals"]] <- dots[["intervals"]]
 
   # If this is a mixture model with >1 class, use simulated annealing
   if(isTRUE(attr(x, "tidySEM") == "mixture") & length(names(x@submodels)) > 0){
     # Has to be re-run again later, to get $expectation$output$weights
     x <- OpenMx::mxModel(x, OpenMx::mxComputeSimAnnealing())
-    x <- suppressWarnings(try(OpenMx::mxRun(x), silent = TRUE))
+    x <- suppressWarnings(try(OpenMx::mxRun(x, silent = TRUE)))
     # Reset simulated annealing
     x@compute <- NULL
   }

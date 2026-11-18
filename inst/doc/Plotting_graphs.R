@@ -3,7 +3,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-generate_pngs <- TRUE
+run_everything <- as.logical(toupper(Sys.getenv("TIDYSEM_RUN_EVERYTHING", "false")))
+show_results <- as.logical(toupper(Sys.getenv("TIDYSEM_SHOW_RESULTS", "false")))
+
 
 ## ----setup, message=FALSE, warning = FALSE------------------------------------
 library(tidySEM)
@@ -30,10 +32,11 @@ fit <- cfa(HS.model, data=HolzingerSwineford1939)
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # graph_sem(model = fit)
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
-p <- graph_sem(model = fit, text_size = 2, fix_coord = TRUE)
-if(generate_pngs) ggsave("pgfig1.png", p, device = "png", width= 9.5, height = 3)
-knitr::include_graphics("pgfig1.png")
+## ----plotting-cache-1, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# p <- graph_sem(model = fit, text_size = 2, fix_coord = TRUE)
+# p
+# }, type = "png", width = 9.5, height = 3, dpi = 150)
 
 ## ----eval = TRUE, echo = TRUE-------------------------------------------------
 get_layout(fit)
@@ -58,11 +61,6 @@ get_layout("c", NA,  "d",
 
 ## ----eval = FALSE, echo = TRUE------------------------------------------------
 # read.csv("example.csv")
-
-## ----echo = FALSE, eval = FALSE-----------------------------------------------
-# write.csv(matrix(c("x1", "x2",  "x3", "",  "visual", ""), nrow = 2, byrow = TRUE), file = "example.csv", row.names = FALSE)
-# read.csv("example.csv")
-# file.remove("example.csv")
 
 ## ----eval = FALSE, echo = TRUE------------------------------------------------
 # read.table("clipboard", sep = "\t")
@@ -98,10 +96,11 @@ lay <- get_layout("", "", "visual","","textual","","speed","", "",
 ## ----eval = FALSE-------------------------------------------------------------
 # graph_sem(fit, layout = lay)
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
-p <- graph_sem(fit, layout = lay) + coord_fixed()
-if(generate_pngs) ggsave("pgfig2_1.png", p, device = "png", width= 9.5, height = 3)
-knitr::include_graphics("pgfig2_1.png")
+## ----plotting-cache-2, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# p <- graph_sem(fit, layout = lay) + coord_fixed()
+# p
+# }, type = "png", width = 9.5, height = 3, dpi = 150)
 
 ## ----eval = TRUE--------------------------------------------------------------
 get_nodes(fit)
@@ -169,18 +168,20 @@ graph_data <- prepare_graph(model = fit, layout = lay)
 ## ----eval = FALSE-------------------------------------------------------------
 # plot(graph_data)
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
-p <- plot(graph_data) + coord_fixed()
-if(generate_pngs) ggsave("pgfig2.png", p, device = "png", width= 9.5, height = 3)
-knitr::include_graphics("pgfig2.png")
+## ----plotting-cache-3, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# p <- plot(graph_data) + coord_fixed()
+# p
+# }, type = "png", width = 9.5, height = 3, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # graph_sem(model = fit, layout = lay, angle = 170)
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
-p <- graph_sem(model = fit, layout = lay, angle = 170)
-if(generate_pngs) ggsave("pgfig3.png", p, device = "png", width= 9.5, height = 3)
-knitr::include_graphics("pgfig3.png")
+## ----plotting-cache-4, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# p <- graph_sem(model = fit, layout = lay, angle = 170)
+# p
+# }, type = "png", width = 9.5, height = 3, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # edg <- data.frame(from = "x",
@@ -192,18 +193,18 @@ knitr::include_graphics("pgfig3.png")
 # 
 # graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='30%'----------
-edg <- data.frame(from = "x",
-                  to = "y",
-                  linetype = 2,
-                  colour = "red",
-                  size = 2,
-                  alpha = .5)
-
-p <- graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
-
-if(generate_pngs) ggsave("pgfig4.png", p, device = "png", width= 4, height = 1)
-knitr::include_graphics("pgfig4.png")
+## ----plotting-cache-5, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# edg <- data.frame(from = "x",
+#                   to = "y",
+#                   linetype = 2,
+#                   colour = "red",
+#                   size = 2,
+#                   alpha = .5)
+# 
+# p <- graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
+# p
+# }, type = "png", width = 4, height = 1, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # edg <- data.frame(from = "x",
@@ -217,20 +218,20 @@ knitr::include_graphics("pgfig4.png")
 #                     alpha = .5)
 # graph_sem(edges = edg, nodes = nod, layout = get_layout("x", "y", rows = 1))
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='30%'----------
-edg <- data.frame(from = "x",
-                  to = "y")
-nod <- data.frame(name = c("x", "y"),
-                    shape = c("rect", "oval"),
-                    linetype = c(2, 2),
-                    colour = c("blue", "blue"),
-                    fill = c("blue", "blue"),
-                    size = c(2, 2),
-                    alpha = .5)
-p <- graph_sem(edges = edg, nodes = nod, layout = get_layout("x", "y", rows = 1))
-
-if(generate_pngs) ggsave("pgfig5.png", p, device = "png", width= 4, height = 1)
-knitr::include_graphics("pgfig5.png")
+## ----plotting-cache-6, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# edg <- data.frame(from = "x",
+#                   to = "y")
+# nod <- data.frame(name = c("x", "y"),
+#                     shape = c("rect", "oval"),
+#                     linetype = c(2, 2),
+#                     colour = c("blue", "blue"),
+#                     fill = c("blue", "blue"),
+#                     size = c(2, 2),
+#                     alpha = .5)
+# p <- graph_sem(edges = edg, nodes = nod, layout = get_layout("x", "y", rows = 1))
+# p
+# }, type = "png", width = 4, height = 1, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # edges(graph_data) %>%
@@ -242,18 +243,18 @@ knitr::include_graphics("pgfig5.png")
 #   mutate(alpha = replace(alpha, from == "visual" & to == "x2", .5)) -> edges(graph_data)
 # plot(graph_data)
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='100%'---------
-edges(graph_data) %>%
-  mutate(colour = "black") %>%
-  mutate(colour = replace(colour, from == "visual" & to == "x2", "red")) %>%
-  mutate(linetype = 1) %>%
-  mutate(linetype = replace(linetype, from == "visual" & to == "x2", 2)) %>%
-  mutate(alpha = 1) %>%
-  mutate(alpha = replace(alpha, from == "visual" & to == "x2", .5)) -> edges(graph_data)
-p <- plot(graph_data)
-
-if(generate_pngs) ggsave("pgfig6.png", p, device = "png", width= 9.5, height = 3)
-knitr::include_graphics("pgfig6.png")
+## ----plotting-cache-7, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# edges(graph_data) %>%
+#   mutate(colour = "black") %>%
+#   mutate(colour = replace(colour, from == "visual" & to == "x2", "red")) %>%
+#   mutate(linetype = 1) %>%
+#   mutate(linetype = replace(linetype, from == "visual" & to == "x2", 2)) %>%
+#   mutate(alpha = 1) %>%
+#   mutate(alpha = replace(alpha, from == "visual" & to == "x2", .5)) -> edges(graph_data)
+# p <- plot(graph_data)
+# p
+# }, type = "png", width = 9.5, height = 3, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # edg <- data.frame(from = "x",
@@ -273,26 +274,26 @@ knitr::include_graphics("pgfig6.png")
 # 
 # graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
 
-## ----echo = FALSE, warning = FALSE, message = FALSE, out.width='30%'----------
-edg <- data.frame(from = "x",
-                  to = "y",
-                  label = "text",
-                  label_colour = "blue",
-                  label_fill = "red",
-                  label_size = 6,
-                  label_alpha = .5,
-                  label_family = "mono",
-                  label_fontface = "bold",
-                  label_hjust = "left",
-                  label_vjust = "top",
-                  label_lineheight = 1.5,
-                  label_location = .2
-                  )
-
-p = graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
-
-if(generate_pngs) ggsave("pgfig7.png", p, device = "png", width= 4, height = 1)
-knitr::include_graphics("pgfig7.png")
+## ----plotting-cache-8, echo = FALSE, warning = FALSE, message = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# edg <- data.frame(from = "x",
+#                   to = "y",
+#                   label = "text",
+#                   label_colour = "blue",
+#                   label_fill = "red",
+#                   label_size = 6,
+#                   label_alpha = .5,
+#                   label_family = "mono",
+#                   label_fontface = "bold",
+#                   label_hjust = "left",
+#                   label_vjust = "top",
+#                   label_lineheight = 1.5,
+#                   label_location = .2
+#                   )
+# 
+# p = graph_sem(edges = edg, layout = get_layout("x", "y", rows = 1))
+# p
+# }, type = "png", width = 4, height = 1, dpi = 150)
 
 ## ----eval = TRUE, echo = FALSE, warning = FALSE, message = FALSE, out.width='30%'----
 fit <- sem("mpg ~ cyl
@@ -305,13 +306,14 @@ get_edges(fit)
 #   color_pos_edges("green") %>%
 #   plot()
 
-## ----echo = FALSE, out.width="300px"------------------------------------------
-set.seed(6)
-prepare_graph(fit) %>%
-  color_pos_edges("green") %>%
-  plot() -> p
-ggsave("pgfig8.png", p, device = "png", width= 4, height = 4)
-knitr::include_graphics("pgfig8.png")
+## ----plotting-cache-9,, echo = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# set.seed(6)
+# prepare_graph(fit) %>%
+#   color_pos_edges("green") %>%
+#   plot() -> p
+# p
+# }, type = "png", width = 4, height = 4, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # prepare_graph(fit) %>%
@@ -321,16 +323,17 @@ knitr::include_graphics("pgfig8.png")
 #   alpha_var(.2) %>%
 #   plot()
 
-## ----echo = FALSE, out.width="300px"------------------------------------------
-set.seed(6)
-prepare_graph(fit) %>%
-  color_pos_edges("green") %>%
-  color_neg_edges("red") %>%
-  color_var("black") %>%
-  alpha_var(.2) %>%
-  plot() -> p
-ggsave("pgfig9.png", p, device = "png", width= 4, height = 4)
-knitr::include_graphics("pgfig9.png")
+## ----plotting-cache-10,, echo = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# set.seed(6)
+# prepare_graph(fit) %>%
+#   color_pos_edges("green") %>%
+#   color_neg_edges("red") %>%
+#   color_var("black") %>%
+#   alpha_var(.2) %>%
+#   plot() -> p
+# p
+# }, type = "png", width = 4, height = 4, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # prepare_graph(fit) %>%
@@ -340,16 +343,17 @@ knitr::include_graphics("pgfig9.png")
 #   if_edit(grepl("4", est), {color = "blue"}) %>%
 #   plot()
 
-## ----echo = FALSE, out.width="300px"------------------------------------------
-set.seed(6)
-prepare_graph(fit) %>%
-  # Add color column to the graph elements
-  edit_graph({ color = "black" }) %>% 
-  # Conditionally change color to blue when the column 'est' contains the number 4
-  if_edit(grepl("4", est), {color = "blue"}) %>%
-  plot()->p
-ggsave("pgfig10.png", p, device = "png", width= 4, height = 4)
-knitr::include_graphics("pgfig10.png")
+## ----plotting-cache-11,, echo = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# set.seed(6)
+# prepare_graph(fit) %>%
+#   # Add color column to the graph elements
+#   edit_graph({ color = "black" }) %>%
+#   # Conditionally change color to blue when the column 'est' contains the number 4
+#   if_edit(grepl("4", est), {color = "blue"}) %>%
+#   plot()->p
+# p
+# }, type = "png", width = 4, height = 4, dpi = 150)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # model <- "
@@ -379,33 +383,34 @@ knitr::include_graphics("pgfig10.png")
 # plot(p) + geom_text(data = df_nodes, aes(x=x, y=y, label=label), parse = TRUE)
 # 
 
-## ----echo = FALSE, out.width="300px"------------------------------------------
-set.seed(6)
-model <- "
-  Sepal.Length ~ Sepal.Width + Petal.Length
-  Sepal.Width ~ Petal.Length
-"
-# fit model
-fit <- sem(model, data = iris)
-# specify layout for consistency
-layout <- get_layout("", "Sepal.Width", "",
-                     "Petal.Length", "", "Sepal.Length", rows = 2)
-# get data from prepare_graph
-p <- prepare_graph(fit, layout = layout, angle = 180)
-
-# standard graph
-# plot(p)
-
-# Duplicate node data.frame
-df_nodes <- p$nodes
-# Add mathematical notation to node label
-df_nodes$label <- paste("atop(", p$nodes$label, ", ", c("alpha-div", # Add a Greek letter
-                                                 paste0("R^2 ==", formatC(inspect(fit, "r2"), digits = 2, format = "f"))), ")")  # Add R2 to node labels
-# Set original labels to blank
-p$nodes$label <- "" 
-
-# Plot, treat as ggplot object and add parsed node labels
-p <- plot(p) + geom_text(data = df_nodes, aes(x=x, y=y, label=label), parse = TRUE)
-ggsave("pgfig11.png", p, device = "png", width= 5, height = 5)
-knitr::include_graphics("pgfig11.png")
+## ----plotting-cache-12,, echo = FALSE, out.width="100%", eval = run_everything || show_results----
+# tidySEM:::run_cached({
+# set.seed(6)
+# model <- "
+#   Sepal.Length ~ Sepal.Width + Petal.Length
+#   Sepal.Width ~ Petal.Length
+# "
+# # fit model
+# fit <- sem(model, data = iris)
+# # specify layout for consistency
+# layout <- get_layout("", "Sepal.Width", "",
+#                      "Petal.Length", "", "Sepal.Length", rows = 2)
+# # get data from prepare_graph
+# p <- prepare_graph(fit, layout = layout, angle = 180)
+# 
+# # standard graph
+# # plot(p)
+# 
+# # Duplicate node data.frame
+# df_nodes <- p$nodes
+# # Add mathematical notation to node label
+# df_nodes$label <- paste("atop(", p$nodes$label, ", ", c("alpha-div", # Add a Greek letter
+#                                                  paste0("R^2 ==", formatC(inspect(fit, "r2"), digits = 2, format = "f"))), ")")  # Add R2 to node labels
+# # Set original labels to blank
+# p$nodes$label <- ""
+# 
+# # Plot, treat as ggplot object and add parsed node labels
+# p <- plot(p) + geom_text(data = df_nodes, aes(x=x, y=y, label=label), parse = TRUE)
+# p
+# }, type = "png", width = 5, height = 5, dpi = 150)
 

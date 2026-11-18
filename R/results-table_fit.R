@@ -59,19 +59,23 @@ table_fit.mixture_list <- function(x, ...) {
 #' @method table_fit list
 #' @export
 table_fit.list <- function(x, ...) {
-  if(all(sapply(x, inherits, what = "MxModel"))){
-    cl <- match.call()
-    cl[[1L]] <- str2lang("tidySEM::table_fit")
-    class(x) <- c("mixture_list", class(x))
-    cl[["x"]] <- x
-    return(eval.parent(cl))
-  }
   out <- lapply(x, function(i){
     tryCatch({
       table_fit(i)
     }, error = function(e){NULL})
   })
   out <- bind_list(out)
+  out$Name <- out$modelName
+  out <- .renamefits(out, "mx")
+  remove_these <- c("saturatedDoF", "independenceDoF", "saturatedParameters",
+                    "independenceParameters", "ChiDoF", "satDoF", "indDoF", "RMSEANull",
+                    "TLI", "RMSEA", "modelName", "RMSEASquared", "observedStatistics", "df", "Minus2LogLikelihood", "p")
+
+  out <- out[, !names(out) %in% remove_these, drop = FALSE]
+  ordr <- c("Name", "Classes", "LL", "n", "Parameters",
+            "AIC", "BIC", "saBIC", "Entropy",
+            "prob_min", "prob_max", "n_min", "n_max")
+  out <- out[, c(ordr[ordr %in% names(out)], names(out)[!names(out) %in% ordr])]
   class(out) <- c("tidy_fit", class(out))
   return(out)
 }
@@ -142,62 +146,11 @@ table_fit.model.list <- table_fit.mplusObject
 #' @method table_fit MxModel
 #' @export
 table_fit.MxModel <- function(x, ...) {
-  if(is.null(attr(x, "tidySEM"))) attr(x, "tidySEM") <- "default"
-  out <- switch(attr(x, "tidySEM")[1],
-                "list" = sapply(x, function(i){ table_fit(i, ...)}),
-                "mixture" = calc_fitindices(x, type = "mixture", ...),
-                calc_fitindices(x, ...))
-  out <- as.data.frame(out)
+  out <- calc_fitindices(x, ...)
   out <- out[, !colSums(is.na(out)) == nrow(out)]
   if(!"LL" %in% names(out) & "Minus2LogLikelihood" %in% names(out)) out$LL <- out$Minus2LogLikelihood/-2
   out <- .renamefits(out, "mx")
   class(out) <- c("tidy_fit", class(out))
-  out
-}
-
-.table_fit_mx <- function(x, type = NULL){
-  out <- tryCatch({
-    suppressMessages({
-      if(!type == "mixture"){
-        satmod <- OpenMx::mxRefModels(x, run = TRUE)
-        summary(x, refModels = satmod)
-      } else {
-        summary(x)
-      }
-    })
-  },
-  error = function(e){
-    summary(x)
-  },
-  warning = function(w){
-    summary(x)
-  })
-  classes <- sapply(out, function(i){class(i)[1]})
-  is_num <- sapply(out, inherits, what = "numeric")
-  is_char <- sapply(out, inherits, what = "character")
-  atomvect <- sapply(out, function(i){ is.atomic(i) & length(i) == 1})
-  fits <- out[atomvect]
-  if("informationCriteria" %in% names(out)){
-    add_ic <- out$informationCriteria[, "par"]
-    names(add_ic) <- gsub(":", "", names(add_ic), fixed = TRUE)
-    fits <- c(fits, add_ic)
-  }
-  if(!is.null(out[["RMSEACI"]])){
-    if(any(!is.na(out[["RMSEACI"]]))){
-      names(out[["RMSEACI"]]) <- paste0("RMSEA.", names(out[["RMSEACI"]]))
-      fits <- c(fits, out[["RMSEACI"]])
-    }
-  }
-  if(any(endsWith(names(fits), "Message"))) fits[["warning"]] <- TRUE
-  dropthese <- c("AIC.Mx", "BIC.Mx", "wasRun", "stale", "infoDefinite", "conditionNumber", "maxAbsGradient",
-                 "fitUnits", "fit", "CI.Requested", "statusCode", "maxRelativeOrdinalError",
-                 "timestamp", "frontendTime", "backendTime", "independentTime",
-                 "wallTime", "cpuTime", "optimizerEngine", "verbose", "npsolMessage"
-  )
-  fits <- fits[!names(fits) %in% dropthese]
-  fits[["saBIC"]] <- fits[["Minus2LogLikelihood"]] + fits[["estimatedParameters"]] * log((fits[["numObs"]]+2)/24)
-  out <- as.data.frame(fits)
-  rownames(out) <- NULL
   out
 }
 

@@ -9,7 +9,6 @@ if(!requireNamespace("OpenMx", quietly = TRUE)){
 
 ## ----data---------------------------------------------------------------------
 library(tidySEM)
-library(OpenMx)
 set.seed(1)
 df <- data.frame(rbind(
   matrix(rnorm(300, mean = 2), ncol = 3),

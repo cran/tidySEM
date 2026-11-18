@@ -1,10 +1,10 @@
 Package: tidySEM
 Type: Package
 Title: Tidy Structural Equation Modeling
-Version: 0.2.12
+Version: 0.3.0
 Authors@R: 
     c(person(given = c("Caspar", "J."),
-             family = "van Lissa",
+             family = "Van Lissa",
              role = c("aut", "cre"),
              email = "c.j.vanlissa@tilburguniversity.edu",
              comment = c(ORCID = "0000-0002-0808-5024")),
@@ -34,18 +34,18 @@ Imports: ggplot2 (>= 3.5.0), lavaan (>= 0.6-21), MplusAutomation,
 Suggests: testthat, knitr, dplyr, stringr, covr, tidyLPA, poLCA, umx,
         mclust, MASS, scales, yaml, formatR, dagitty, mice, ggraph,
         OpenMx (>= 2.21.13), rmarkdown, blavaan, bain, future, igraph
-        (>= 2.0.0)
+        (>= 2.0.0), broom, nnet, callr
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1
 NeedsCompilation: no
-Packaged: 2026-09-08 05:37:41 UTC; Studio
-Author: Caspar J. van Lissa [aut, cre] (ORCID:
+Packaged: 2026-11-18 12:25:28 UTC; Studio
+Author: Caspar J. Van Lissa [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-0808-5024>),
   Mauricio Garnier-Villarreal [ctb] (ORCID:
     <https://orcid.org/0000-0002-2951-6647>),
   Frank C Gootjes [ctb] (ORCID: <https://orcid.org/0000-0002-0639-1001>)
-Maintainer: Caspar J. van Lissa <c.j.vanlissa@tilburguniversity.edu>
+Maintainer: Caspar J. Van Lissa <c.j.vanlissa@tilburguniversity.edu>
 Repository: CRAN
-Date/Publication: 2026-09-08 06:20:02 UTC
+Date/Publication: 2026-11-18 13:10:02 UTC

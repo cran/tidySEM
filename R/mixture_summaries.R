@@ -17,45 +17,149 @@ get_fit <- function(x, ...) {
   UseMethod("table_fit", x)
 }
 
+num_classes <- function(x) {
 
+  if (methods::is(x, "MxModel")) {
+    return(dispatch_method(x, "num_classes"))
+  }
+  # If it should handle other models too, then keep this to dispatch the regular
+  # S3 methods:
+  if(length(x@submodels) > 0L){
+    nms <- names(x@submodels)
+    return(sum(grepl("^class\\d{1,}$", nms)))
+  }
+  0L
+}
+
+
+num_classes_MxModel <- function(x){
+  if(length(x@submodels) > 0L){
+    nms <- names(x@submodels)
+    return(sum(grepl("^class\\d{1,}$", nms)))
+  }
+  0L
+}
+
+num_classes_mixture <- function(x){
+  if(length(x@submodels) == 0L) return(1L)
+  length(x@submodels)
+}
+
+# num_classes <- function(x){
+#   if(!attr(x, "tidySEM") %in% c("mixture", "remix")) return(0)
+#   if(x@.wasRun){
+#     return(ncol(OpenMx::mxEvalByName("weights", x)))
+#   }
+#   if(attr(x, "tidySEM") == "mixture") return(length(x@submodels))
+#   return(ncol(x@matrices$M[1,]))
+# }
 
 calc_fitindices <- function(model, ...){
   UseMethod("calc_fitindices", model)
 }
 
+# Try with dispatch_method, from here:
 #' @export
-calc_fitindices.MxModel <- function (model, type = NULL, ...){
-  sums <- .table_fit_mx(model, type = type)
-  if(isTRUE(type == "mixture")){
-    ll <- sums[["Minus2LogLikelihood"]]/-2
-    parameters <- sums[["estimatedParameters"]]
-    n <- sums[["numObs"]]
-    if(length(names(model@submodels)) < 2){
-      fits = c("Classes" = 1, "Entropy" = 1, "prob_min" = 1, "prob_max" = 1, "n_min" = 1, "n_max" = 1)
-    } else {
-      post_prob <- extract_postprob(model)
-      class <- apply(post_prob, 1, which.max)
-      class_tab <- table(factor(class, levels = 1:length(names(model@submodels))))
-      if (length(class_tab) == ncol(post_prob)) {
-        prop_n <- range(prop.table(class_tab))
-      }
-      else {
-        prop_n <- c(0, max(prop.table(class_tab)))
-      }
-      fits <- c("Classes" = length(names(model@submodels)),
-        ifelse(ncol(post_prob) == 1, 1, 1 + (1/(nrow(post_prob) *
-                                                  log(ncol(post_prob)))) * (sum(rowSums(post_prob *
-                                                                                          log(post_prob + 1e-12))))),
-        range(diag(classification_probs_mostlikely(post_prob, class))),
-        prop_n)
-      names(fits) <- c("Classes", "Entropy", "prob_min", "prob_max", "n_min", "n_max")
-    }
-    c(sums, fits)
-  } else {
-    sums
-  }
-
+calc_fitindices.MxModel <- function(model, ...) {
+  dispatch_method(model, "calc_fitindices", ...)
 }
+
+calc_fitindices_MxModel <- function(model, ...) {
+  out <- tryCatch({
+    suppressMessages({
+      satmod <- OpenMx::mxRefModels(model, run = TRUE)
+      summary(model, refModels = satmod)
+    })
+  },
+  error = function(e){
+    summary(model)
+  },
+  warning = function(w){
+    summary(model)
+  })
+  classes <- sapply(out, function(i){class(i)[1]})
+  is_num <- sapply(out, inherits, what = "numeric")
+  is_char <- sapply(out, inherits, what = "character")
+  atomvect <- sapply(out, function(i){ is.atomic(i) & length(i) == 1})
+  fits <- out[atomvect]
+  if("informationCriteria" %in% names(out)){
+    add_ic <- out$informationCriteria[, "par"]
+    names(add_ic) <- gsub(":", "", names(add_ic), fixed = TRUE)
+    fits <- c(fits, add_ic)
+  }
+  if(is.na(fits$AIC)){
+    fits$AIC <- tryCatch(fits$Minus2LogLikelihood + 2 * fits[["estimatedParameters"]], error = function(e) NA)
+  }
+  if(is.na(fits$BIC)){
+    fits$BIC <- fits$Minus2LogLikelihood + log(fits$numObs) * fits[["estimatedParameters"]]
+  }
+  if(!is.null(out[["RMSEACI"]])){
+    if(any(!is.na(out[["RMSEACI"]]))){
+      names(out[["RMSEACI"]]) <- paste0("RMSEA.", names(out[["RMSEACI"]]))
+      fits <- c(fits, out[["RMSEACI"]])
+    }
+  }
+  fits[["saBIC"]] <- fits[["Minus2LogLikelihood"]] + fits[["estimatedParameters"]] * log((fits[["numObs"]]+2)/24)
+  if(any(endsWith(names(fits), "Message"))) fits[["warning"]] <- TRUE
+  warns <- mx_diagnostics(model)
+  if(!warns$checks_pass){
+    fits[["warning"]] <- TRUE
+  }
+  dropthese <- c("AIC.Mx", "BIC.Mx", "wasRun", "stale", "infoDefinite", "conditionNumber", "maxAbsGradient",
+                 "fitUnits", "fit", "CI.Requested", "statusCode", "maxRelativeOrdinalError",
+                 "timestamp", "frontendTime", "backendTime", "independentTime",
+                 "wallTime", "cpuTime", "optimizerEngine", "verbose", "npsolMessage"
+  )
+  fits <- fits[!names(fits) %in% dropthese]
+  miss_stats <- sapply(fits, is.na)
+  if(any(miss_stats)) fits <- fits[!miss_stats]
+  out <- as.data.frame(fits)
+  rownames(out) <- NULL
+  out
+}
+
+calc_fitindices_mixture <- function(model, ...) {
+  sums <- calc_fitindices_MxModel(model)
+  sums$degreesOfFreedom <- (sums$numObs - sums$estimatedParameters)
+  classes <- num_classes(model)
+
+  if (classes == 1L) {
+    fits <- data.frame(
+      Classes = 1,
+      Entropy = 1,
+      prob_min = 1,
+      prob_max = 1,
+      n_min = 1,
+      n_max = 1
+    )
+  } else {
+
+    post_prob <- extract_postprob(model)
+    C <- max.col(post_prob)
+
+    # Classification proportions, including empty classes
+    class_tab <- tabulate(C, nbins = classes)
+    prop_n <- range(class_tab / length(C))
+
+    # Average posterior classification probabilities
+    class_probs <- diag(
+      classification_probs_mostlikely(post_prob, C)
+    )
+
+    fits <- data.frame(
+      Classes = classes,
+      Entropy = entropy(post_prob),
+      prob_min = min(class_probs),
+      prob_max = max(class_probs),
+      n_min = prop_n[1],
+      n_max = prop_n[2]
+    )
+  }
+  drop_these <- setdiff(names(sums), c("Minus2LogLikelihood", "numObs", "estimatedParameters", "observedStatistics", "degreesOfFreedom", "RMSEASquared", "RMSEANull", "modelName", "AIC", "BIC", "saBIC", "converged", "warning"))
+  if(length(drop_these) > 0) sums <- sums[!names(sums) %in% drop_these]
+  data.frame(sums, fits)
+}
+
 
 make_fitvector <- function(ll, parameters, n, postprob = NULL, fits = NULL){
   out <- vector("numeric")
@@ -85,9 +189,9 @@ make_fitvector <- function(ll, parameters, n, postprob = NULL, fits = NULL){
 #' membership, based on the highest posterior class probability. Note that
 #' this is subject to measurement error.}
 #' \item{"mostlikely.class"}{If C is the true class of an observation, and N is
-#' the most likely class based on the model, then this table shows the
-#' probability P(N==i|C==j). The diagonal represents the probability that
-#' observations in each class will be correctly classified.}
+#' the assigned class based on highest posterior class probability, then this
+#' table shows the probability P(C==i|N==j). The diagonal represents the
+#' probability that observations in each class will be correctly classified.}
 #' \item{"avg.mostlikely"}{Average posterior probabilities for each class, for
 #' the subset of observations with most likely class of 1:k, where k is the
 #' number of classes.}
@@ -116,14 +220,15 @@ class_prob <- function(x, type = c("sum.posterior", "sum.mostlikely", "mostlikel
 #' @export
 class_prob.MxModel <- function(x, type = c("sum.posterior", "sum.mostlikely", "mostlikely.class", "avg.mostlikely", "individual"), ...){
   post_probs <- extract_postprob(x)
-  post_probs_pred <- cbind(post_probs, predicted = apply(post_probs, 1, which.max) )
+  predicted <- apply(post_probs, 1, which.max)
+  post_probs_pred <- cbind(post_probs, predicted = predicted)
 
   out <- lapply(type, function(thetype){
     switch(thetype,
            "mostlikely.class" = classification_probs_mostlikely(post_probs),
            "avg.mostlikely" = avgprobs_mostlikely(post_probs),
            "sum.posterior" = sum_postprob(x),
-           "sum.mostlikely" = sum_mostlikely(x),
+           "sum.mostlikely" = sum_mostlikely(mostlikely = predicted),
            post_probs_pred)
   })
   names(out) <- type
@@ -131,9 +236,20 @@ class_prob.MxModel <- function(x, type = c("sum.posterior", "sum.mostlikely", "m
 }
 
 sum_postprob <- function(model){
-  if(!inherits(model$expectation, "MxExpectationMixture")){
-    return(data.frame(class = "class1", count = model$data$numObs, proportion = 1))
-  }
+  dispatch_method(model, "sum_postprob")
+}
+
+sum_postprob_remix <- function(model){
+    return(data.frame(class = paste0("class", seq_len(num_classes(model))),
+               count = drop(model@algebras$weights$result*model@data$numObs),
+               proportion = drop(model@algebras$weights$result)))
+
+}
+sum_postprob_MxModel <- function(model){
+  return(data.frame(class = "class1", count = model$data$numObs, proportion = 1))
+}
+
+sum_postprob_mixture <- function(model){
   weights_name <- model$expectation$weights
   priors <- prop.table(model[[weights_name]]$values)
   mix_names <- model$expectation$components
@@ -141,32 +257,41 @@ sum_postprob <- function(model){
   data.frame(class = mix_names, count = as.vector(priors*numObs), proportion = as.vector(priors))
 }
 
-sum_mostlikely <- function(model){
-  if(!inherits(model$expectation, "MxExpectationMixture")){
-    return(return(data.frame(class = "class1", count = model$data$numObs, proportion = 1)))
+sum_mostlikely <- function(model = NULL, mostlikely = NULL){
+  if(!is.null(mostlikely)){
+    count <- table(mostlikely)
+    return(data.frame(class = paste0("class", unique(mostlikely)),
+                      count = count,
+                      proportion = prop.table(count)))
   }
-  post_prob <- extract_postprob(model)
-  classif <- table(apply(post_prob, 1, which.max))
-  weights_name <- model$expectation$weights
-  mix_names <- model$expectation$components
-  data.frame(class = mix_names, count = as.vector(classif), proportion = as.vector(prop.table(classif)))
+  tryCatch({
+    post_prob <- extract_postprob(model)
+    classif <- table(apply(post_prob, 1, which.max))
+
+    data.frame(class = paste0("class", seq_len(ncol(post_prob))),
+               count = as.numeric(classif),
+               proportion = as.numeric(prop.table(classif)))
+  }, error = function(e){
+    data.frame(class = "class1", count = model$data$numObs, proportion = 1)
+  })
 }
 
-extract_postprob <- function(model){
-  UseMethod("extract_postprob", model)
+
+extract_postprob <- function(x, ...) {
+  if (methods::is(x, "MxModel")) {
+    return(dispatch_method(x, "extract_postprob", ...))
+  }
+  UseMethod("extract_postprob")
 }
 
-#' @export
-extract_postprob.MxModel <- function(model){
-  if(!inherits(model$expectation, "MxExpectationMixture")){
-    return(matrix(1, nrow = model$data$numObs))
+
+extract_postprob_MxModel <- extract_postprob_mixture <- function(x){
+  if(num_classes(x) < 2){
+    return(matrix(1, nrow = x$data$numObs))
   }
-  weights_name <- model$expectation$weights
-  priors <- model[[weights_name]]$values
-  mix_names <- model$expectation$components
-
-  liks <- sapply(mix_names, function(x){ attr(model@submodels[[x]], "fitfunction")$result })
-
+  priors <- OpenMx::mxEvalByName("weights", x)[1,]
+  mix_names <- x$expectation$components
+  liks <- sapply(mix_names, function(nam){ attr(x@submodels[[nam]], "fitfunction")$result })
   #First calculate posteriors:
   posteriors <- sweep(liks, 2, priors, "*")
   #Then calculate participants' marginal likelihoods (probably not be necessary):
@@ -176,20 +301,24 @@ extract_postprob.MxModel <- function(model){
   # then normalize them into probabilities:
   posteriors/rowSums(posteriors)
 }
+
 #' @export
-extract_postprob.mplus.model <- function(model){
-  model$savedata[grepl("^CPROB", names(model$savedata))]
+extract_postprob.mplus.model <- function(x, ...){
+  x$savedata[grepl("^CPROB", names(x$savedata))]
 }
 
-classification_probs_mostlikely <- function (post_prob, class = NULL)
+#Rows: True latent classes \(C=k\).
+#Columns: Assigned classes \(W=j\).
+#Entries: \(H_{kj}=P(W=j\mid C=k)\).
+classification_probs_mostlikely <- function (post_prob, C = NULL)
 {
   if (is.null(dim(post_prob)))
     return(1)
-  if (is.null(class))
-    class <- apply(post_prob, 1, which.max)
-  avg_probs <- avgprobs_mostlikely(post_prob, class)
+  if (is.null(C))
+    C <- apply(post_prob, 1, which.max)
+  avg_probs <- avgprobs_mostlikely(post_prob, C)
   avg_probs[is.na(avg_probs)] <- 0
-  class_counts <- as.integer(table(ordered(class, levels = 1:ncol(post_prob)))) # Use ordered to ensure empty classes are included
+  class_counts <- as.integer(table(ordered(C, levels = 1:ncol(post_prob)))) # Use ordered to ensure empty classes are included
   tab <- avg_probs * class_counts
   tab <- tab / matrix(colSums(avg_probs * class_counts), ncol = ncol(tab), nrow = nrow(tab), byrow = TRUE)
   rownames(tab) <- paste0("assigned.", 1:nrow(tab))
@@ -198,16 +327,16 @@ classification_probs_mostlikely <- function (post_prob, class = NULL)
 }
 
 
-avgprobs_mostlikely <- function (post_prob, class = NULL)
+avgprobs_mostlikely <- function (post_prob, C = NULL)
 {
   if (is.null(dim(post_prob)))
     return(1)
-  if(is.null(class)) class <- apply(post_prob, 1, which.max)
+  if(is.null(C)) C <- apply(post_prob, 1, which.max)
   tab <- t(sapply(1:ncol(post_prob), function(i) {
-    colMeans(post_prob[class == i, , drop = FALSE])
+    colMeans(post_prob[C == i, , drop = FALSE])
   }))
   rownames(tab) <- paste0("assigned.", 1:nrow(tab))
-  colnames(tab) <- paste0("meanprob.", colnames(tab))
+  colnames(tab) <- paste0("meanprob.", 1:ncol(tab))
   return(tab)
 }
 

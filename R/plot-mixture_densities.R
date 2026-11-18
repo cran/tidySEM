@@ -22,6 +22,7 @@
 #' provide new names for these facets. For example, to rename variables, in the
 #' example with the 'iris' data below, one could specify:
 #' \code{facet_labels = c("Pet_leng" = "Petal length")}.
+#' @param ... Arguments passed on to other functions.
 #' @return An object of class 'ggplot'.
 #' @author Caspar J. van Lissa
 #' @export
@@ -41,7 +42,8 @@ plot_density <-
              bw = FALSE,
              conditional = FALSE,
              alpha = .2,
-             facet_labels = NULL) {
+             facet_labels = NULL,
+             ...) {
         UseMethod("plot_density", x)
     }
 
@@ -54,7 +56,8 @@ plot_density.default <-
              bw = FALSE,
              conditional = FALSE,
              alpha = .2,
-             facet_labels = NULL) {
+             facet_labels = NULL,
+             ...) {
         plot_df <- x
         if(!inherits(plot_df[["Title"]], "factor")){
             plot_df[["Title"]] <- factor(plot_df[["Title"]])
@@ -122,12 +125,19 @@ plot_density.mixture_list <-
         if (!length(variables))
             stop("No valid variables provided.")
 
-        Args <- list(
-          x = x,
+        plot_df <- .extract_density_data_mixture(
+          x,
           variables = variables
         )
-        Args$x <- do.call(.extract_density_data, Args)
-        do.call(plot_density, Args)
+
+        plot_density.default(
+          x = plot_df,
+          variables = variables,
+          bw = bw,
+          conditional = conditional,
+          alpha = alpha,
+          facet_labels = facet_labels
+        )
 
     }
 
@@ -140,15 +150,45 @@ plot_density.MxModel <- function(x,
                                  alpha = .2,
                                  facet_labels = NULL,
                                  ...) {
-    cl <- match.call()
-    cl[[1L]] <- str2lang("tidySEM:::plot_density")
-    x <- list(model = x)
-    names(x) <- x$model@name
-    class(x) <- c("mixture_list", class(x))
-    cl[["x"]] <- x
-    eval.parent(cl)
+  dispatch_method(
+    x,
+    generic = "plot_density",
+    variables = variables,
+    bw = bw,
+    conditional = conditional,
+    alpha = alpha,
+    facet_labels = facet_labels,
+    ...
+  )
 }
 
+plot_density_mixture <- function(x,
+                                 variables = NULL,
+                                 bw = FALSE,
+                                 conditional = FALSE,
+                                 alpha = .2,
+                                 facet_labels = NULL,
+                                 ...) {
+  x <- structure(
+    list(x),
+    names = x@name,
+    class = c("mixture_list", "list")
+  )
+
+  plot_density.mixture_list(
+    x,
+    variables = variables,
+    bw = bw,
+    conditional = conditional,
+    alpha = alpha,
+    facet_labels = facet_labels,
+    ...
+  )
+}
+
+plot_density_MxModel <- function(x, ...) {
+  plot_density_mixture(x, ...)
+}
 
 
 .plot_density_fun <- function(plot_df, variables, bw = FALSE, conditional = FALSE, alpha = .2){
@@ -241,8 +281,13 @@ plot_density.MxModel <- function(x,
 
 }
 
-
 .extract_density_data <- function (x, variables = NULL, longform = TRUE)
+{
+  dispatch_method(x, ".extract_density_data", variables = NULL, longform = TRUE)
+}
+
+
+.extract_density_data_mixture <- function (x, variables = NULL, longform = TRUE)
 {
     if (inherits(x, what = c("MxModel", "MxRAMModel"))) {
         x <- list(x)

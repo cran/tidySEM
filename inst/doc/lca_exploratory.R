@@ -1,6 +1,7 @@
 ## ----setup, include = FALSE---------------------------------------------------
 library(yaml)
 library(scales)
+run_openmx <- requireNamespace("OpenMx", quietly = TRUE)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -10,15 +11,10 @@ knitr::opts_chunk$set(
   tidy.opts = list(width.cutoff = 60), tidy = requireNamespace("formatR", quietly = TRUE)
 )
 options(scipen = 1, digits = 2)
-eval_results <- FALSE
-if(suppressWarnings(tryCatch({isTRUE(as.logical(readLines("pkgdown.txt")))}, error = function(e){FALSE}))){
-  eval_results <- TRUE
-  knitr::opts_chunk$set(
-  results = "markup"
-)
-}
-run_everything = suppressWarnings(tryCatch({isTRUE(as.logical(readLines("run_everything.txt")))}, error = function(e){FALSE}))
-
+run_everything <- isTRUE(as.logical(toupper(Sys.getenv("TIDYSEM_RUN_EVERYTHING", "false"))))
+show_results <- isTRUE(as.logical(toupper(Sys.getenv("TIDYSEM_SHOW_RESULTS", "false"))))
+if (!run_openmx) run_everything <- show_results <- FALSE
+if (show_results) knitr::opts_chunk$set(results = "markup")
 
 ## ----echo = TRUE, eval=TRUE---------------------------------------------------
 # Load required packages
@@ -35,6 +31,12 @@ desc <- desc[, c("name", "type", "n", "unique",
 "mean", "median", "sd", "min", "max", "skew_2se", "kurt_2se")]
 knitr::kable(desc, caption = "Descriptive statistics")
 
+## ----prepare-plot-data, include = FALSE---------------------------------------
+df_plot <- df
+names(df_plot) <- paste0("Value.", names(df_plot))
+df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long",
+                   timevar = "Variable")
+
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # df_plot <- df
 # names(df_plot) <- paste0("Value.", names(df_plot))
@@ -45,23 +47,20 @@ knitr::kable(desc, caption = "Descriptive statistics")
 #   facet_wrap(~Variable)+
 #   theme_bw()
 
-## ----echo = FALSE, eval = run_everything--------------------------------------
+## ----image-desc, echo = FALSE, eval = run_everything || show_results, out.width = "100%"----
+# tidySEM:::run_cached({
 # df_plot <- df
 # names(df_plot) <- paste0("Value.", names(df_plot))
 # df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long",
 #                    timevar = "Variable")
-# p <- ggplot(df_plot, aes(x = Value)) +
+# ggplot(df_plot, aes(x = Value)) +
 #   geom_density() +
 #   facet_wrap(~Variable)+
 #   theme_bw()
-# ggsave("plot_gmm_desc.png", p, device = "png", width = 100, height = 100, units = "mm")
+# }, type = "png", width = 100/25.4, height = 100/25.4, dpi = 150)
 
-## ----figdesc, echo = FALSE, eval = eval_results-------------------------------
-# df_plot <- df
-# names(df_plot) <- paste0("Value.", names(df_plot))
-# df_plot <- reshape(df_plot, varying = names(df_plot), direction = "long",
-#                    timevar = "Variable")
-# knitr::include_graphics("plot_gmm_desc.png")
+## ----prepare-log-data, include = FALSE----------------------------------------
+df_plot$Value <- log(df_plot$Value)
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # df_plot$Value <- log(df_plot$Value)
@@ -70,16 +69,17 @@ knitr::kable(desc, caption = "Descriptive statistics")
 #   facet_wrap(~Variable)+
 #   theme_bw()
 
-## ----echo = FALSE, eval = run_everything--------------------------------------
-# df_plot$Value <- log(df_plot$Value)
-# p <- ggplot(df_plot, aes(x = Value)) +
+## ----image-desc-log, echo = FALSE, eval = run_everything || show_results, out.width = "100%"----
+# tidySEM:::run_cached({
+# ggplot(df_plot, aes(x = Value)) +
 #   geom_density() +
 #   facet_wrap(~Variable)+
 #   theme_bw()
-# ggsave("plot_gmm_desc_log.png", p, device = "png", width = 100, height = 100, units = "mm")
+# }, type = "png", width = 100/25.4, height = 100/25.4, dpi = 150)
 
-## ----figdesclog, echo = FALSE, eval = eval_results----------------------------
-# knitr::include_graphics("plot_gmm_desc_log.png")
+## ----prepare-analysis-data, include = FALSE-----------------------------------
+df <- reshape(df_plot, direction = "wide", v.names = "Value")[, -1]
+names(df) <- gsub("Value.", "", names(df), fixed = TRUE)
 
 ## ----eval = FALSE, echo = TRUE------------------------------------------------
 # df <- reshape(df_plot, direction = "wide", v.names = "Value")[, -1]
@@ -88,16 +88,12 @@ knitr::kable(desc, caption = "Descriptive statistics")
 #   geom_point(alpha = .1) +
 #   theme_bw()
 
-## ----eval = run_everything, echo = FALSE--------------------------------------
-# df <- reshape(df_plot, direction = "wide", v.names = "Value")[, -1]
-# names(df) <- gsub("Value.", "", names(df), fixed = TRUE)
-# p <- ggplot(df, aes(x = length, y = width)) +
+## ----image-scatter, echo = FALSE, eval = run_everything || show_results, out.width = "100%"----
+# tidySEM:::run_cached({
+# ggplot(df, aes(x = length, y = width)) +
 #   geom_point(alpha = .1) +
 #   theme_bw()
-# ggsave("plot_gmm_scatter.png", p, device = "png", width = 100, height = 100, units = "mm")
-
-## ----figscatter, eval = eval_results, echo = FALSE----------------------------
-# knitr::include_graphics("plot_gmm_scatter.png")
+# }, type = "png", width = 100/25.4, height = 100/25.4, dpi = 150)
 
 ## ----echo = FALSE, eval = FALSE-----------------------------------------------
 # pca <- princomp(df)
@@ -105,36 +101,30 @@ knitr::kable(desc, caption = "Descriptive statistics")
 # names(df) <- c("pc1", "pc2")
 
 ## ----fitlca, eval = FALSE, echo = TRUE----------------------------------------
-# library(OpenMx)
 # set.seed(123)
 # res <- mx_profiles(data = df,
 #                    classes = 1:3,
 #                    variances = c("equal", "varying"),
 #                    covariances = c("equal", "varying"),
 #                    expand_grid = TRUE)
-# saveRDS(res, "res_gmm.RData")
 
-## ----eval = run_everything, echo = FALSE--------------------------------------
-# library(OpenMx)
-# set.seed(123)
-# res <- mx_profiles(data = df,
-#                    classes = 1:3,
-#                    variances = c("equal", "varying"),
-#                    covariances = c("equal", "varying"),
-#                    expand_grid = TRUE)
+## ----fitlca-cached, eval = run_everything || show_results, echo = FALSE-------
+# res <- tidySEM:::run_cached({
+#   set.seed(123)
+#   mx_profiles(data = df,
+#               classes = 1:3,
+#               variances = c("equal", "varying"),
+#               covariances = c("equal", "varying"),
+#               expand_grid = TRUE)
+# })
 
 ## ----echo = TRUE, eval=FALSE--------------------------------------------------
 # fit <- table_fit(res)
 
-## ----echo = FALSE, eval=run_everything----------------------------------------
+## ----fit-table-compute, eval = run_everything || show_results, echo = FALSE----
 # fit <- table_fit(res)
-# write.csv(fit, "gmm_tabfit.csv", row.names = FALSE)
 
-## ----eval = TRUE, echo = FALSE------------------------------------------------
-fit <- read.csv("gmm_tabfit.csv", stringsAsFactors = FALSE)
-class(fit) <- c("tidy_fit", "data.frame")
-
-## ----tabfit, echo = TRUE, eval = eval_results---------------------------------
+## ----tabfit, echo = TRUE, eval = show_results---------------------------------
 # tbl <- fit[ , c("Name", "LL", "Parameters",
 #          "BIC", "Entropy",
 #          "prob_min",
@@ -148,18 +138,16 @@ class(fit) <- c("tidy_fit", "data.frame")
 # knitr::kable(tbl,
 #                   caption = "Model fit table.")
 
-## ----echo = TRUE, eval = run_everything---------------------------------------
+## ----echo = TRUE, eval = run_everything || show_results-----------------------
 # fit <- fit[!fit$n_min < .1, ]
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # plot(fit) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-## ----echo = FALSE, eval = run_everything--------------------------------------
-# p <- plot(fit) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-# ggsave("gmm_plotfit.png", p, device = "png", width = 100, height = 100, units = "mm", scale = 1)
-
-## ----echo = FALSE, eval = eval_results, fig.cap="Bivariate profile plot", out.width="100%"----
-# knitr::include_graphics("gmm_plotfit.png")
+## ----image-fit, echo = FALSE, eval = run_everything || show_results, out.width = "100%", fig.cap="Bivariate profile plot"----
+# tidySEM:::run_cached({
+# plot(fit) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+# }, type = "png", width = 100/25.4, height = 100/25.4, dpi = 150)
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # res_bic <- res[["free var, free cov 2"]]
@@ -167,56 +155,19 @@ class(fit) <- c("tidy_fit", "data.frame")
 # results <- table_results(res_bic, columns = c("label", "est", "std_est"))
 # results
 
-## ----echo = FALSE, eval = run_everything--------------------------------------
+## ----results-compute, echo = FALSE, eval = run_everything || show_results-----
 # res_bic <- res[["free var, free cov 2"]]
 # cp <- class_prob(res_bic)
 # results <- table_results(res_bic, columns = c("label", "est", "est_std"))
-# write.csv(results, "gmm_results.csv", row.names = FALSE)
 
-## ----eval = eval_results, echo = FALSE----------------------------------------
-# results <- read.csv("gmm_results.csv", stringsAsFactors = FALSE)
+## ----results-table, eval = show_results, echo = FALSE-------------------------
 # knitr::kable(results, digits = 2, caption = "Results of a 2-class model with free (co)variances")
 
 ## ----echo = TRUE, eval = FALSE------------------------------------------------
 # plot_bivariate(res_bic)
 
-## ----echo = FALSE, eval = run_everything--------------------------------------
-# p <- plot_bivariate(res_bic)
-# ggsave("gmm_bivariate_bic.png", p, device = "png", width = 210, height = 100, units = "mm", scale = 1.5)
-
-## ----echo = FALSE, eval = eval_results, fig.cap="Bivariate profile plot", out.width="100%"----
-# knitr::include_graphics("gmm_bivariate_bic.png")
-
-## ----echo = TRUE, eval=FALSE--------------------------------------------------
-# df_pt <- mx_dummies(df_analyze$poly_type)
-# aux_pt <- BCH(res_bic, model = "poly_typeOther | t1
-#                                 poly_typePE | t1
-#                                 poly_typePP | t1", data = df_pt)
-
-## ----echo = FALSE, eval=run_everything----------------------------------------
-# df_pt <- mx_dummies(df_analyze$poly_type)
-# aux_pt <- BCH(res_bic, model = "poly_typeOther | t1
-#                                   poly_typePE | t1
-#                                   poly_typePP | t1", data = df_pt)
-
-## ----eval = FALSE, echo = TRUE------------------------------------------------
-# lr_test(aux_pt)
-
-## ----eval = run_everything, echo = FALSE, results='hide'----------------------
-# tmp <- lr_test(aux_pt)
-# lapply(names(tmp), function(n){
-#   write.csv(tmp[[n]], paste0("lca_exp_", n, ".csv"), row.names = F)
-# })
-
-## ----eval = TRUE, echo = FALSE------------------------------------------------
-ns <-c("overall","pairwise")
-tmp <- lapply(ns, function(n){read.csv(paste0("lca_exp_", n, ".csv"), stringsAsFactors = F)})
-names(tmp) <- ns
-class(tmp) <- c("lr_test", "list"   )
-tmp
-
-## ----echo = TRUE, eval = FALSE------------------------------------------------
-# wald_test(aux_pt, "class1.Thresholds[1,1] = class2.Thresholds[1,1];
-#           class1.Thresholds[1,2] = class2.Thresholds[1,2];
-#           class1.Thresholds[1,3] = class2.Thresholds[1,3]")
+## ----image-bivariate, echo = FALSE, eval = run_everything || show_results, out.width = "100%", fig.cap="Bivariate profile plot"----
+# tidySEM:::run_cached({
+# plot_bivariate(res_bic)
+# }, type = "png", width = 315/25.4, height = 150/25.4, dpi = 150)
 
